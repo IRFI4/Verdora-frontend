@@ -1,7 +1,7 @@
-import { Button } from '@components/ui/button';
+import Login from '@/pages/Login';
 
 const App = () => {
-  return <Button>Click</Button>;
+  return <Login />;
 };
 
 export default App;
