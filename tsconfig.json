@@ -12,7 +12,8 @@
       "@hooks/*": ["./src/hooks/*"],
       "@pages/*": ["./src/pages/*"],
       "@api/*": ["./src/api/*"],
-      "@fixtures/*": ["./src/fixtures/*"]
+      "@fixtures/*": ["./src/fixtures/*"],
+      "@assets/*": ["./src/assets/*"]
     }
   }
 }

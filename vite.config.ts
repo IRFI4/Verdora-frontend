@@ -4,7 +4,6 @@ import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 import svgr from 'vite-plugin-svgr';
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss(), svgr()],
   resolve: {
@@ -15,6 +14,7 @@ export default defineConfig({
       '@pages': path.resolve(__dirname, 'src/pages'),
       '@api': path.resolve(__dirname, 'src/api'),
       '@fixtures': path.resolve(__dirname, 'src/fixtures'),
+      '@assets': path.resolve(__dirname, 'src/assets'),
     },
   },
 });

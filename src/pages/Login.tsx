@@ -1,17 +1,12 @@
-import { Button } from '@/components/ui/button';
-import loginPreview from '@/assets/images/login-preview.png';
-import LogoIcon from '@/assets/icons/logo.svg?react';
-import GoogleIcon from '@/assets/icons/google.svg?react';
-import EyeOpenIcon from '@/assets/icons/eye-open.svg?react';
-import EyeClosedIcon from '@/assets/icons/eye-close.svg?react';
+import { Button } from '@components/ui/button';
+import loginPreview from '@assets/images/login-preview.png';
+import LogoIcon from '@assets/icons/logo.svg?react';
+import GoogleIcon from '@assets/icons/google.svg?react';
 import { useState } from 'react';
+import PasswordField from '@/components/common/forms/PasswordField';
 
 const Login = () => {
-  const [showPassword, setShowPassword] = useState(false);
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(() => !showPassword);
-  };
+  const [password, setPassword] = useState('');
 
   return (
     <div className="flex items-center justify-center ">
@@ -57,35 +52,20 @@ const Login = () => {
               />
             </div>
             <div className="w-full">
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="password"
-                  className="text-[14px] font-medium text-[var(--text-h)]"
-                >
-                  Password
-                </label>
-                <a
-                  href="#"
-                  className="text-[14px] font-medium text-[var(--accent)] hover:underline"
-                >
-                  Forgot password?
-                </a>
-              </div>
-              <div className="relative">
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
-                  className="w-full h-[50px] rounded-[12px] bg-[var(--block-bg)] border border-zinc-300 pl-16 text-[16px] placeholder:text-[16px] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
-                />
-                <button onClick={togglePasswordVisibility} type="button">
-                  {showPassword ? (
-                    <EyeOpenIcon className="size-20 absolute right-12 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer" />
-                  ) : (
-                    <EyeClosedIcon className="size-20 absolute right-12 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer" />
-                  )}
-                </button>
-              </div>
+              <PasswordField
+                label="Password"
+                labelRight={
+                  <a
+                    href="#"
+                    className="text-sm text-[var(--accent)] hover:underline"
+                  >
+                    Forgot password?
+                  </a>
+                }
+                placeholder="Enter your password"
+                value={password}
+                onChange={setPassword}
+              />
             </div>
             <Button className="w-full" variant={'active'} type="submit">
               Sign In

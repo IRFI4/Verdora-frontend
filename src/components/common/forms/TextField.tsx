@@ -6,14 +6,20 @@ import {
 } from '@components/ui/input-group';
 import type React from 'react';
 import { Field, FieldDescription, FieldLabel } from '@components/ui/field';
+import { cn } from '@/lib/utils';
 
 type Props = {
   type: TextFieldType;
   label?: string;
+  labelRight?: React.ReactNode;
   description?: string;
   placeholder?: string;
   value: string;
   error?: string;
+  className?: string;
+  inputClassName?: string;
+  labelClassName?: string;
+  containerClassName?: string;
   onChange: (value: string) => void;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
@@ -23,28 +29,49 @@ type Props = {
 const TextField = ({
   type,
   label,
+  labelRight,
   description,
   placeholder,
   value,
   error,
+  className,
+  inputClassName,
+  labelClassName,
+  containerClassName,
   onChange,
   leftIcon,
   rightIcon,
   onRightIconClick,
 }: Props) => {
   return (
-    <Field>
-      {label && <FieldLabel className="text-sm">{label}</FieldLabel>}
-      <InputGroup>
+    <Field className={className}>
+      {(label || labelRight) && (
+        <div className="flex items-center justify-between">
+          {label && (
+            <FieldLabel className={cn('text-sm', labelClassName)}>
+              {label}
+            </FieldLabel>
+          )}
+          {labelRight}
+        </div>
+      )}
+      <InputGroup
+        className={cn(
+          'h-[50px] rounded-[12px] bg-[var(--block-bg)] border border-zinc-300 transition focus-within:ring-2 focus-within:ring-[var(--accent)]',
+          error && 'border-red-500 focus-within:ring-red-500',
+          containerClassName
+        )}
+      >
         <InputGroupInput
           type={type}
           placeholder={placeholder}
           value={value}
           onChange={e => onChange(e.target.value)}
-          className={`
-                border transition
-                ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}
-            `}
+          className={cn(
+            'h-full px-16 text-[16px] focus:outline-none',
+            error && 'placeholder:text-red-400',
+            inputClassName
+          )}
         />
         {leftIcon && <InputGroupAddon>{leftIcon}</InputGroupAddon>}
         {rightIcon && (
