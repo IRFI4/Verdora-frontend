@@ -1,10 +1,9 @@
-import { Link } from 'react-router';
+import LayoutPage from '@/layoutPage/LayoutPage';
 
 export const Home = () => {
   return (
-    <>
+    <LayoutPage>
       <div>Home</div>
-      <Link to="/login">Go to Login</Link>
-    </>
+    </LayoutPage>
   );
 };
