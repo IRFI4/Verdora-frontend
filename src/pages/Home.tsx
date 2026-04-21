@@ -1,11 +1,9 @@
 import LayoutPage from '@/layoutPage/LayoutPage';
 
-const App = () => {
+export const Home = () => {
   return (
     <LayoutPage>
-      <div></div>
+      <div>Home</div>
     </LayoutPage>
   );
 };
-
-export default App;
