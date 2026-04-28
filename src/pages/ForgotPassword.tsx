@@ -2,11 +2,11 @@ import AuthForm from '@/components/layout/Auth';
 import TextField from '@/components/common/forms/TextField';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router';
-import ArrowIcon from '@assets/icons/arrow.svg?react';
+import ArrowIcon from '@assets/icons/arrrow.svg?react';
 import {
   useForgotPasswordForm,
   type ForgotPasswordFormData,
-} from '@hooks/useForgotPassword';
+} from '@/hooks/useForgotPassword';
 
 const ForgotPassword = () => {
   const {

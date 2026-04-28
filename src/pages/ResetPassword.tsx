@@ -3,11 +3,11 @@ import PasswordField from '@/components/common/forms/PasswordField';
 import PasswordStrength from '@components/common/forms/PasswordStrength';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router';
-import ArrowIcon from '@assets/icons/arrow.svg?react';
+import ArrowIcon from '@assets/icons/arrrow.svg?react';
 import {
   useResetPasswordForm,
   type ResetPasswordFormData,
-} from '@hooks/useResetPassword';
+} from '@/hooks/useResetPassword';
 
 const ResetPassword = () => {
   const {
