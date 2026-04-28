@@ -1,8 +1,9 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import type { UserType } from '@/types/user';
-import instance from '@api/axiosInstance';
 import { isAxiosError } from 'axios';
 import type { ApiResponse, ApiErrorResponse } from '@/types/api';
+import { authService } from '@api/services/authService';
+import type { RegisterPayload } from '@/types/auth';
 
 interface AuthState {
   user: UserType | null;
@@ -18,25 +19,19 @@ const initialState: AuthState = {
   hydrating: true,
 };
 
-type RegisterPayload = {
-  name: string;
-  phone: string;
-  email: string;
-  password: string;
-};
-
 export const register = createAsyncThunk<
   ApiResponse<UserType>,
   RegisterPayload,
   { rejectValue: ApiErrorResponse }
->('auth/register', async (userData: RegisterPayload, { rejectWithValue }) => {
+>('auth/register', async (userData, { rejectWithValue }) => {
   try {
-    const response = await instance.post('/auth/register', userData);
+    const response = await authService.register(userData);
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
       return rejectWithValue(error.response?.data);
     }
+    throw error;
   }
 });
 
@@ -51,12 +46,13 @@ export const login = createAsyncThunk<
     { rejectWithValue }
   ) => {
     try {
-      const response = await instance.post('/auth/login', userData);
+      const response = await authService.login(userData);
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {
         return rejectWithValue(error.response?.data);
       }
+      throw error;
     }
   }
 );
@@ -67,11 +63,12 @@ export const logout = createAsyncThunk<
   { rejectValue: ApiErrorResponse }
 >('auth/logout', async (_, { rejectWithValue }) => {
   try {
-    await instance.post('/auth/logout');
+    await authService.logout();
   } catch (error) {
     if (isAxiosError(error)) {
       return rejectWithValue(error.response?.data);
     }
+    throw error;
   }
 });
 
@@ -81,12 +78,13 @@ export const fetchMe = createAsyncThunk<
   { rejectValue: ApiErrorResponse }
 >('auth/me', async (_, { rejectWithValue }) => {
   try {
-    const response = await instance.get('/users/current-user');
+    const response = await authService.fetchMe();
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
       return rejectWithValue(error.response?.data);
     }
+    throw error;
   }
 });
 

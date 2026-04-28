@@ -6,12 +6,15 @@ import PasswordField from '@components/common/forms/PasswordField';
 import TextField from '@components/common/forms/TextField';
 import { Link, useNavigate } from 'react-router';
 import { useLoginForm, type LoginFormData } from '@hooks/useLoginForm';
-import { useAppDispatch } from '@api/hooks';
+import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { login } from '@api/slices/auth';
+import { rateLimit } from '@/utils/rateLimit';
+import { useMemo } from 'react';
 
 const Login = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { loading, error } = useAppSelector(state => state.auth);
 
   const {
     handleSubmit,
@@ -19,16 +22,14 @@ const Login = () => {
     watch,
     setValue,
   } = useLoginForm();
+  const canSubmit = useMemo(() => rateLimit(2000), []);
 
   const onSubmit = async (data: LoginFormData) => {
-    try {
-      await dispatch(
-        login({ email: data.email, password: data.password })
-      ).unwrap();
-      navigate('/');
-    } catch (error) {
-      console.log((error as { message?: string })?.message);
-    }
+    if (!canSubmit()) return;
+    await dispatch(
+      login({ email: data.email, password: data.password })
+    ).unwrap();
+    navigate('/');
   };
 
   return (
@@ -94,13 +95,16 @@ const Login = () => {
                 error={errors.password?.message}
               />
             </div>
+            {error && (
+              <p className="text-red-500 text-sm mt-2 text-center">{error}</p>
+            )}
             <Button
               className="w-full"
               variant={'active'}
               type="submit"
-              disabled={!isValid}
+              disabled={!isValid || loading}
             >
-              Sign In
+              {loading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
           <div className="w-full flex items-center gap-4">

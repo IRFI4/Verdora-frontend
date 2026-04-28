@@ -8,12 +8,16 @@ import CheckIcon from '@assets/icons/checkbox.svg?react';
 import { cn } from '@/lib/utils';
 import { useRegisterForm, type RegisterFormData } from '@hooks/useRegisterForm';
 import PasswordStrength from '@components/common/forms/PasswordStrength';
-import { useAppDispatch } from '@api/hooks';
+import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { register } from '@api/slices/auth';
+import { rateLimit } from '@/utils/rateLimit';
+import { useMemo } from 'react';
 
 const Register = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { loading, error } = useAppSelector(state => state.auth);
+
   const {
     handleSubmit,
     formState: { errors, isValid },
@@ -22,21 +26,19 @@ const Register = () => {
   } = useRegisterForm();
 
   const accepted = watch('acceptedTerms');
+  const canSubmit = useMemo(() => rateLimit(2000), []);
 
   const onSubmit = async (data: RegisterFormData) => {
-    try {
-      await dispatch(
-        register({
-          name: data.username,
-          email: data.email,
-          phone: data.phoneNumber,
-          password: data.password,
-        })
-      ).unwrap();
-      navigate('/');
-    } catch (error) {
-      console.log((error as { message?: string })?.message);
-    }
+    if (!canSubmit()) return;
+    await dispatch(
+      register({
+        name: data.username,
+        email: data.email,
+        phone: data.phoneNumber,
+        password: data.password,
+      })
+    ).unwrap();
+    navigate('/');
   };
 
   return (
@@ -169,13 +171,16 @@ const Register = () => {
                 </span>
               </label>
             </div>
+            {error && (
+              <p className="text-red-500 text-sm mt-2 text-center">{error}</p>
+            )}
             <Button
               className="w-full"
               variant={'active'}
               type="submit"
-              disabled={!isValid || !accepted}
+              disabled={!isValid || !accepted || loading}
             >
-              Create Account
+              {loading ? 'Creating...' : 'Create Account'}
             </Button>
           </form>
           <p className="text-[16px] text-zinc-500 [font-family:var(--font-sans)]">

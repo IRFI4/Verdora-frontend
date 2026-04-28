@@ -3,10 +3,11 @@ import LogoIcon from '@assets/icons/logo.svg?react';
 import { Button } from '@components/ui/button';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { logout } from '@api/slices/auth';
+import { Spinner } from '@components/ui/spinner';
 
 const Header = () => {
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector(state => state.auth);
+  const { user, hydrating } = useAppSelector(state => state.auth);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -103,7 +104,9 @@ const Header = () => {
               </span>
             </Link>
 
-            {user ? (
+            {hydrating ? (
+              <Spinner className="h-24 w-24" />
+            ) : user ? (
               <div className="flex items-center gap-12">
                 <Link to="/profile">
                   <div className="flex size-36 items-center justify-center rounded-full bg-[var(--accent)] text-white text-[13px] font-bold">
