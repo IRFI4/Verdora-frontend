@@ -7,12 +7,12 @@ import {
   useForgotPasswordForm,
   type ForgotPasswordFormData,
 } from '@/hooks/useForgotPassword';
-import { useAppDispatch } from '@api/hooks';
+import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { forgotPassword } from '@api/slices/auth';
 
 const ForgotPassword = () => {
   const dispatch = useAppDispatch();
-
+  const loading = useAppSelector(state => state.auth.loading);
   const {
     handleSubmit,
     formState: { errors, isValid },
@@ -46,9 +46,9 @@ const ForgotPassword = () => {
           className="w-full"
           variant={'active'}
           type="submit"
-          disabled={!isValid}
+          disabled={!isValid || loading}
         >
-          Send Reset Link
+          {loading ? 'Sending...' : 'Send Reset Link'}
         </Button>
         <Link
           to="/login"
