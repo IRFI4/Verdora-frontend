@@ -1,15 +1,22 @@
-import AuthForm from '@/components/layout/Auth';
-import PasswordField from '@/components/common/forms/PasswordField';
+import AuthForm from '@components/layout/Auth';
+import PasswordField from '@components/common/forms/PasswordField';
 import PasswordStrength from '@components/common/forms/PasswordStrength';
-import { Button } from '@/components/ui/button';
+import { Button } from '@components/ui/button';
 import { Link } from 'react-router';
 import ArrowIcon from '@assets/icons/arrrow.svg?react';
 import {
   useResetPasswordForm,
   type ResetPasswordFormData,
 } from '@/hooks/useResetPassword';
+import { useAppDispatch, useAppSelector } from '@api/hooks';
+import { resetPassword } from '@api/slices/auth';
+import { useNavigate } from 'react-router';
 
 const ResetPassword = () => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const error = useAppSelector(state => state.auth.error);
+
   const {
     handleSubmit,
     formState: { errors, isValid },
@@ -17,8 +24,13 @@ const ResetPassword = () => {
     setValue,
   } = useResetPasswordForm();
 
-  const onSubmit = (data: ResetPasswordFormData) => {
-    console.log(data);
+  const onSubmit = async (data: ResetPasswordFormData) => {
+    try {
+      await dispatch(resetPassword({ newPassword: data.password })).unwrap();
+      navigate('/login');
+    } catch {
+      // error is already stored in state.auth.error
+    }
   };
 
   return (
@@ -50,6 +62,7 @@ const ResetPassword = () => {
           }
           error={errors.confirmPassword?.message}
         />
+        {error && <p className="text-red-500 text-sm">{error}</p>}
         <Button
           className="w-full"
           variant={'active'}
@@ -60,7 +73,7 @@ const ResetPassword = () => {
         </Button>
         <Link
           to="/login"
-          className="text-[var(--accent)] [font-family:var(--font-sans)] flex items-center"
+          className="text-accent [font-family:var(--font-sans)] flex items-center"
         >
           <ArrowIcon className="size-6 w-20 h-20 mr-12 cursor-pointer" />
           Back to Sign In

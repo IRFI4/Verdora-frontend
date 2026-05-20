@@ -1,14 +1,18 @@
-import AuthForm from '@/components/layout/Auth';
-import TextField from '@/components/common/forms/TextField';
-import { Button } from '@/components/ui/button';
+import AuthForm from '@components/layout/Auth';
+import TextField from '@components/common/forms/TextField';
+import { Button } from '@components/ui/button';
 import { Link } from 'react-router';
 import ArrowIcon from '@assets/icons/arrrow.svg?react';
 import {
   useForgotPasswordForm,
   type ForgotPasswordFormData,
 } from '@/hooks/useForgotPassword';
+import { useAppDispatch } from '@api/hooks';
+import { forgotPassword } from '@api/slices/auth';
 
 const ForgotPassword = () => {
+  const dispatch = useAppDispatch();
+
   const {
     handleSubmit,
     formState: { errors, isValid },
@@ -17,7 +21,7 @@ const ForgotPassword = () => {
   } = useForgotPasswordForm();
 
   const onSubmit = (data: ForgotPasswordFormData) => {
-    console.log(data);
+    dispatch(forgotPassword(data));
   };
 
   return (
@@ -48,7 +52,7 @@ const ForgotPassword = () => {
         </Button>
         <Link
           to="/login"
-          className="text-[var(--accent)] [font-family:var(--font-sans)] flex items-center"
+          className="text-accent [font-family:var(--font-sans)] flex items-center"
         >
           <ArrowIcon className="size-6 w-20 h-20 mr-12 cursor-pointer" />
           Back to Sign In
