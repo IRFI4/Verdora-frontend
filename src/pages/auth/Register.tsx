@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { useRegisterForm, type RegisterFormData } from '@hooks/useRegisterForm';
 import PasswordStrength from '@components/common/forms/PasswordStrength';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
-import { register } from '@api/slices/auth';
+import { register } from '@api/auth/auth.actions';
 import { rateLimit } from '@/utils/rateLimit';
 import { useMemo } from 'react';
 import AuthForm from '@/components/layout/Auth';

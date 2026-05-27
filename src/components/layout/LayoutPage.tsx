@@ -2,7 +2,7 @@ import Header from '@components/layout/Header';
 import Footer from '@components/layout/Footer';
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
-import { fetchMe } from '@api/slices/auth';
+import { fetchMe } from '@api/auth/auth.actions';
 
 const LayoutPage = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch();

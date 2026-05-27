@@ -9,7 +9,7 @@ import {
   type ResetPasswordFormData,
 } from '@/hooks/useResetPassword';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
-import { resetPassword } from '@api/slices/auth';
+import { resetPassword } from '@api/auth/auth.actions';
 import { useNavigate } from 'react-router';
 import { useState } from 'react';
 

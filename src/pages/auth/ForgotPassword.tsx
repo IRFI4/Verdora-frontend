@@ -8,7 +8,8 @@ import {
   type ForgotPasswordFormData,
 } from '@/hooks/useForgotPassword';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
-import { forgotPassword } from '@api/slices/auth';
+import { forgotPassword } from '@api/auth/auth.actions';
+import { useState } from 'react';
 
 const ForgotPassword = () => {
   const dispatch = useAppDispatch();
@@ -19,9 +20,15 @@ const ForgotPassword = () => {
     watch,
     setValue,
   } = useForgotPasswordForm();
+  const [send, setSend] = useState(false);
 
-  const onSubmit = (data: ForgotPasswordFormData) => {
-    dispatch(forgotPassword(data));
+  const onSubmit = async (data: ForgotPasswordFormData) => {
+    try {
+      await dispatch(forgotPassword(data)).unwrap();
+      setSend(true);
+    } catch {
+      // error is already stored in state.auth.error
+    }
   };
 
   return (
@@ -42,6 +49,11 @@ const ForgotPassword = () => {
           onChange={value => setValue('email', value, { shouldValidate: true })}
           error={errors.email?.message}
         />
+        {send && (
+          <p className="text-green-500 text-sm mt-2">
+            If an account with that email exists, a reset link has been sent.
+          </p>
+        )}
         <Button
           className="w-full"
           variant={'active'}

@@ -2,7 +2,7 @@ import { Link } from 'react-router';
 import LogoIcon from '@assets/icons/logo.svg?react';
 import { Button } from '@components/ui/button';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
-import { logout } from '@api/slices/auth';
+import { logout } from '@api/auth/auth.actions';
 import { Spinner } from '@components/ui/spinner';
 
 const Header = () => {

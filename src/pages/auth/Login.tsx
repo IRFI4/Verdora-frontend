@@ -5,7 +5,7 @@ import TextField from '@components/common/forms/TextField';
 import { Link, useNavigate } from 'react-router';
 import { useLoginForm, type LoginFormData } from '@hooks/useLoginForm';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
-import { login } from '@api/slices/auth';
+import { login } from '@api/auth/auth.actions';
 import { rateLimit } from '@/utils/rateLimit';
 import { useMemo } from 'react';
 import AuthForm from '@/components/layout/Auth';
