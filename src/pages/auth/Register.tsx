@@ -148,7 +148,7 @@ const Register = () => {
           type="submit"
           disabled={!isValid || !accepted || loading.register}
         >
-          {loading ? 'Creating...' : 'Create Account'}
+          {loading.register ? 'Creating...' : 'Create Account'}
         </Button>
       </form>
       <p className="text-[16px] text-zinc-500 [font-family:var(--font-sans)]">

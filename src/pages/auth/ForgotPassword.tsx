@@ -63,7 +63,7 @@ const ForgotPassword = () => {
           type="submit"
           disabled={!isValid || loading.forgot}
         >
-          {loading ? 'Sending...' : 'Send Reset Link'}
+          {loading.forgot ? 'Sending...' : 'Send Reset Link'}
         </Button>
         <Link
           to="/login"

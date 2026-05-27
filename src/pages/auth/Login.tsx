@@ -81,7 +81,7 @@ const Login = () => {
           type="submit"
           disabled={!isValid || loading.login}
         >
-          {loading ? 'Signing in...' : 'Sign In'}
+          {loading.login ? 'Signing in...' : 'Sign In'}
         </Button>
       </form>
       <div className="w-full flex items-center gap-4">

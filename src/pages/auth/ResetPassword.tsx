@@ -104,7 +104,7 @@ const ResetPassword = () => {
             type="submit"
             disabled={!isValid || loading.reset}
           >
-            {loading ? 'Resetting...' : 'Reset Password'}
+            {loading.reset ? 'Resetting...' : 'Reset Password'}
           </Button>
           <Link
             to="/login"
