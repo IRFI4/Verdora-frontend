@@ -6,17 +6,17 @@ import ArrowIcon from '@assets/icons/arrrow.svg?react';
 import {
   useForgotPasswordForm,
   type ForgotPasswordFormData,
-} from '@/hooks/useForgotPassword';
+} from '@hooks/useForgotPassword';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { forgotPassword } from '@api/auth/auth.actions';
 import { useState } from 'react';
 
 const ForgotPassword = () => {
   const dispatch = useAppDispatch();
-  const loading = useAppSelector(state => state.auth.loading);
+  const { loading, errors } = useAppSelector(state => state.auth);
   const {
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors: formErrors, isValid },
     watch,
     setValue,
   } = useForgotPasswordForm();
@@ -47,18 +47,21 @@ const ForgotPassword = () => {
           placeholder="your@email.com"
           value={watch('email')}
           onChange={value => setValue('email', value, { shouldValidate: true })}
-          error={errors.email?.message}
+          error={formErrors.email?.message}
         />
         {send && (
           <p className="text-green-500 text-sm mt-2">
             If an account with that email exists, a reset link has been sent.
           </p>
         )}
+        {errors.forgot && !send && (
+          <p className="text-red-500 text-sm mt-2">{errors.forgot}</p>
+        )}
         <Button
           className="w-full"
           variant={'active'}
           type="submit"
-          disabled={!isValid || loading}
+          disabled={!isValid || loading.forgot}
         >
           {loading ? 'Sending...' : 'Send Reset Link'}
         </Button>

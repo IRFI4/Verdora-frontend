@@ -11,16 +11,40 @@ import {
 
 interface AuthState {
   user: UserType | null;
-  loading: boolean;
-  error: string | null;
   hydrating: boolean;
   initialized: boolean;
+  loading: {
+    login: boolean;
+    register: boolean;
+    forgot: boolean;
+    reset: boolean;
+    logout: boolean;
+  };
+  errors: {
+    login: string | null;
+    register: string | null;
+    forgot: string | null;
+    reset: string | null;
+    logout: string | null;
+  };
 }
 
 const initialState: AuthState = {
   user: null,
-  loading: false,
-  error: null,
+  loading: {
+    login: false,
+    register: false,
+    forgot: false,
+    reset: false,
+    logout: false,
+  },
+  errors: {
+    login: null,
+    register: null,
+    forgot: null,
+    reset: null,
+    logout: null,
+  },
   hydrating: true,
   initialized: false,
 };
@@ -33,40 +57,43 @@ const authSlice = createSlice({
     builder
       // register
       .addCase(register.pending, state => {
-        state.loading = true;
-        state.error = null;
+        state.loading.register = true;
+        state.errors.register = null;
       })
       .addCase(register.fulfilled, (state, action) => {
-        state.loading = false;
+        state.loading.register = false;
         state.user = action.payload.data;
+        state.errors.register = null;
       })
       .addCase(register.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload?.message ?? 'Registration failed';
+        state.loading.register = false;
+        state.errors.register =
+          action.payload?.message ?? 'Registration failed';
       })
 
       // login
       .addCase(login.pending, state => {
-        state.loading = true;
-        state.error = null;
+        state.loading.login = true;
+        state.errors.login = null;
       })
       .addCase(login.fulfilled, (state, action) => {
-        state.loading = false;
+        state.loading.login = false;
         state.user = action.payload.data;
+        state.errors.login = null;
       })
       .addCase(login.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload?.message ?? 'Login failed';
+        state.loading.login = false;
+        state.errors.login = action.payload?.message ?? 'Login failed';
       })
 
       // logout
       .addCase(logout.fulfilled, state => {
         state.user = null;
-        state.error = null;
+        state.errors.logout = null;
       })
       .addCase(logout.rejected, (state, action) => {
         state.user = null;
-        state.error = action.payload?.message ?? 'Logout failed';
+        state.errors.logout = action.payload?.message ?? 'Logout failed';
       })
 
       // fetchMe runs on app startup to restore user from cookie
@@ -86,29 +113,31 @@ const authSlice = createSlice({
 
       // forgotPassword
       .addCase(forgotPassword.pending, state => {
-        state.loading = true;
-        state.error = null;
+        state.loading.forgot = true;
+        state.errors.forgot = null;
       })
       .addCase(forgotPassword.fulfilled, state => {
-        state.loading = false;
+        state.loading.forgot = false;
+        state.errors.forgot = null;
       })
       .addCase(forgotPassword.rejected, (state, action) => {
-        state.loading = false;
-        state.error =
+        state.loading.forgot = false;
+        state.errors.forgot =
           action.payload?.message ?? 'Forgot password request failed';
       })
 
       // resetPassword
       .addCase(resetPassword.pending, state => {
-        state.loading = true;
-        state.error = null;
+        state.loading.reset = true;
+        state.errors.reset = null;
       })
       .addCase(resetPassword.fulfilled, state => {
-        state.loading = false;
+        state.loading.reset = false;
+        state.errors.reset = null;
       })
       .addCase(resetPassword.rejected, (state, action) => {
-        state.loading = false;
-        state.error =
+        state.loading.reset = false;
+        state.errors.reset =
           action.payload?.message ?? 'Reset password request failed';
       });
   },

@@ -7,7 +7,7 @@ import ArrowIcon from '@assets/icons/arrrow.svg?react';
 import {
   useResetPasswordForm,
   type ResetPasswordFormData,
-} from '@/hooks/useResetPassword';
+} from '@hooks/useResetPassword';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { resetPassword } from '@api/auth/auth.actions';
 import { useNavigate, useSearchParams } from 'react-router';
@@ -18,12 +18,12 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  const { error, loading } = useAppSelector(state => state.auth);
+  const { errors, loading } = useAppSelector(state => state.auth);
   const [success, setSuccess] = useState(false);
 
   const {
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors: formErrors, isValid },
     watch,
     setValue,
   } = useResetPasswordForm();
@@ -82,7 +82,7 @@ const ResetPassword = () => {
               onChange={value =>
                 setValue('password', value, { shouldValidate: true })
               }
-              error={errors.password?.message}
+              error={formErrors.password?.message}
             />
             <PasswordStrength password={watch('password')} />
           </div>
@@ -93,14 +93,16 @@ const ResetPassword = () => {
             onChange={value =>
               setValue('confirmPassword', value, { shouldValidate: true })
             }
-            error={errors.confirmPassword?.message}
+            error={formErrors.confirmPassword?.message}
           />
-          {!success && error && <p className="text-red-500 text-sm">{error}</p>}
+          {!success && errors.reset && (
+            <p className="text-red-500 text-sm">{errors.reset}</p>
+          )}
           <Button
             className="w-full"
             variant={'active'}
             type="submit"
-            disabled={!isValid || loading}
+            disabled={!isValid || loading.reset}
           >
             {loading ? 'Resetting...' : 'Reset Password'}
           </Button>
