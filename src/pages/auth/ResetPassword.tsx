@@ -10,12 +10,14 @@ import {
 } from '@/hooks/useResetPassword';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { resetPassword } from '@api/auth/auth.actions';
-import { useNavigate } from 'react-router';
-import { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router';
+import { useEffect, useState } from 'react';
 
 const ResetPassword = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
   const { error, loading } = useAppSelector(state => state.auth);
   const [success, setSuccess] = useState(false);
 
@@ -26,14 +28,23 @@ const ResetPassword = () => {
     setValue,
   } = useResetPasswordForm();
 
+  useEffect(() => {
+    if (!token) navigate('/forgot-password', { replace: true });
+  }, [token, navigate]);
+
   const onSubmit = async (data: ResetPasswordFormData) => {
+    if (!token) return;
     try {
-      await dispatch(resetPassword({ newPassword: data.password })).unwrap();
+      await dispatch(
+        resetPassword({ token, newPassword: data.password })
+      ).unwrap();
       setSuccess(true);
     } catch {
       // error is already stored in state.auth.error
     }
   };
+
+  if (!token) return null;
 
   return (
     <AuthForm
