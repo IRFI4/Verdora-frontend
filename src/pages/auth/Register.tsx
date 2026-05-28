@@ -7,19 +7,19 @@ import { cn } from '@/lib/utils';
 import { useRegisterForm, type RegisterFormData } from '@hooks/useRegisterForm';
 import PasswordStrength from '@components/common/forms/PasswordStrength';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
-import { register } from '@api/slices/auth';
+import { register } from '@api/auth/auth.actions';
 import { rateLimit } from '@/utils/rateLimit';
 import { useMemo } from 'react';
-import AuthForm from '@/components/layout/Auth';
+import AuthForm from '@components/layout/Auth';
 
 const Register = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { loading, error } = useAppSelector(state => state.auth);
+  const { loading, errors } = useAppSelector(state => state.auth);
 
   const {
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors: formErrors, isValid },
     watch,
     setValue,
   } = useRegisterForm();
@@ -58,7 +58,7 @@ const Register = () => {
           onChange={value =>
             setValue('username', value, { shouldValidate: true })
           }
-          error={errors.username?.message}
+          error={formErrors.username?.message}
         />
         <TextField
           type="text"
@@ -67,7 +67,7 @@ const Register = () => {
           placeholder="your@email.com"
           value={watch('email')}
           onChange={value => setValue('email', value, { shouldValidate: true })}
-          error={errors.email?.message}
+          error={formErrors.email?.message}
         />
         <TextField
           type="tel"
@@ -78,7 +78,7 @@ const Register = () => {
           onChange={value =>
             setValue('phoneNumber', value, { shouldValidate: true })
           }
-          error={errors.phoneNumber?.message}
+          error={formErrors.phoneNumber?.message}
         />
         <div className="w-full">
           <PasswordField
@@ -98,7 +98,7 @@ const Register = () => {
           onChange={value =>
             setValue('confirmPassword', value, { shouldValidate: true })
           }
-          error={errors.confirmPassword?.message}
+          error={formErrors.confirmPassword?.message}
         />
         <div className="w-full">
           <label className="flex items-center gap-4 cursor-pointer">
@@ -137,16 +137,18 @@ const Register = () => {
             </span>
           </label>
         </div>
-        {error && (
-          <p className="text-red-500 text-sm mt-2 text-center">{error}</p>
+        {errors.register && (
+          <p className="text-red-500 text-sm mt-2 text-center">
+            {errors.register}
+          </p>
         )}
         <Button
           className="w-full"
           variant={'active'}
           type="submit"
-          disabled={!isValid || !accepted || loading}
+          disabled={!isValid || !accepted || loading.register}
         >
-          {loading ? 'Creating...' : 'Create Account'}
+          {loading.register ? 'Creating...' : 'Create Account'}
         </Button>
       </form>
       <p className="text-[16px] text-zinc-500 [font-family:var(--font-sans)]">
