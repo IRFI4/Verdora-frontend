@@ -9,7 +9,8 @@ import {
 } from '@hooks/useForgotPassword';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { forgotPassword } from '@api/auth/auth.actions';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { rateLimit } from '@/utils/rateLimit';
 
 const ForgotPassword = () => {
   const dispatch = useAppDispatch();
@@ -21,8 +22,18 @@ const ForgotPassword = () => {
     setValue,
   } = useForgotPasswordForm();
   const [send, setSend] = useState(false);
+  const canSubmit = useMemo(() => rateLimit(2000), []);
+
+  const handleEmailChange = (value: string) => {
+    setValue('email', value, { shouldValidate: true });
+
+    if (send) {
+      setSend(false);
+    }
+  };
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
+    if (!canSubmit()) return;
     try {
       await dispatch(forgotPassword(data)).unwrap();
       setSend(true);
@@ -46,7 +57,7 @@ const ForgotPassword = () => {
           id="email"
           placeholder="your@email.com"
           value={watch('email')}
-          onChange={value => setValue('email', value, { shouldValidate: true })}
+          onChange={handleEmailChange}
           error={formErrors.email?.message}
         />
         {send && (

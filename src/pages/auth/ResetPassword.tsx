@@ -11,7 +11,8 @@ import {
 import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { resetPassword } from '@api/auth/auth.actions';
 import { useNavigate, useSearchParams } from 'react-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { rateLimit } from '@/utils/rateLimit';
 
 const ResetPassword = () => {
   const dispatch = useAppDispatch();
@@ -20,6 +21,7 @@ const ResetPassword = () => {
   const token = searchParams.get('token');
   const { errors, loading } = useAppSelector(state => state.auth);
   const [success, setSuccess] = useState(false);
+  const canSubmit = useMemo(() => rateLimit(2000), []);
 
   const {
     handleSubmit,
@@ -33,6 +35,7 @@ const ResetPassword = () => {
   }, [token, navigate]);
 
   const onSubmit = async (data: ResetPasswordFormData) => {
+    if (!canSubmit()) return;
     if (!token) return;
     try {
       await dispatch(
