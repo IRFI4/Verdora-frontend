@@ -24,15 +24,15 @@ const AuthForm = ({ title, subtitle, children }: AuthFormProps) => {
             <div className="flex size-40 items-center justify-center rounded-full bg-[var(--accent)]">
               <LogoIcon className="size-20 text-white" />
             </div>
-            <span className="text-[20px] font-bold text-[var(--text-h)]">
+            <span className="text-[20px] font-bold text-(--text-h)">
               Verdora
             </span>
           </Link>
           <div className="flex flex-col items-center">
-            <h2 className="my-[8px] text-[36px] leading-[40px] text-[var(--text-h)] font-bold font-outfit">
+            <h2 className="my-[8px] text-[36px] leading-[40px] text-(--text-h) font-bold font-outfit">
               {title}
             </h2>
-            <p className="text-[var(--text)] text-[16px] [font-family:var(--font-sans)]">
+            <p className="text-(--text) text-[16px] [font-family:var(--font-sans)]">
               {subtitle}
             </p>
           </div>

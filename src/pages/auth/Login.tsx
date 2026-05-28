@@ -5,19 +5,19 @@ import TextField from '@components/common/forms/TextField';
 import { Link, useNavigate } from 'react-router';
 import { useLoginForm, type LoginFormData } from '@hooks/useLoginForm';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
-import { login } from '@api/slices/auth';
+import { login } from '@api/auth/auth.actions';
 import { rateLimit } from '@/utils/rateLimit';
 import { useMemo } from 'react';
-import AuthForm from '@/components/layout/Auth';
+import AuthForm from '@components/layout/Auth';
 
 const Login = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { loading, error } = useAppSelector(state => state.auth);
+  const { loading, errors } = useAppSelector(state => state.auth);
 
   const {
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors: formErrors, isValid },
     watch,
     setValue,
   } = useLoginForm();
@@ -51,7 +51,7 @@ const Login = () => {
           placeholder="your@email.com"
           value={watch('email')}
           onChange={value => setValue('email', value, { shouldValidate: true })}
-          error={errors.email?.message}
+          error={formErrors.email?.message}
         />
         <PasswordField
           label="Password"
@@ -68,18 +68,20 @@ const Login = () => {
           onChange={value =>
             setValue('password', value, { shouldValidate: true })
           }
-          error={errors.password?.message}
+          error={formErrors.password?.message}
         />
-        {error && (
-          <p className="text-red-500 text-sm mt-2 text-center">{error}</p>
+        {errors.login && (
+          <p className="text-red-500 text-sm mt-2 text-center">
+            {errors.login}
+          </p>
         )}
         <Button
           className="w-full"
           variant={'active'}
           type="submit"
-          disabled={!isValid || loading}
+          disabled={!isValid || loading.login}
         >
-          {loading ? 'Signing in...' : 'Sign In'}
+          {loading.login ? 'Signing in...' : 'Sign In'}
         </Button>
       </form>
       <div className="w-full flex items-center gap-4">

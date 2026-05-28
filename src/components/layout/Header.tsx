@@ -2,7 +2,7 @@ import { Link } from 'react-router';
 import Logo from '@components/common/Logo';
 import { Button } from '@components/ui/button';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
-import { logout } from '@api/slices/auth';
+import { logout } from '@api/auth/auth.actions';
 import { Spinner } from '@components/ui/spinner';
 import FavouriteIcon from '@assets/icons/heart.svg?react';
 import CartIcon from '@assets/icons/cart.svg?react';

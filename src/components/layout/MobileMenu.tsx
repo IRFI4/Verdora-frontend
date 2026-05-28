@@ -1,5 +1,5 @@
 import CloseIcon from '@assets/icons/close.svg?react';
-import Navlink from '../common/Navlink';
+import Navlink from '@components/common/Navlink';
 
 type MobileMenuProps = {
   onClose: () => void;

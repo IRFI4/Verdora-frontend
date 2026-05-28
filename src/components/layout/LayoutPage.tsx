@@ -2,8 +2,8 @@ import Header from '@components/layout/Header';
 import Footer from '@components/layout/Footer';
 import { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
-import { fetchMe } from '@api/slices/auth';
-import MobileMenu from './MobileMenu';
+import { fetchMe } from '@api/auth/auth.actions';
+import MobileMenu from '@components/layout/MobileMenu';
 
 const LayoutPage = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch();
