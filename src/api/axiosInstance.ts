@@ -29,7 +29,16 @@ instance.interceptors.response.use(
   async error => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const url: string = originalRequest?.url ?? '';
+    const skipRefresh = ['/auth/login', '/auth/register', '/auth/refresh'].some(
+      path => url.includes(path)
+    );
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !skipRefresh
+    ) {
       originalRequest._retry = true;
 
       if (isRefreshing) {
