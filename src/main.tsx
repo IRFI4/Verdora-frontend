@@ -5,9 +5,10 @@ import { BrowserRouter, Route, Routes } from 'react-router';
 import '@/index.css';
 import Login from '@pages/auth/Login';
 import Register from '@pages/auth/Register';
-import { Home } from '@pages/Home';
+import Home from '@pages/Home';
 import ForgotPassword from '@pages/auth/ForgotPassword';
 import ResetPassword from '@pages/auth/ResetPassword';
+import Cart from '@pages/Cart';
 
 createRoot(document.getElementById('root')!).render(
   <Provider store={store}>
@@ -18,6 +19,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/cart" element={<Cart />} />
       </Routes>
     </BrowserRouter>
   </Provider>

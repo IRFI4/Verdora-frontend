@@ -1,9 +1,11 @@
 import LayoutPage from '@components/layout/LayoutPage';
 
-export const Home = () => {
+const Home = () => {
   return (
     <LayoutPage>
       <div>Home</div>
     </LayoutPage>
   );
 };
+
+export default Home;
