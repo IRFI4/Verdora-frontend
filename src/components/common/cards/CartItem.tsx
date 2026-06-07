@@ -21,25 +21,33 @@ const CartItem = ({
 }: Props) => {
   const currentPrice = discountPrice !== undefined ? discountPrice : price;
   const totalPrice = currentPrice * quantity;
+  const discountPercent =
+    discountPrice !== undefined && price > 0
+      ? Math.round(((price - discountPrice) / price) * 100)
+      : 0;
 
   return (
     <div className="flex items-center justify-between gap-6 p-4 border rounded-2xl w-full bg-white min-h-[112px]">
       <div className="flex items-center gap-4 flex-1 min-w-0">
         <div className="w-[80px] h-[80px] shrink-0 overflow-hidden rounded-xl p-2">
-          <img
-            src={productImage}
-            alt={productName}
-            className="w-full h-full object-contain rounded-lg"
-          />
+          {(productImage ?? '') ? (
+            <img
+              src={productImage}
+              alt={productName ?? 'Unknown product'}
+              className="w-full h-full object-contain rounded-lg"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-100 rounded-lg" />
+          )}
         </div>
 
         <div className="flex flex-col justify-center min-w-0">
           <h3 className="font-medium text-lg text-[#2D2D2D] truncate">
-            {productName}
+            {productName ?? 'Unknown product'}
           </h3>
           {discountPrice !== undefined && (
             <span className="text-sm font-medium text-[#E57373] mt-0.5">
-              {Math.round(((price - discountPrice) / price) * 100)}% off
+              {discountPercent}% off
             </span>
           )}
         </div>
@@ -47,8 +55,9 @@ const CartItem = ({
 
       <div className="flex flex-col items-center justify-center text-center min-w-[100px]">
         <p className="font-bold text-lg text-[#1A1A1A]">
-          ${currentPrice.toFixed(2)}
+          ${discountPrice !== undefined ? discountPrice : price.toFixed(2)}
         </p>
+
         {discountPrice !== undefined && (
           <p className="text-sm text-gray-400 line-through mt-0.5">
             ${price.toFixed(2)}
