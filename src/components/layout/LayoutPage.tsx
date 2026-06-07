@@ -3,6 +3,7 @@ import Footer from '@components/layout/Footer';
 import { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { fetchMe } from '@api/auth/auth.actions';
+import { getCart } from '@api/cart/cart.actions';
 import MobileMenu from '@components/layout/MobileMenu';
 
 const LayoutPage = ({ children }: { children: React.ReactNode }) => {
@@ -11,8 +12,12 @@ const LayoutPage = ({ children }: { children: React.ReactNode }) => {
   const { initialized } = useAppSelector(state => state.auth);
 
   useEffect(() => {
-    if (!initialized) {
-      dispatch(fetchMe());
+    dispatch(fetchMe());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (initialized) {
+      dispatch(getCart());
     }
   }, [dispatch, initialized]);
 

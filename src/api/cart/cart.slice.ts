@@ -6,6 +6,7 @@ import {
   getCart,
   clearCart,
 } from '@api/cart/cart.actions';
+import { login, register, logout } from '@api/auth/auth.actions';
 import type { CartItemType } from '@/types/cart';
 
 interface CartState {
@@ -140,6 +141,26 @@ const cartSlice = createSlice({
         state.totalPrice = 0;
         state.shippingCost = 0;
         state.errors.clearCart = null;
+      })
+
+      // auth actions integration
+      .addCase(logout.fulfilled, state => {
+        state.items = [];
+        state.totalPrice = 0;
+        state.shippingCost = 0;
+        state.loaded = false;
+      })
+      .addCase(logout.rejected, state => {
+        state.items = [];
+        state.totalPrice = 0;
+        state.shippingCost = 0;
+        state.loaded = false;
+      })
+      .addCase(login.fulfilled, state => {
+        state.loaded = false;
+      })
+      .addCase(register.fulfilled, state => {
+        state.loaded = false;
       });
   },
 });

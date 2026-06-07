@@ -9,6 +9,7 @@ import CartIcon from '@assets/icons/cart.svg?react';
 import SearchIcon from '@assets/icons/search.svg?react';
 import MenuIcon from '@assets/icons/menu.svg?react';
 import Navlink from '@components/common/Navlink';
+import { clearCart } from '@api/cart/cart.actions';
 
 type HeaderProps = {
   onOpenMenu: () => void;
@@ -18,8 +19,12 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
   const dispatch = useAppDispatch();
   const { user, hydrating } = useAppSelector(state => state.auth);
 
+  const { items } = useAppSelector(state => state.cart);
+  const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+
   const handleLogout = () => {
     dispatch(logout());
+    dispatch(clearCart());
   };
 
   return (
@@ -62,9 +67,11 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
               aria-label="Shopping cart"
             >
               <CartIcon className="size-20" />
-              <span className="absolute -top-1 right-1 flex size-16 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white">
-                3
-              </span>
+              {cartItemCount > 0 && (
+                <span className="absolute -top-1 right-1 flex size-16 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white">
+                  {cartItemCount}
+                </span>
+              )}
             </Link>
 
             {hydrating ? (
