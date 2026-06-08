@@ -23,7 +23,7 @@ export type CartItemType = {
   subtotal: number;
 };
 
-export type CartState = {
+export type CartType = {
   cartId: number;
   items: CartItemType[];
   totalPrice: number;

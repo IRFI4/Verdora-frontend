@@ -137,7 +137,7 @@ const Cart = () => {
     navigate('/checkout');
   });
 
-  if (!loaded || loading.getCart) {
+  if (loading.getCart && !loaded) {
     return (
       <LayoutPage>
         <CartHeader itemsCount={itemsCount} />
@@ -163,6 +163,26 @@ const Cart = () => {
           </p>
           <Button variant="active" asChild>
             <Link to="/catalog">Continue Shopping</Link>
+          </Button>
+        </div>
+      </LayoutPage>
+    );
+  }
+
+  if (errors.getCart) {
+    return (
+      <LayoutPage>
+        <CartHeader itemsCount={itemsCount} />
+
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center">
+          <h3 className="font-semibold text-2xl text-red-600">
+            Failed to load cart
+          </h3>
+
+          <p className="text-gray-500 max-w-md">{errors.getCart}</p>
+
+          <Button variant="active" onClick={() => dispatch(getCart())}>
+            Retry
           </Button>
         </div>
       </LayoutPage>

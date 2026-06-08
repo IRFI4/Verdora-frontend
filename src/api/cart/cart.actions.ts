@@ -6,11 +6,11 @@ import type {
   AddItemToCartPayload,
   RemoveItemFromCartPayload,
   UpdateCartItemQuantityPayload,
-  CartState,
+  CartType,
 } from '@/types/cart';
 
 export const addItemToCart = createAsyncThunk<
-  CartState,
+  CartType,
   AddItemToCartPayload,
   { rejectValue: ApiErrorResponse }
 >('cart/add-item', async (data, { rejectWithValue }) => {
@@ -25,7 +25,7 @@ export const addItemToCart = createAsyncThunk<
 });
 
 export const removeItemFromCart = createAsyncThunk<
-  CartState,
+  CartType,
   RemoveItemFromCartPayload,
   { rejectValue: ApiErrorResponse }
 >('cart/remove-item', async (data, { rejectWithValue }) => {
@@ -40,7 +40,7 @@ export const removeItemFromCart = createAsyncThunk<
 });
 
 export const updateCartItemQuantity = createAsyncThunk<
-  CartState,
+  CartType,
   UpdateCartItemQuantityPayload,
   { rejectValue: ApiErrorResponse }
 >('cart/update-quantity', async (data, { rejectWithValue }) => {
@@ -55,7 +55,7 @@ export const updateCartItemQuantity = createAsyncThunk<
 });
 
 export const getCart = createAsyncThunk<
-  CartState,
+  CartType,
   void,
   { rejectValue: ApiErrorResponse }
 >('cart/get-cart', async (_, { rejectWithValue }) => {

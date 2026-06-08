@@ -9,7 +9,7 @@ import {
 import { login, register, logout } from '@api/auth/auth.actions';
 import type { CartItemType } from '@/types/cart';
 
-interface CartState {
+interface CartSliceState {
   items: CartItemType[];
   totalPrice: number;
   shippingCost: number;
@@ -30,7 +30,7 @@ interface CartState {
   };
 }
 
-const initialState: CartState = {
+const initialState: CartSliceState = {
   items: [],
   totalPrice: 0,
   shippingCost: 0,
@@ -70,10 +70,8 @@ const cartSlice = createSlice({
 
       const currentPrice = item.discountPrice ?? item.price;
 
-      if (item) {
-        item.quantity = action.payload.quantity;
-        item.subtotal = currentPrice * action.payload.quantity;
-      }
+      item.quantity = action.payload.quantity;
+      item.subtotal = currentPrice * action.payload.quantity;
 
       state.totalPrice = state.items.reduce(
         (sum, item) => sum + item.subtotal,
@@ -157,7 +155,7 @@ const cartSlice = createSlice({
         state.errors.getCart = null;
       })
       .addCase(getCart.rejected, (state, action) => {
-        state.loaded = true;
+        state.loaded = false;
         state.loading.getCart = false;
         state.errors.getCart =
           action.payload?.message ?? 'Failed to fetch cart';
@@ -174,6 +172,11 @@ const cartSlice = createSlice({
         state.totalPrice = 0;
         state.shippingCost = 0;
         state.errors.clearCart = null;
+      })
+      .addCase(clearCart.rejected, (state, action) => {
+        state.loading.clearCart = false;
+        state.errors.clearCart =
+          action.payload?.message ?? 'Failed to clear cart';
       })
 
       // auth actions integration

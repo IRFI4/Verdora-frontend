@@ -4,12 +4,12 @@ import type {
   AddItemToCartPayload,
   RemoveItemFromCartPayload,
   UpdateCartItemQuantityPayload,
-  CartState,
+  CartType,
 } from '@/types/cart';
 
 export const cartService = {
   addItemToCart: async (data: AddItemToCartPayload) => {
-    const response = await instance.post<ApiResponse<CartState>>(
+    const response = await instance.post<ApiResponse<CartType>>(
       '/cart/items',
       data
     );
@@ -22,7 +22,7 @@ export const cartService = {
   },
 
   updateCartItemQuantity: async (data: UpdateCartItemQuantityPayload) => {
-    const res = await instance.put<ApiResponse<CartState>>(
+    const res = await instance.put<ApiResponse<CartType>>(
       `/cart/items/${data.cartItemId}`,
       { quantity: data.quantity }
     );
@@ -31,12 +31,12 @@ export const cartService = {
   },
 
   getCart: async () => {
-    const response = await instance.get<ApiResponse<CartState>>('/cart');
+    const response = await instance.get<ApiResponse<CartType>>('/cart');
     return response.data.data;
   },
 
   clearCart: async () => {
-    const response = await instance.delete<ApiResponse<CartState>>('/cart');
+    const response = await instance.delete<ApiResponse<CartType>>('/cart');
     return response.data.data;
   },
 };
