@@ -54,9 +54,7 @@ const CartItem = ({
       </div>
 
       <div className="flex flex-col items-center justify-center text-center min-w-[100px]">
-        <p className="font-bold text-lg text-[#1A1A1A]">
-          ${discountPrice !== undefined ? discountPrice : price.toFixed(2)}
-        </p>
+        <p className="font-bold text-lg text-[#1A1A1A]">${currentPrice}</p>
 
         {discountPrice !== undefined && (
           <p className="text-sm text-gray-400 line-through mt-0.5">
@@ -71,6 +69,7 @@ const CartItem = ({
           size="icon"
           onClick={onDecrease}
           className="h-6 w-6 rounded-full text-gray-400 hover:text-gray-600 m-2 text-xl"
+          disabled={quantity <= 1}
         >
           -
         </Button>

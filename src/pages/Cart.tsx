@@ -10,6 +10,7 @@ import { useProceedToCheckout } from '@hooks/useProceedToCheckout';
 import { rateLimit } from '@/utils/rateLimit';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { getCart, updateCartItemQuantity } from '@api/cart/cart.actions';
+import { updateQuantityLocally } from '@api/cart/cart.slice';
 import CartItemSkeleton from '@components/common/cards/CartItemSkeleton';
 
 const Cart = () => {
@@ -51,12 +52,31 @@ const Cart = () => {
 
     if (!item) return;
 
+    const previousQuantity = item.quantity;
+    const newQuantity = item.quantity + 1;
+
+    dispatch(
+      updateQuantityLocally({
+        cartItemId: id,
+        quantity: newQuantity,
+      })
+    );
+
     dispatch(
       updateCartItemQuantity({
         cartItemId: id,
-        quantity: item.quantity + 1,
+        quantity: newQuantity,
       })
-    );
+    )
+      .unwrap()
+      .catch(() => {
+        dispatch(
+          updateQuantityLocally({
+            cartItemId: id,
+            quantity: previousQuantity,
+          })
+        );
+      });
   };
 
   const handleDecrease = (id: number) => {
@@ -64,12 +84,31 @@ const Cart = () => {
 
     if (!item || item.quantity <= 1) return;
 
+    const previousQuantity = item.quantity;
+    const newQuantity = item.quantity - 1;
+
+    dispatch(
+      updateQuantityLocally({
+        cartItemId: id,
+        quantity: newQuantity,
+      })
+    );
+
     dispatch(
       updateCartItemQuantity({
         cartItemId: id,
-        quantity: item.quantity - 1,
+        quantity: newQuantity,
       })
-    );
+    )
+      .unwrap()
+      .catch(() => {
+        dispatch(
+          updateQuantityLocally({
+            cartItemId: id,
+            quantity: previousQuantity,
+          })
+        );
+      });
   };
 
   const handleAgreeToTerms = (value: boolean) => {

@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import {
   addItemToCart,
   removeItemFromCart,
@@ -54,7 +54,33 @@ const initialState: CartState = {
 const cartSlice = createSlice({
   name: 'cart',
   initialState,
-  reducers: {},
+  reducers: {
+    updateQuantityLocally: (
+      state,
+      action: PayloadAction<{
+        cartItemId: number;
+        quantity: number;
+      }>
+    ) => {
+      const item = state.items.find(
+        item => item.cartItemId === action.payload.cartItemId
+      );
+
+      if (!item) return;
+
+      const currentPrice = item.discountPrice ?? item.price;
+
+      if (item) {
+        item.quantity = action.payload.quantity;
+        item.subtotal = currentPrice * action.payload.quantity;
+      }
+
+      state.totalPrice = state.items.reduce(
+        (sum, item) => sum + item.subtotal,
+        0
+      );
+    },
+  },
   extraReducers: builder => {
     builder
       // addItemToCart
@@ -166,3 +192,4 @@ const cartSlice = createSlice({
 });
 
 export default cartSlice.reducer;
+export const { updateQuantityLocally } = cartSlice.actions;
