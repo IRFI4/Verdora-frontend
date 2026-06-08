@@ -1,4 +1,5 @@
 import { Button } from '@components/ui/button';
+import { Trash2 } from 'lucide-react';
 
 type Props = {
   productName: string;
@@ -8,6 +9,7 @@ type Props = {
   quantity: number;
   onIncrease: () => void;
   onDecrease: () => void;
+  onRemove: () => void;
 };
 
 const CartItem = ({
@@ -18,6 +20,7 @@ const CartItem = ({
   quantity,
   onIncrease,
   onDecrease,
+  onRemove,
 }: Props) => {
   const currentPrice = discountPrice !== undefined ? discountPrice : price;
   const totalPrice = currentPrice * quantity;
@@ -93,6 +96,16 @@ const CartItem = ({
           ${totalPrice.toFixed(2)}
         </p>
       </div>
+
+      <Button
+        variant="click"
+        size="icon"
+        onClick={onRemove}
+        className="text-gray-400 hover:text-red-500 transition-colors h-9 w-9 rounded-full flex items-center justify-center cursor-pointer shrink-0"
+        aria-label={`Remove ${productName} from cart`}
+      >
+        <Trash2 className="size-18" />
+      </Button>
     </div>
   );
 };

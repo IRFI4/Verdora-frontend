@@ -1,5 +1,4 @@
 import LayoutPage from '@components/layout/LayoutPage';
-import ArrowIcon from '@assets/icons/black-arrow.svg?react';
 import { Button } from '@components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
 import CartIcon from '@assets/icons/cart.svg?react';
@@ -9,18 +8,23 @@ import { useEffect, useMemo } from 'react';
 import { useProceedToCheckout } from '@hooks/useProceedToCheckout';
 import { rateLimit } from '@/utils/rateLimit';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
-import { getCart, updateCartItemQuantity } from '@api/cart/cart.actions';
-import { updateQuantityLocally } from '@api/cart/cart.slice';
+import {
+  getCart,
+  updateCartItemQuantity,
+  removeItemFromCart,
+} from '@api/cart/cart.actions';
+import { updateQuantityLocally, setItemsLocally } from '@api/cart/cart.slice';
 import CartItemSkeleton from '@components/common/cards/CartItemSkeleton';
+import CartHeader from '@components/layout/CartHeader';
 
 const Cart = () => {
   const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
   const canSubmit = useMemo(() => rateLimit(2000), []);
-  const { loading, items, totalPrice, shippingCost, loaded } = useAppSelector(
-    state => state.cart
-  );
+  const { loading, items, totalPrice, shippingCost, loaded, errors } =
+    useAppSelector(state => state.cart);
+  const itemsCount = items.length;
 
   const {
     handleSubmit,
@@ -111,6 +115,19 @@ const Cart = () => {
       });
   };
 
+  const handleRemove = (id: number) => {
+    const previousItems = [...items];
+    const newItems = items.filter(item => item.cartItemId !== id);
+
+    dispatch(setItemsLocally(newItems));
+
+    dispatch(removeItemFromCart({ cartItemId: id }))
+      .unwrap()
+      .catch(() => {
+        dispatch(setItemsLocally(previousItems));
+      });
+  };
+
   const handleAgreeToTerms = (value: boolean) => {
     setValue('agreeToTerms', value, { shouldValidate: true });
   };
@@ -123,17 +140,7 @@ const Cart = () => {
   if (!loaded || loading.getCart) {
     return (
       <LayoutPage>
-        <div className="flex items-center gap-8 mb-10">
-          <Button
-            variant="click"
-            className="h-auto w-auto"
-            onClick={() => navigate(-1)}
-          >
-            <ArrowIcon className="size-18" />
-          </Button>
-          <h2 className="text-2xl font-bold">Shopping Cart</h2>
-          <span className="text-lg text-gray-500">({items.length} items)</span>
-        </div>
+        <CartHeader itemsCount={itemsCount} />
         <div className="flex flex-col gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <CartItemSkeleton key={i} />
@@ -143,20 +150,10 @@ const Cart = () => {
     );
   }
 
-  if (items.length === 0) {
+  if (itemsCount === 0) {
     return (
       <LayoutPage>
-        <div className="flex items-center gap-8 mb-10">
-          <Button
-            variant="click"
-            className="h-auto w-auto"
-            onClick={() => navigate(-1)}
-          >
-            <ArrowIcon className="size-18" />
-          </Button>
-          <h2 className="text-2xl font-bold">Shopping Cart</h2>
-          <span className="text-lg text-gray-500">({items.length} items)</span>
-        </div>
+        <CartHeader itemsCount={itemsCount} />
         <div className="flex flex-1 flex-col items-center justify-center gap-4 p-4">
           <CartIcon className="size-64" />
           <h3 className="font-semibold text-2xl">Cart is empty</h3>
@@ -174,18 +171,12 @@ const Cart = () => {
 
   return (
     <LayoutPage>
-      <div className="flex items-center gap-8 mb-10">
-        <Button
-          variant="click"
-          className="h-auto w-auto"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowIcon className="size-18" />
-        </Button>
-        <h2 className="text-2xl font-bold">Shopping Cart</h2>
-        <span className="text-lg text-gray-500">({items.length} items)</span>
-      </div>
-
+      <CartHeader itemsCount={itemsCount} />
+      {(errors.removeItem || errors.updateQuantity) && (
+        <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm [font-family:var(--font-sans)]">
+          {errors.removeItem || errors.updateQuantity}
+        </div>
+      )}
       <div className="flex flex-col lg:flex-row items-start gap-8">
         <div className="flex flex-col lg:flex-row items-start gap-8">
           <div className="flex flex-col gap-4 flex-1 w-full">
@@ -199,6 +190,7 @@ const Cart = () => {
                 quantity={item.quantity}
                 onIncrease={() => handleIncrease(item.cartItemId)}
                 onDecrease={() => handleDecrease(item.cartItemId)}
+                onRemove={() => handleRemove(item.cartItemId)}
               />
             ))}
           </div>

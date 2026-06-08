@@ -80,6 +80,13 @@ const cartSlice = createSlice({
         0
       );
     },
+    setItemsLocally: (state, action: PayloadAction<CartItemType[]>) => {
+      state.items = action.payload;
+      state.totalPrice = state.items.reduce(
+        (sum, item) => sum + item.subtotal,
+        0
+      );
+    },
   },
   extraReducers: builder => {
     builder
@@ -192,4 +199,4 @@ const cartSlice = createSlice({
 });
 
 export default cartSlice.reducer;
-export const { updateQuantityLocally } = cartSlice.actions;
+export const { updateQuantityLocally, setItemsLocally } = cartSlice.actions;
