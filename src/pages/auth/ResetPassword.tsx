@@ -87,7 +87,10 @@ const ResetPassword = () => {
               }
               error={formErrors.password?.message}
             />
-            <PasswordStrength password={watch('password')} />
+            <PasswordStrength
+              password={watch('password')}
+              error={formErrors.password?.message}
+            />
           </div>
           <PasswordField
             label="Confirm Password"

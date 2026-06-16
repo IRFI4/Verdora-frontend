@@ -6,6 +6,9 @@ export const passwordSchema = z
   .string()
   .min(8, 'Min 8 characters')
   .max(64, 'Max 64 characters')
+  .refine(val => /^[\x20-\x7E]+$/.test(val), {
+    message: 'Only Latin characters are allowed',
+  })
   .refine(val => /[a-z]/.test(val), {
     message: 'There must be at least one lowercase letter',
   })

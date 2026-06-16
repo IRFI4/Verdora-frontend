@@ -3,7 +3,12 @@ import {
   getPasswordRequirements,
 } from '@/utils/passwordStrength';
 
-const PasswordStrength = ({ password }: { password: string }) => {
+type Props = {
+  password: string;
+  error?: string;
+};
+
+const PasswordStrength = ({ password, error }: Props) => {
   const passwordStrength = getPasswordStrength(password);
   const displayScore = Math.max(passwordStrength.score, 1);
   const requirements = getPasswordRequirements(password);
@@ -41,6 +46,9 @@ const PasswordStrength = ({ password }: { password: string }) => {
                 {req.label}
               </li>
             ))}
+            {error && (
+              <li className="text-xs text-red-500 font-medium">{error}</li>
+            )}
           </ul>
         </div>
       )}
