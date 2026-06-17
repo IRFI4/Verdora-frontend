@@ -3,6 +3,7 @@ import Footer from '@components/layout/Footer';
 import { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { fetchMe } from '@api/auth/auth.actions';
+import { getCart } from '@api/cart/cart.actions';
 import MobileMenu from '@components/layout/MobileMenu';
 
 const LayoutPage = ({ children }: { children: React.ReactNode }) => {
@@ -11,8 +12,12 @@ const LayoutPage = ({ children }: { children: React.ReactNode }) => {
   const { initialized } = useAppSelector(state => state.auth);
 
   useEffect(() => {
-    if (!initialized) {
-      dispatch(fetchMe());
+    dispatch(fetchMe());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (initialized) {
+      dispatch(getCart());
     }
   }, [dispatch, initialized]);
 
@@ -20,7 +25,7 @@ const LayoutPage = ({ children }: { children: React.ReactNode }) => {
     <div className="flex min-h-screen flex-col bg-[#F5F5DC]">
       <Header onOpenMenu={() => setIsMenuOpen(true)} />
       {isMenuOpen && <MobileMenu onClose={() => setIsMenuOpen(false)} />}
-      <main className="flex-1 w-full max-w-[1710px] mx-auto px-4">
+      <main className="flex flex-1 flex-col w-full max-w-[1710px] mx-auto px-4">
         {children}
       </main>
       <Footer />
