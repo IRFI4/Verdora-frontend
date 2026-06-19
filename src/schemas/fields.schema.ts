@@ -25,7 +25,9 @@ export const usernameSchema = z
   .max(10, 'Max 10 characters')
   .regex(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers and underscore');
 
-export const phoneNumberSchema = z.e164();
+export const phoneNumberSchema = z
+  .string()
+  .regex(/^\+[1-9]\d{7,14}$/, 'Invalid phone number format');
 
 export const termsSchema = z.boolean().refine(val => val === true, {
   message: 'You must accept the Terms and Conditions',
