@@ -3,7 +3,11 @@ import {
   getPasswordRequirements,
 } from '@/utils/passwordStrength';
 
-const PasswordStrength = ({ password }: { password: string }) => {
+type Props = {
+  password: string;
+};
+
+const PasswordStrength = ({ password }: Props) => {
   const passwordStrength = getPasswordStrength(password);
   const displayScore = Math.max(passwordStrength.score, 1);
   const requirements = getPasswordRequirements(password);
