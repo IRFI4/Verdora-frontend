@@ -1,16 +1,8 @@
-import { useAppDispatch, useAppSelector } from '@api/hooks';
 import AdminSectionHeader from '@components/common/section/AdminSectionHeader';
 import { Button } from '@components/ui/button';
 import { FolderOpen, Plus } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import ErrorSection from '@components/common/section/ErrorSection';
-import {
-  getAllCategories,
-  createCategory,
-  updateCategory,
-  deleteCategory,
-} from '@api/category/category.actions';
-import { clearErrors } from '@api/category/category.slice';
 import { EmptySection } from '@components/common/section/EmptySection';
 import CategoryRow from '@components/common/cards/CategoryRow';
 import DialogComponent from '@components/common/dialog/DialogComponent';
@@ -21,15 +13,16 @@ import {
   type AdminCategotyFormData,
 } from '@hooks/useAdminCategoriesForm';
 import { rateLimit } from '@/utils/rateLimit';
-import type { Category } from '@/types/category';
+import {
+  useAllCategories,
+  useCreateCategory,
+} from '@api/category/category.hooks';
 
 const AdminCategoriesPage = () => {
-  const dispatch = useAppDispatch();
   const categoryMaxLength = 50;
-  const { items, loading, errors } = useAppSelector(state => state.category);
-
+  const { data: items, isLoading, error, refetch } = useAllCategories();
+  const createMutation = useCreateCategory();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
   const {
     handleSubmit: handleCreateSubmit,
@@ -41,32 +34,21 @@ const AdminCategoriesPage = () => {
 
   const canSubmit = useMemo(() => rateLimit(2000), []);
 
-  const handleCreate = async (data: AdminCategotyFormData) => {
+  const handleCreate = (data: AdminCategotyFormData) => {
     if (!canSubmit()) return;
-    await dispatch(createCategory({ name: data.category })).unwrap();
-    setIsCreateOpen(false);
-    resetCreate();
+
+    createMutation.mutate(
+      { name: data.category },
+      {
+        onSuccess: () => {
+          setIsCreateOpen(false);
+          resetCreate();
+        },
+      }
+    );
   };
 
-  const handleUpdate = async (categoryId: number, name: string) => {
-    if (!canSubmit()) return;
-    await dispatch(
-      updateCategory({
-        categoryId,
-        name,
-      })
-    ).unwrap();
-    setEditingCategory(null);
-  };
-
-  const handleDelete = async (categoryId: number) => {
-    await dispatch(deleteCategory({ categoryId })).unwrap();
-    setEditingCategory(null);
-  };
-
-  useEffect(() => {
-    dispatch(getAllCategories());
-  }, [dispatch]);
+  const errorCreate = createMutation.error?.response?.data?.message;
 
   return (
     <main className="min-h-screen bg-background text-text transition-colors duration-300">
@@ -87,7 +69,10 @@ const AdminCategoriesPage = () => {
           description="Manage how products are organized in your catalog."
         >
           <Button
-            onClick={() => setIsCreateOpen(true)}
+            onClick={() => {
+              createMutation.reset();
+              setIsCreateOpen(true);
+            }}
             className="w-full sm:w-auto cursor-pointer"
           >
             <Plus className="size-16" aria-hidden="true" />
@@ -96,13 +81,13 @@ const AdminCategoriesPage = () => {
         </AdminSectionHeader>
 
         <div className="mt-8">
-          {loading.getAll ? (
+          {isLoading ? (
             <CategoryListSkeleton />
-          ) : errors.getAll ? (
+          ) : error ? (
             <ErrorSection
               title={'Something went wrong'}
-              message={errors.getAll}
-              onRetry={() => dispatch(getAllCategories())}
+              message={error?.response?.data?.message || 'Failed to load'}
+              onRetry={() => refetch()}
             />
           ) : !items || items.length === 0 ? (
             <EmptySection
@@ -119,7 +104,10 @@ const AdminCategoriesPage = () => {
               }
               action={
                 <Button
-                  onClick={() => setIsCreateOpen(true)}
+                  onClick={() => {
+                    createMutation.reset();
+                    setIsCreateOpen(true);
+                  }}
                   className="cursor-pointer"
                 >
                   <Plus className="size-16" aria-hidden="true" />
@@ -129,32 +117,13 @@ const AdminCategoriesPage = () => {
             />
           ) : (
             <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {items.map(category => {
-                const isEditingThis =
-                  editingCategory?.categoryId === category.categoryId;
-                return (
-                  <CategoryRow
-                    key={category.categoryId}
-                    category={category}
-                    onUpdate={async (id, name) => {
-                      setEditingCategory(category);
-                      await handleUpdate(id, name);
-                    }}
-                    onDelete={async id => {
-                      setEditingCategory(category);
-                      await handleDelete(id);
-                    }}
-                    loadingUpdate={isEditingThis ? loading.update : false}
-                    loadingDelete={isEditingThis ? loading.delete : false}
-                    errorUpdate={isEditingThis ? errors.update : null}
-                    errorDelete={isEditingThis ? errors.delete : null}
-                    onClearErrors={() => {
-                      dispatch(clearErrors());
-                    }}
-                    categoryMaxLength={categoryMaxLength}
-                  />
-                );
-              })}
+              {items.map(category => (
+                <CategoryRow
+                  key={category.categoryId}
+                  category={category}
+                  categoryMaxLength={categoryMaxLength}
+                />
+              ))}
             </ul>
           )}
         </div>
@@ -165,7 +134,7 @@ const AdminCategoriesPage = () => {
             setIsCreateOpen(open);
             if (!open) {
               resetCreate();
-              dispatch(clearErrors());
+              createMutation.reset();
             }
           }}
           headerTitle="Create category"
@@ -173,8 +142,9 @@ const AdminCategoriesPage = () => {
           cancelText="Cancel"
           submitText="Create"
           onSubmit={handleCreateSubmit(handleCreate)}
-          submitDisabled={!isCreateValid || loading.create}
+          submitDisabled={!isCreateValid || createMutation.isPending}
           autoCloseOnSubmit={false}
+          loading={createMutation.isPending}
         >
           <div className="space-y-4">
             <TextField
@@ -188,13 +158,13 @@ const AdminCategoriesPage = () => {
               }
               error={createFormErrors.category?.message}
             />
-            {errors?.create ? (
+            {errorCreate ? (
               <p
                 id="category-name-error"
                 role="alert"
                 className="text-sm text-destructive"
               >
-                {errors.create}
+                {errorCreate}
               </p>
             ) : (
               <p className="text-xs text-muted-foreground">

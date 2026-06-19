@@ -6,6 +6,10 @@ import DialogComponent from '@components/common/dialog/DialogComponent';
 import TextField from '@components/common/forms/TextField';
 import { useAdminCategoryForm } from '@hooks/useAdminCategoriesForm';
 import {
+  useUpdateCategory,
+  useDeleteCategory,
+} from '@api/category/category.hooks';
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -18,29 +22,15 @@ import {
 
 type Props = {
   category: Category;
-  onUpdate: (categoryId: number, name: string) => Promise<void>;
-  onDelete: (categoryId: number) => Promise<void>;
-  loadingUpdate?: boolean;
-  loadingDelete?: boolean;
-  errorUpdate?: string | null;
-  errorDelete?: string | null;
-  onClearErrors?: () => void;
   categoryMaxLength: number;
 };
 
-const CategoryRow = ({
-  category,
-  onUpdate,
-  onDelete,
-  loadingUpdate = false,
-  loadingDelete = false,
-  errorUpdate = null,
-  errorDelete = null,
-  onClearErrors,
-  categoryMaxLength,
-}: Props) => {
+const CategoryRow = ({ category, categoryMaxLength }: Props) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const updateMutation = useUpdateCategory();
+  const deleteMutation = useDeleteCategory();
 
   const {
     handleSubmit: handleEditSubmit,
@@ -51,10 +41,13 @@ const CategoryRow = ({
   } = useAdminCategoryForm();
 
   const handleOpenEdit = () => {
-    onClearErrors?.();
+    updateMutation.reset();
     setEditValue('category', category.name, { shouldValidate: true });
     setIsEditOpen(true);
   };
+
+  const errorUpdate = updateMutation.error?.response?.data?.message;
+  const errorDelete = deleteMutation.error?.response?.data?.message;
 
   return (
     <li className="flex items-center justify-between gap-3 px-4 py-3.5">
@@ -77,7 +70,7 @@ const CategoryRow = ({
           setIsEditOpen(open);
           if (!open) {
             resetEdit();
-            onClearErrors?.();
+            updateMutation.reset();
           }
         }}
         headerTitle="Edit category"
@@ -85,19 +78,22 @@ const CategoryRow = ({
         cancelText="Cancel"
         submitText="Save changes"
         onSubmit={handleEditSubmit(data =>
-          onUpdate(category.categoryId, data.category).then(() =>
-            setIsEditOpen(false)
+          updateMutation.mutate(
+            { categoryId: category.categoryId, name: data.category },
+            { onSuccess: () => setIsEditOpen(false) }
           )
         )}
-        submitDisabled={!isEditValid || loadingUpdate}
+        submitDisabled={!isEditValid || updateMutation.isPending}
         autoCloseOnSubmit={false}
-        loading={loadingUpdate}
+        loading={updateMutation.isPending}
         thirdActionText="Delete"
         onThirdAction={() => {
-          onClearErrors?.();
+          deleteMutation.reset();
           setIsDeleteDialogOpen(true);
         }}
-        thirdActionDisabled={loadingDelete || loadingUpdate}
+        thirdActionDisabled={
+          updateMutation.isPending || deleteMutation.isPending
+        }
       >
         <div className="space-y-4">
           <TextField
@@ -131,7 +127,9 @@ const CategoryRow = ({
         open={isDeleteDialogOpen}
         onOpenChange={open => {
           setIsDeleteDialogOpen(open);
-          if (!open) onClearErrors?.();
+          if (!open) {
+            deleteMutation.reset();
+          }
         }}
       >
         <AlertDialogContent>
@@ -152,21 +150,26 @@ const CategoryRow = ({
             </p>
           )}
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={loadingDelete}>
+            <AlertDialogCancel disabled={deleteMutation.isPending}>
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={e => {
                 e.preventDefault();
-                onDelete(category.categoryId).then(() => {
-                  setIsDeleteDialogOpen(false);
-                  setIsEditOpen(false);
-                });
+                deleteMutation.mutate(
+                  { categoryId: category.categoryId },
+                  {
+                    onSuccess: () => {
+                      setIsDeleteDialogOpen(false);
+                      setIsEditOpen(false);
+                    },
+                  }
+                );
               }}
-              disabled={loadingDelete}
+              disabled={deleteMutation.isPending}
             >
-              {loadingDelete ? 'Deleting...' : 'Delete'}
+              {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
