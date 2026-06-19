@@ -52,7 +52,7 @@ const TextField = ({
           {label && (
             <FieldLabel
               className={cn(
-                'text-[14px] font-medium text-[var(--text-h)]',
+                'text-[14px] font-medium text-text-h',
                 labelClassName
               )}
               htmlFor={id}
@@ -65,9 +65,9 @@ const TextField = ({
       )}
       <InputGroup
         className={cn(
-          `h-[50px] w-full rounded-[12px] border bg-[var(--block-bg)]
+          `h-[50px] w-full rounded-[12px] border bg-block-bg
           border-2 border-zinc-300
-          has-[[data-slot=input-group-control]:focus-visible]:border-[var(--accent)]
+          has-[[data-slot=input-group-control]:focus-visible]:border-accent
           has-[[data-slot=input-group-control]:focus-visible]:ring-0`,
           error && 'border-red-500 focus-within:ring-red-500',
           containerClassName
@@ -81,8 +81,8 @@ const TextField = ({
           onChange={e => onChange(e.target.value)}
           className={cn(
             `h-full w-full bg-transparent pl-16 pr-16
-            text-[16px] text-[var(--text-h)]
-            placeholder:text-[16px] placeholder:[font-family:var(--font-sans)] placeholder:text-[var(--text-muted)]`,
+            text-[16px] text-text-h
+            placeholder:text-[16px] placeholder:[font-family:var(--font-sans)] placeholder:text-text-muted`,
             error && 'placeholder:text-red-400',
             inputClassName
           )}

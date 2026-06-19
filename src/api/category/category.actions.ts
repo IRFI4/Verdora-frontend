@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { isAxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/types/api';
-import { categoryService } from '@/api/category/category.service';
+import { categoryService } from '@api/category/category.service';
 import type {
   Category,
   CreateCategoryPayload,
@@ -59,7 +59,7 @@ export const getCategoryById = createAsyncThunk<
   Category,
   GetCategoryByIdPayload,
   { rejectValue: ApiErrorResponse }
->('category/delete', async (data, { rejectWithValue }) => {
+>('category/getById', async (data, { rejectWithValue }) => {
   try {
     return await categoryService.getCategotyById(data);
   } catch (error) {

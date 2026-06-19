@@ -117,13 +117,9 @@ const categorySlice = createSlice({
           state.current = null;
         }
       })
-      .addCase(deleteCategory.fulfilled, (state, action) => {
+      .addCase(deleteCategory.fulfilled, state => {
         state.loading.delete = false;
         state.errors.delete = null;
-
-        state.items = state.items.filter(
-          item => item.categoryId !== action.meta.arg.categoryId
-        );
       })
       .addCase(deleteCategory.rejected, (state, action) => {
         state.loading.delete = false;

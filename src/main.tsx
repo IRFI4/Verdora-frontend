@@ -10,6 +10,8 @@ import ForgotPassword from '@pages/auth/ForgotPassword';
 import ResetPassword from '@pages/auth/ResetPassword';
 import Cart from '@pages/Cart';
 
+import AdminCategoriesPage from '@pages/admin/CategoryPage';
+
 createRoot(document.getElementById('root')!).render(
   <Provider store={store}>
     <BrowserRouter basename="/Front-end-Verdora/">
@@ -20,6 +22,10 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/cart" element={<Cart />} />
+
+        <Route path="/admin">
+          <Route path="categories" element={<AdminCategoriesPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   </Provider>

@@ -33,7 +33,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
         <div className="flex w-full h-81 items-center justify-between">
           <Logo />
 
-          <nav className="hidden lg:flex items-center gap-32 [font-family:var(--font-sans)] text-[14px] text-[var(--text)]">
+          <nav className="hidden lg:flex items-center gap-32 [font-family:var(--font-sans)] text-[14px] text-text">
             <Navlink to="/">Main Page</Navlink>
             <Navlink to="/categories">Categories</Navlink>
             <Navlink to="/products">All products</Navlink>

@@ -16,6 +16,8 @@ import {
 import { updateQuantityLocally, setItemsLocally } from '@api/cart/cart.slice';
 import CartItemSkeleton from '@components/common/cards/CartItemSkeleton';
 import CartHeader from '@components/layout/CartHeader';
+import { EmptySection } from '@components/common/section/EmptySection';
+import ErrorSection from '@components/common/section/ErrorSection';
 
 const Cart = () => {
   const dispatch = useAppDispatch();
@@ -154,17 +156,17 @@ const Cart = () => {
     return (
       <LayoutPage>
         <CartHeader itemsCount={itemsCount} />
-        <div className="flex flex-1 flex-col items-center justify-center gap-4 p-4">
-          <CartIcon className="size-64" />
-          <h3 className="font-semibold text-2xl">Cart is empty</h3>
-          <p className="text-gray-500 text-center max-w-md text-pretty">
-            You haven't added any products yet. Browse our collection and find
-            something you love.
-          </p>
-          <Button variant="active" asChild>
-            <Link to="/catalog">Continue Shopping</Link>
-          </Button>
-        </div>
+        <EmptySection
+          title="Cart is empty"
+          description="You haven't added any products yet. Browse our collection and find something you love."
+          className="flex-1 p-4"
+          icon={<CartIcon className="size-64" />}
+          action={
+            <Button variant="active" asChild>
+              <Link to="/catalog">Continue Shopping</Link>
+            </Button>
+          }
+        />
       </LayoutPage>
     );
   }
@@ -173,18 +175,12 @@ const Cart = () => {
     return (
       <LayoutPage>
         <CartHeader itemsCount={itemsCount} />
-
-        <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center">
-          <h3 className="font-semibold text-2xl text-red-600">
-            Failed to load cart
-          </h3>
-
-          <p className="text-gray-500 max-w-md">{errors.getCart}</p>
-
-          <Button variant="active" onClick={() => dispatch(getCart())}>
-            Retry
-          </Button>
-        </div>
+        <ErrorSection
+          title="Failed to load cart"
+          message={errors.getCart}
+          retryText="Retry"
+          onRetry={() => dispatch(getCart())}
+        />
       </LayoutPage>
     );
   }

@@ -68,12 +68,12 @@ const CartItem = ({
         )}
       </div>
 
-      <div className="flex gap-4 items-center rounded-full border border-gray-200 px-3 py-1.5 bg-white min-w-[80px] justify-between">
+      <div className="flex gap-16 items-center rounded-full border border-gray-200 px-12 py-6 bg-white min-w-[80px] justify-between">
         <Button
           variant="click"
           size="icon"
           onClick={onDecrease}
-          className="h-6 w-6 rounded-full text-gray-400 hover:text-gray-600 m-2 text-xl"
+          className="h-24 w-24 rounded-full text-gray-400 hover:text-gray-600 m-8 text-xl"
           disabled={quantity <= 1}
         >
           -
@@ -87,13 +87,13 @@ const CartItem = ({
           variant="click"
           size="icon"
           onClick={onIncrease}
-          className="h-6 w-6 rounded-full text-gray-400 hover:text-gray-600 m-2 text-xl"
+          className="h-24 w-24 rounded-full text-gray-400 hover:text-gray-600 m-8 text-xl"
         >
           +
         </Button>
       </div>
 
-      <div className="text-right min-w-[100px] pr-2">
+      <div className="text-right min-w-[100px] pr-8">
         <p className="font-bold text-lg text-[#1A1A1A]">
           ${totalPrice.toFixed(2)}
         </p>
@@ -103,7 +103,7 @@ const CartItem = ({
         variant="click"
         size="icon"
         onClick={onRemove}
-        className="text-gray-400 hover:text-red-500 transition-colors h-9 w-9 rounded-full flex items-center justify-center cursor-pointer shrink-0"
+        className="text-gray-400 hover:text-red-500 transition-colors h-36 w-36 rounded-full flex items-center justify-center cursor-pointer shrink-0"
         aria-label={`Remove ${productName} from cart`}
       >
         <Trash2 className="size-18" />
