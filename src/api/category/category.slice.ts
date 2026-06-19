@@ -49,7 +49,15 @@ const initialState: CategoryState = {
 const categorySlice = createSlice({
   name: 'category',
   initialState,
-  reducers: {},
+  reducers: {
+    clearErrors: state => {
+      state.errors.create = null;
+      state.errors.update = null;
+      state.errors.delete = null;
+      state.errors.getById = null;
+      state.errors.getAll = null;
+    },
+  },
   extraReducers: builder => {
     builder
       // create
@@ -158,4 +166,5 @@ const categorySlice = createSlice({
   },
 });
 
+export const { clearErrors } = categorySlice.actions;
 export default categorySlice.reducer;
