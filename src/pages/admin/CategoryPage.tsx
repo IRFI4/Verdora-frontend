@@ -51,7 +51,7 @@ const AdminCategoriesPage = () => {
   const errorCreate = createMutation.error?.response?.data?.message;
 
   return (
-    <main className="min-h-screen bg-background text-text transition-colors duration-300">
+    <main className="min-h-screen bg-background text-text">
       <div className="flex flex-1 flex-col w-full max-w-[1710px] mx-auto px-6 py-8">
         <AdminSectionHeader
           title={
@@ -60,7 +60,7 @@ const AdminCategoriesPage = () => {
                 Categories
               </span>
               {items && items.length > 0 && (
-                <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary transition-all duration-300">
+                <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
                   {items.length} total
                 </span>
               )}
@@ -116,7 +116,7 @@ const AdminCategoriesPage = () => {
               }
             />
           ) : (
-            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
               {items.map(category => (
                 <CategoryRow
                   key={category.categoryId}

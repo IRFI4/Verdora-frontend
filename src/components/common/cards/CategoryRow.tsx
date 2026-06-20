@@ -51,11 +51,11 @@ const CategoryRow = ({ category, categoryMaxLength }: Props) => {
 
   return (
     <li className="flex items-center justify-between gap-3 px-4 py-3.5">
-      <span className="min-w-0 flex-1 truncate font-medium text-text-h">
+      <span className="min-w-0 flex-1 truncate font-medium">
         {category.name}
       </span>
       <Button
-        variant="outline"
+        variant="ghost"
         size="sm"
         onClick={handleOpenEdit}
         aria-label={`Edit ${category.name}`}

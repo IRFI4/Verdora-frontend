@@ -60,7 +60,7 @@ export const DialogComponent = ({
       )}
 
       <DialogContent className={contentClassName ?? 'sm:max-w-md'}>
-        <DialogHeader>
+        <DialogHeader className="p-3">
           <DialogTitle>{headerTitle}</DialogTitle>
 
           {headerDescription && (
