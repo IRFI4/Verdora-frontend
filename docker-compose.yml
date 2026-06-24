@@ -1,0 +1,7 @@
+services:
+  web:
+    build:
+      context: .
+      target: production
+    ports:
+      - "80:80"
