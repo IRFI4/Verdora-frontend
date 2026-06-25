@@ -32,7 +32,12 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/oauth2/authorization/google`;
+    // Return the user to wherever this app is actually mounted (root in dev,
+    // /Front-end-Verdora/ on GitHub Pages). BASE_URL reflects the vite `base`.
+    const returnTo = encodeURIComponent(
+      window.location.origin + import.meta.env.BASE_URL
+    );
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google?return_to=${returnTo}`;
   };
 
   return (
