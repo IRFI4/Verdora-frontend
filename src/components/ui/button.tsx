@@ -9,27 +9,36 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          `bg-white text-[var(--text)] hover:bg-gray-100 border-2 border-[var(--border)] hover:border-[var(--accent)]`,
+        default: "bg-white text-[var(--text)] border border-[var(--border)] hover:bg-gray-50",
         active:
-          `bg-[var(--accent)] text-[var(--accent-text)] hover:bg-[var(--accent-hover)] cursor-pointer`,
+          "bg-[var(--accent)] text-[var(--accent-text)] hover:bg-[var(--accent-hover)] cursor-pointer",
         inactive:
-          `bg-[var(--accent-inactive)] text-[var(--accent-text)] hover:cursor-not-allowed`,
+          "bg-[var(--accent-inactive)] text-[var(--accent-text)] hover:cursor-not-allowed",
+        outline:
+          "bg-white text-[var(--text)] hover:bg-gray-50 border-2 border-[var(--border)] hover:border-[var(--accent)]",
+        ghost:
+          "hover:bg-muted hover:text-foreground",
+        destructive:
+          "bg-destructive text-white hover:bg-destructive/90",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        link:
+          "text-primary underline-offset-4 hover:underline",
         click:
           "",
       },
       size: {
         default:
-          "w-md h-48 rounded-full",
-        xs: "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
-        lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
-        icon: "size-8",
+          "h-40 gap-6 rounded-lg px-16 text-sm [&_svg:not([class*='size-'])]:size-16",
+        xs: "h-24 gap-4 rounded-md px-8 text-xs [&_svg:not([class*='size-'])]:size-12",
+        sm: "h-32 gap-4 rounded-[min(var(--radius-md),12px)] px-12 text-[0.8rem] [&_svg:not([class*='size-'])]:size-14",
+        lg: "h-48 gap-8 px-24 text-[15px] [&_svg:not([class*='size-'])]:size-18",
+        icon: "size-36 rounded-md",
         "icon-xs":
-          "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",
+          "size-24 rounded-md [&_svg:not([class*='size-'])]:size-12",
         "icon-sm":
-          "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
-        "icon-lg": "size-9",
+          "size-28 rounded-md",
+        "icon-lg": "size-44 rounded-lg",
       },
     },
     defaultVariants: {

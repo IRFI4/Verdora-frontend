@@ -3,23 +3,21 @@ import Footer from '@components/layout/Footer';
 import { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { fetchMe } from '@api/auth/auth.actions';
-import { getCart } from '@api/cart/cart.actions';
 import MobileMenu from '@components/layout/MobileMenu';
+import { useGetCart } from '@api/cart/cart.hooks';
 
 const LayoutPage = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { initialized } = useAppSelector(state => state.auth);
 
+  useGetCart({
+    enabled: initialized,
+  });
+
   useEffect(() => {
     dispatch(fetchMe());
   }, [dispatch]);
-
-  useEffect(() => {
-    if (initialized) {
-      dispatch(getCart());
-    }
-  }, [dispatch, initialized]);
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F5F5DC]">
