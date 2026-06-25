@@ -16,7 +16,7 @@ const queryClient = new QueryClient();
 createRoot(document.getElementById('root')!).render(
   <Provider store={store}>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter basename="/Front-end-Verdora/">
+      <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
