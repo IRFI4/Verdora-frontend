@@ -88,6 +88,7 @@ const Register = () => {
             onChange={value =>
               setValue('password', value, { shouldValidate: true })
             }
+            error={formErrors.password?.message}
           />
           <PasswordStrength password={watch('password')} />
         </div>

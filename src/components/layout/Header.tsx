@@ -9,6 +9,8 @@ import CartIcon from '@assets/icons/cart.svg?react';
 import SearchIcon from '@assets/icons/search.svg?react';
 import MenuIcon from '@assets/icons/menu.svg?react';
 import Navlink from '@components/common/Navlink';
+import { useQueryClient } from '@tanstack/react-query';
+import { useGetCart } from '@api/cart/cart.hooks';
 
 type HeaderProps = {
   onOpenMenu: () => void;
@@ -16,30 +18,32 @@ type HeaderProps = {
 
 const Header = ({ onOpenMenu }: HeaderProps) => {
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
   const { user, hydrating } = useAppSelector(state => state.auth);
+
+  const { data: cart } = useGetCart();
+  const items = cart?.items || [];
+  const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleLogout = () => {
     dispatch(logout());
+    queryClient.removeQueries({ queryKey: ['cart'] });
   };
 
   return (
     <header className="sticky flex justify-center top-0 z-50 w-full border-b border-zinc-200 bg-transparent backdrop-blur">
       <div className=" w-full max-w-[1696px] mx-[2px] px-16 md:px-24">
         <div className="flex w-full h-81 items-center justify-between">
-          {/* Logo */}
           <Logo />
 
-          {/* Navigation */}
-          <nav className="hidden lg:flex items-center gap-32 [font-family:var(--font-sans)] text-[14px] text-[var(--text)]">
+          <nav className="hidden lg:flex items-center gap-32 [font-family:var(--font-sans)] text-[14px] text-text">
             <Navlink to="/">Main Page</Navlink>
             <Navlink to="/categories">Categories</Navlink>
             <Navlink to="/products">All products</Navlink>
             <Navlink to="/sales">All sales</Navlink>
           </nav>
 
-          {/* Right side: Search, Cart, Profile */}
           <div className="flex items-center gap-16">
-            {/* Search */}
             <div className="hidden md:flex items-center gap-12 rounded-full border border-zinc-300 bg-zinc-50 px-16 py-8 w-[224px] h-[38px]">
               <SearchIcon />
               <input
@@ -48,8 +52,6 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
                 className="flex-1 bg-transparent text-[14px] text-[#2C332D] placeholder:text-zinc-400 focus:outline-none"
               />
             </div>
-
-            {/* Favourite Icon */}
 
             <Link
               to="/favourites"
@@ -62,17 +64,17 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
               </span>
             </Link>
 
-            {/* Cart Icon */}
-
             <Link
               to="/cart"
               className="relative flex size-40 items-center justify-center rounded-full hover:bg-zinc-100 transition-colors"
               aria-label="Shopping cart"
             >
               <CartIcon className="size-20" />
-              <span className="absolute -top-1 right-1 flex size-16 items-center justify-center rounded-full bg-[var(--accent)] text-[10px] font-bold text-white">
-                3
-              </span>
+              {cartItemCount > 0 && (
+                <span className="absolute -top-1 right-1 flex size-16 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white">
+                  {cartItemCount}
+                </span>
+              )}
             </Link>
 
             {hydrating ? (
@@ -80,7 +82,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
             ) : user ? (
               <div className="flex items-center gap-12">
                 <Link to="/profile">
-                  <div className="flex size-36 items-center justify-center rounded-full bg-[var(--accent)] text-white text-[13px] font-bold">
+                  <div className="flex size-36 items-center justify-center rounded-full bg-accent text-white text-[13px] font-bold">
                     {user.name?.charAt(0).toUpperCase() ?? '?'}
                   </div>
                 </Link>
@@ -93,17 +95,14 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
                 </Button>
               </div>
             ) : (
-              <Link to="/login">
-                <Button
-                  variant="active"
-                  className="h-36 px-20 text-[14px] w-[90px]"
-                >
-                  Sign In
-                </Button>
-              </Link>
+              <Button
+                variant="active"
+                className="h-36 px-20 text-[14px] w-[90px]"
+                asChild
+              >
+                <Link to="/login">Sign In</Link>
+              </Button>
             )}
-
-            {/* Mobile menu button */}
             <button
               className="lg:hidden flex size-40 items-center justify-center rounded-full hover:bg-zinc-100 transition-colors"
               aria-label="Open menu"
