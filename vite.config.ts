@@ -5,7 +5,7 @@ import svgr from 'vite-plugin-svgr';
 import path from 'path';
 
 export default defineConfig(({ mode }) => ({
-  base: mode === 'production' ? '/Front-end-Verdora/' : '/',
+  base: mode === 'production' ? '/Verdora-frontend/' : '/',
   plugins: [react(), tailwindcss(), svgr()],
   resolve: {
     alias: {
