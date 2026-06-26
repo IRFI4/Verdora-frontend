@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { store } from '@api/store';
-import { logout } from '@api/auth/auth.actions';
+import { clearAuth } from '@api/auth/auth.slice';
 
 const instance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -30,9 +30,12 @@ instance.interceptors.response.use(
     const originalRequest = error.config;
 
     const url: string = originalRequest?.url ?? '';
-    const skipRefresh = ['/auth/login', '/auth/register', '/auth/refresh'].some(
-      path => url.includes(path)
-    );
+    const skipRefresh = [
+      '/auth/login',
+      '/auth/register',
+      '/auth/refresh',
+      '/users/current-user',
+    ].some(path => url.includes(path));
 
     if (
       error.response?.status === 401 &&
@@ -56,7 +59,7 @@ instance.interceptors.response.use(
         return instance(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError);
-        store.dispatch(logout());
+        store.dispatch(clearAuth());
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

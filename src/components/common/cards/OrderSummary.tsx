@@ -99,7 +99,7 @@ const OrderSummary = ({
               )}
             />
           </div>
-          <span className="text-[14px] text-(--text) [font-family:var(--font-sans)]">
+          <span className="text-[14px] text-text [font-family:var(--font-sans)]">
             I agree to the{' '}
             <Link
               to="/terms"

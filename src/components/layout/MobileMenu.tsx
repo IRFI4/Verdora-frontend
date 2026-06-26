@@ -25,7 +25,7 @@ const MobileMenu = ({ onClose }: MobileMenuProps) => {
           <CloseIcon className="size-32" />
         </button>
 
-        <nav className="flex flex-col gap-8 p-6 pt-20 mt-48 [font-family:var(--font-sans)] text-[14px] text-[var(--text)]">
+        <nav className="flex flex-col gap-8 p-6 pt-20 mt-48 [font-family:var(--font-sans)] text-[14px] text-text">
           <Navlink to="/">Main Page</Navlink>
           <Navlink to="/categories">Categories</Navlink>
           <Navlink to="/products">All products</Navlink>

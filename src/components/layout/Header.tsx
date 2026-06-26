@@ -9,7 +9,8 @@ import CartIcon from '@assets/icons/cart.svg?react';
 import SearchIcon from '@assets/icons/search.svg?react';
 import MenuIcon from '@assets/icons/menu.svg?react';
 import Navlink from '@components/common/Navlink';
-import { clearCart } from '@api/cart/cart.actions';
+import { useQueryClient } from '@tanstack/react-query';
+import { useGetCart } from '@api/cart/cart.hooks';
 
 type HeaderProps = {
   onOpenMenu: () => void;
@@ -17,14 +18,16 @@ type HeaderProps = {
 
 const Header = ({ onOpenMenu }: HeaderProps) => {
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
   const { user, hydrating } = useAppSelector(state => state.auth);
 
-  const { items } = useAppSelector(state => state.cart);
+  const { data: cart } = useGetCart();
+  const items = cart?.items || [];
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleLogout = () => {
     dispatch(logout());
-    dispatch(clearCart());
+    queryClient.removeQueries({ queryKey: ['cart'] });
   };
 
   return (
@@ -33,7 +36,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
         <div className="flex w-full h-81 items-center justify-between">
           <Logo />
 
-          <nav className="hidden lg:flex items-center gap-32 [font-family:var(--font-sans)] text-[14px] text-[var(--text)]">
+          <nav className="hidden lg:flex items-center gap-32 [font-family:var(--font-sans)] text-[14px] text-text">
             <Navlink to="/">Main Page</Navlink>
             <Navlink to="/categories">Categories</Navlink>
             <Navlink to="/products">All products</Navlink>

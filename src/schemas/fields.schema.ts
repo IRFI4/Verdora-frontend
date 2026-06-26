@@ -6,6 +6,9 @@ export const passwordSchema = z
   .string()
   .min(8, 'Min 8 characters')
   .max(64, 'Max 64 characters')
+  .refine(val => /^[\x20-\x7E]+$/.test(val), {
+    message: 'Only Latin characters are allowed',
+  })
   .refine(val => /[a-z]/.test(val), {
     message: 'There must be at least one lowercase letter',
   })
@@ -25,7 +28,9 @@ export const usernameSchema = z
   .max(10, 'Max 10 characters')
   .regex(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers and underscore');
 
-export const phoneNumberSchema = z.e164();
+export const phoneNumberSchema = z
+  .string()
+  .regex(/^\+[1-9]\d{7,14}$/, 'Invalid phone number format');
 
 export const termsSchema = z.boolean().refine(val => val === true, {
   message: 'You must accept the Terms and Conditions',
