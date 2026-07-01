@@ -9,16 +9,7 @@ import {
   useUpdateCategory,
   useDeleteCategory,
 } from '@api/category/category.hooks';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@components/ui/alert-dialog';
+import AlertComponent from '@components/common/dialog/AlertComponent';
 
 type Props = {
   category: Category;
@@ -123,57 +114,28 @@ const CategoryRow = ({ category, categoryMaxLength }: Props) => {
         </div>
       </DialogComponent>
 
-      <AlertDialog
-        open={isDeleteDialogOpen}
+      <AlertComponent
+        isAlertDialogOpen={isDeleteDialogOpen}
+        errorText={errorDelete}
         onOpenChange={open => {
           setIsDeleteDialogOpen(open);
           if (!open) {
             deleteMutation.reset();
           }
         }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              category{' '}
-              <span className="font-semibold text-foreground">
-                "{category.name}"
-              </span>{' '}
-              and all associated data.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          {errorDelete && (
-            <p className="text-sm text-destructive font-medium" role="alert">
-              {errorDelete}
-            </p>
-          )}
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteMutation.isPending}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={e => {
-                e.preventDefault();
-                deleteMutation.mutate(
-                  { categoryId: category.categoryId },
-                  {
-                    onSuccess: () => {
-                      setIsDeleteDialogOpen(false);
-                      setIsEditOpen(false);
-                    },
-                  }
-                );
-              }}
-              disabled={deleteMutation.isPending}
-            >
-              {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onAction={() => {
+          deleteMutation.mutate(
+            { categoryId: category.categoryId },
+            {
+              onSuccess: () => {
+                setIsDeleteDialogOpen(false);
+                setIsEditOpen(false);
+              },
+            }
+          );
+        }}
+        isDeleting={deleteMutation.isPending}
+      />
     </li>
   );
 };

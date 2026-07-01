@@ -39,7 +39,7 @@ export const useCancelOrder = () => {
   });
 };
 
-export const useGetOrderById = (orderId: number) => {
+export const useOrderById = (orderId: number) => {
   return useQuery<Order, OrderAxiosError>({
     queryKey: ['orders', orderId],
     queryFn: () => orderService.getOrderById(orderId),

@@ -11,6 +11,7 @@ import ResetPassword from '@pages/auth/ResetPassword';
 import Cart from '@pages/Cart';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AdminCategoriesPage from '@pages/admin/CategoryPage';
+import AdminOrderPage from '@pages/admin/OrderPage';
 
 const queryClient = new QueryClient();
 createRoot(document.getElementById('root')!).render(
@@ -27,6 +28,7 @@ createRoot(document.getElementById('root')!).render(
 
           <Route path="/admin">
             <Route path="categories" element={<AdminCategoriesPage />} />
+            <Route path="orders" element={<AdminOrderPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
