@@ -11,25 +11,28 @@ import ResetPassword from '@pages/auth/ResetPassword';
 import Cart from '@pages/Cart';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AdminCategoriesPage from '@pages/admin/CategoryPage';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 const queryClient = new QueryClient();
 createRoot(document.getElementById('root')!).render(
   <Provider store={store}>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter basename={import.meta.env.BASE_URL}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/cart" element={<Cart />} />
+      <TooltipProvider>
+        <BrowserRouter basename={import.meta.env.BASE_URL}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/cart" element={<Cart />} />
 
-          <Route path="/admin">
-            <Route path="categories" element={<AdminCategoriesPage />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+            <Route path="/admin">
+              <Route path="categories" element={<AdminCategoriesPage />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
     </QueryClientProvider>
   </Provider>
 );
