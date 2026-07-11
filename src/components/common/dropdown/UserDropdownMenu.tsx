@@ -53,7 +53,7 @@ const UserDropdownMenu = ({
         {children ? (
           children
         ) : (
-          <Avatar className="w-10 h-10 cursor-pointer">
+          <Avatar>
             <AvatarImage src={avatar} alt="User avatar" />
             <AvatarFallback>
               <Skeleton className="w-full h-full rounded-full" />
@@ -62,19 +62,19 @@ const UserDropdownMenu = ({
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+        className="w-[--radix-dropdown-menu-trigger-width] "
         side={isMobile ? 'bottom' : 'right'}
         align="end"
         sideOffset={4}
       >
         <DropdownMenuLabel>
-          <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-            <Avatar className="w-10 h-10">
+          <div className="flex items-center gap-2 ">
+            <Avatar>
               <AvatarFallback>
                 {username?.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div className="grid flex-1 text-left text-sm leading-tight">
+            <div className="grid flex-1 text-sm leading-tight">
               <span className="truncate font-semibold">{username}</span>
               <span className="truncate text-xs text-muted-foreground">
                 {email}

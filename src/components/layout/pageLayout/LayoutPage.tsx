@@ -23,7 +23,7 @@ const LayoutPage = ({ children }: { children: React.ReactNode }) => {
     <div className="flex min-h-screen flex-col bg-[#F5F5DC]">
       <Header onOpenMenu={() => setIsMenuOpen(true)} />
       {isMenuOpen && <MobileMenu onClose={() => setIsMenuOpen(false)} />}
-      <main className="flex flex-1 flex-col w-full max-w-[427.5px] mx-auto px-4">
+      <main className="flex flex-1 flex-col w-full max-w-427.5 mx-auto px-4">
         {children}
       </main>
       <Footer />
