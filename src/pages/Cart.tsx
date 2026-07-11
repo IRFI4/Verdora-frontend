@@ -1,4 +1,4 @@
-import LayoutPage from '@components/layout/LayoutPage';
+import LayoutPage from '@components/layout/pageLayout/LayoutPage';
 import { Button } from '@components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
 import CartIcon from '@assets/icons/cart.svg?react';
@@ -8,7 +8,7 @@ import { useMemo } from 'react';
 import { useProceedToCheckout } from '@hooks/useProceedToCheckout';
 import { rateLimit } from '@/utils/rateLimit';
 import CartItemSkeleton from '@components/common/cards/CartItemSkeleton';
-import CartHeader from '@components/layout/CartHeader';
+import CartHeader from '@components/layout/pageComponents/CartHeader';
 import { EmptySection } from '@components/common/section/EmptySection';
 import ErrorSection from '@components/common/section/ErrorSection';
 import {
@@ -113,9 +113,9 @@ const Cart = () => {
           title="Cart is empty"
           description="You haven't added any products yet. Browse our collection and find something you love."
           className="flex-1 p-4"
-          icon={<CartIcon className="size-64" />}
+          icon={<CartIcon className="size-4" />}
           action={
-            <Button variant="active" asChild>
+            <Button variant="default" asChild>
               <Link to="/catalog">Continue Shopping</Link>
             </Button>
           }

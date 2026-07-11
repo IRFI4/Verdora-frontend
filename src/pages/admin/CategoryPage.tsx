@@ -94,11 +94,11 @@ const AdminCategoriesPage = () => {
             <EmptySection
               title="No categories yet"
               description="Create your first category to start organizing products."
-              className="rounded-xl border border-dashed border-border bg-card px-6 py-12"
+              className="rounded-xl border border-dashed border-border bg-card px-6 py-3"
               icon={
                 <div className="flex items-center justify-center rounded-full bg-primary/10 p-4">
                   <FolderOpen
-                    className="size-16 text-primary"
+                    className="size-4 text-primary"
                     aria-hidden="true"
                   />
                 </div>
@@ -111,7 +111,7 @@ const AdminCategoriesPage = () => {
                   }}
                   className="cursor-pointer"
                 >
-                  <Plus className="size-16" aria-hidden="true" />
+                  <Plus className="size-4" aria-hidden="true" />
                   Create category
                 </Button>
               }

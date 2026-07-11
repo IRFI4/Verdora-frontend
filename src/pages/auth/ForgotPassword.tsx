@@ -1,4 +1,4 @@
-import AuthForm from '@components/layout/Auth';
+import AuthForm from '@/components/layout/pageComponents/Auth';
 import TextField from '@components/common/forms/TextField';
 import { Button } from '@components/ui/button';
 import { Link } from 'react-router';
@@ -48,7 +48,7 @@ const ForgotPassword = () => {
       subtitle="Enter your email and we'll send you a reset link"
     >
       <form
-        className="flex flex-col items-center justify-center gap-24 w-full"
+        className="flex flex-col items-center justify-center gap-6 w-full"
         onSubmit={handleSubmit(onSubmit)}
       >
         <TextField
@@ -70,7 +70,6 @@ const ForgotPassword = () => {
         )}
         <Button
           className="w-full"
-          variant={'active'}
           type="submit"
           disabled={!isValid || loading.forgot}
         >
@@ -80,7 +79,7 @@ const ForgotPassword = () => {
           to="/login"
           className="text-accent [font-family:var(--font-sans)] flex items-center"
         >
-          <ArrowIcon className="size-6 w-20 h-20 mr-12 cursor-pointer" />
+          <ArrowIcon className="size-5 mr-3 cursor-pointer" />
           Back to Sign In
         </Link>
       </form>

@@ -51,10 +51,7 @@ const TextField = ({
         <div className="flex items-center justify-between">
           {label && (
             <FieldLabel
-              className={cn(
-                'text-[14px] font-medium text-text-h',
-                labelClassName
-              )}
+              className={cn('text-xs font-medium text-text-h', labelClassName)}
               htmlFor={id}
             >
               {label}
@@ -65,7 +62,7 @@ const TextField = ({
       )}
       <InputGroup
         className={cn(
-          `h-[50px] w-full rounded-[12px] border bg-block-bg
+          `h-10 w-full rounded-[12px] bg-block-bg
           border-2 border-zinc-300
           has-[[data-slot=input-group-control]:focus-visible]:border-accent
           has-[[data-slot=input-group-control]:focus-visible]:ring-0`,
@@ -80,9 +77,9 @@ const TextField = ({
           value={value}
           onChange={e => onChange(e.target.value)}
           className={cn(
-            `h-full w-full bg-transparent pl-16 pr-16
-            text-[16px] text-text-h
-            placeholder:text-[16px] placeholder:[font-family:var(--font-sans)] placeholder:text-text-muted`,
+            `h-full w-full bg-transparent
+            text-sm text-text-h
+            placeholder:text-sm placeholder:[font-family:var(--font-sans)] placeholder:text-text-muted`,
             error && 'placeholder:text-red-400',
             inputClassName
           )}
