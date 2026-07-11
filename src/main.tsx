@@ -11,7 +11,8 @@ import ResetPassword from '@pages/auth/ResetPassword';
 import Cart from '@pages/Cart';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AdminCategoriesPage from '@pages/admin/CategoryPage';
-import { TooltipProvider } from '@/components/ui/tooltip';
+import { TooltipProvider } from '@components/ui/tooltip';
+import AdminDashboard from '@pages/admin/Dashboard';
 
 const queryClient = new QueryClient();
 createRoot(document.getElementById('root')!).render(
@@ -28,6 +29,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/cart" element={<Cart />} />
 
             <Route path="/admin">
+              <Route index element={<AdminDashboard />} />
               <Route path="categories" element={<AdminCategoriesPage />} />
             </Route>
           </Routes>
