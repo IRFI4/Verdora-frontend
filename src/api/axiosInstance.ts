@@ -5,6 +5,9 @@ import { clearAuth } from '@api/auth/auth.slice';
 const instance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
+  paramsSerializer: {
+    indexes: null,
+  },
 });
 
 let isRefreshing = false;
