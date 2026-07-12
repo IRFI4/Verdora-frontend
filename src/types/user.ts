@@ -3,6 +3,7 @@ export type UserType = {
   name: string;
   email: string;
   phone: string;
+  role?: Roles;
 };
 
 export type UpdateUserPayload = {
@@ -15,3 +16,5 @@ export type GetAllUsersPayload = {
   size: number;
   sort?: string[];
 };
+
+export type Roles = 'GUEST' | 'USER' | 'ADMIN';
