@@ -1,4 +1,4 @@
-import { CreditCard, DollarSign, Users, Package } from 'lucide-react';
+import { CreditCard, DollarSign } from 'lucide-react';
 
 export const KPI_METRICS = [
   {
@@ -8,22 +8,10 @@ export const KPI_METRICS = [
     icon: DollarSign,
   },
   {
-    title: 'Active Users',
-    value: '+2350',
-    description: '+180.1% from last month',
-    icon: Users,
-  },
-  {
     title: 'Sales',
     value: '+12,234',
     description: '+19% from last month',
     icon: CreditCard,
-  },
-  {
-    title: 'New Orders',
-    value: '+573',
-    description: '+201 since last hour',
-    icon: Package,
   },
 ];
 

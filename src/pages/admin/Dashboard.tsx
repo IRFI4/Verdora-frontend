@@ -16,40 +16,136 @@ import {
 } from '@components/ui/table';
 import { Badge } from '@components/ui/badge';
 import { KPI_METRICS, RECENT_ORDERS } from '@fixtures/dashboard.fixture';
+import AdminSectionHeader from '@components/common/section/AdminSectionHeader';
+import { useGetAllUsers } from '@api/user/user.hooks';
+import { useAllCategories } from '@api/category/category.hooks';
+import { Spinner } from '@components/ui/spinner';
+import { ChartBarStacked, Users } from 'lucide-react';
+import {
+  DashboardMetricCard,
+  DashboardMetricCardSkeleton,
+} from '@components/common/cards/DashboardMetricCard';
+import { useState } from 'react';
+import { PaginationComponent } from '@components/common/pagination/Pagination';
 
 const AdminDashboard = () => {
+  const [page, setPage] = useState(0);
+  const {
+    data: usersData,
+    isPending: userPending,
+    isError: userError,
+  } = useGetAllUsers({ page, size: 5 });
+  const {
+    data: categoriesData,
+    isPending: categoriesPending,
+    isError: categoriesError,
+  } = useAllCategories();
+
   return (
     <AdminLayout>
       <div className="flex flex-col gap-6 w-full animate-in fade-in-0 duration-500">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Dashboard
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Overview of your store's performance.
-          </p>
-        </div>
+        <AdminSectionHeader
+          title="Dashboard"
+          description="Overview of your store's performance."
+        />
 
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {KPI_METRICS.map((metric, index) => (
-            <Card key={index} className="border-border shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {metric.title}
-                </CardTitle>
-                <metric.icon className="size-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">
-                  {metric.value}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {metric.description}
-                </p>
-              </CardContent>
-            </Card>
+            <DashboardMetricCard
+              key={index}
+              value={metric.value}
+              title={metric.title}
+              description={metric.description}
+              icon={metric.icon}
+            />
           ))}
+          {userPending ? (
+            <DashboardMetricCardSkeleton />
+          ) : (
+            !userError &&
+            usersData && (
+              <DashboardMetricCard
+                key="total-users"
+                value={usersData.content.length.toString()}
+                title="Total Users"
+                description="Number of users registered"
+                icon={Users}
+              />
+            )
+          )}
+          {categoriesPending ? (
+            <DashboardMetricCardSkeleton />
+          ) : (
+            !categoriesError &&
+            categoriesData && (
+              <DashboardMetricCard
+                key="total-categories"
+                value={categoriesData.length.toString()}
+                title="Total Categories"
+                description="Number of categories"
+                icon={ChartBarStacked}
+              />
+            )
+          )}
         </div>
+
+        {userError && (
+          <div className="p-4 rounded-md bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20">
+            An error occurred while loading the data. Please try again later.
+          </div>
+        )}
+
+        {userPending && !userError && (
+          <div className="flex justify-center items-center p-8">
+            <Spinner className="size-8 text-primary" />
+          </div>
+        )}
+
+        {!userPending && !userError && usersData && (
+          <Card className="border-border shadow-sm">
+            <CardHeader>
+              <CardTitle>Recent Users</CardTitle>
+              <CardDescription>
+                Overview of the latest registered users.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[100px] sm:w-[120px]">ID</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead className="hidden sm:table-cell">
+                      Email
+                    </TableHead>
+                    <TableHead className="text-right">Phone</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {usersData.content.map(user => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium">{user.id}</TableCell>
+                      <TableCell className="font-medium">{user.name}</TableCell>
+                      <TableCell className="hidden sm:table-cell text-muted-foreground">
+                        {user.email}
+                      </TableCell>
+                      <TableCell className="text-right">{user.phone}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {usersData.totalPages > 1 && (
+                <div className="mt-4">
+                  <PaginationComponent
+                    currentPage={usersData.number}
+                    totalPages={usersData.totalPages}
+                    onPageChange={setPage}
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="border-border shadow-sm">
           <CardHeader>
