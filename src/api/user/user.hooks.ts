@@ -37,6 +37,7 @@ export const useGetCurrentUser = () => {
   return useQuery<UserType, CartAxiosError>({
     queryKey: ['profile'],
     queryFn: () => userService.getCurrentUser(),
+    retry: false,
   });
 };
 

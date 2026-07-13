@@ -66,7 +66,7 @@ const AdminDashboard = () => {
             usersData && (
               <DashboardMetricCard
                 key="total-users"
-                value={usersData.content.length.toString()}
+                value={usersData.totalElements.toString()}
                 title="Total Users"
                 description="Number of users registered"
                 icon={Users}
