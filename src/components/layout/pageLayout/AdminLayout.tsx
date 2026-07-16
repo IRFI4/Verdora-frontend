@@ -1,31 +1,26 @@
-import { useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '@api/hooks';
-import { fetchMe } from '@api/auth/auth.actions';
+import { useAppSelector } from '@api/hooks';
 import { useGetCart } from '@api/cart/cart.hooks';
 import { SidebarInset, SidebarProvider } from '@components/ui/sidebar';
 import AdminSidebar from '@components/layout/pageComponents/sidebar/AdminSidebar';
 import AdminHeader from '@components/layout/pageComponents/AdminHeader';
 import AdminFooter from '@components/layout/pageComponents/AdminFooter';
+import { useGetCurrentUser } from '@api/user/user.hooks';
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
-  const dispatch = useAppDispatch();
   const { initialized } = useAppSelector(state => state.auth);
 
   useGetCart({
     enabled: initialized,
   });
 
-  const { user } = useAppSelector(state => state.auth);
-
-  useEffect(() => {
-    dispatch(fetchMe());
-  }, [dispatch]);
+  const { data: user, isPending: userPending } = useGetCurrentUser();
 
   return (
     <SidebarProvider>
       <AdminSidebar
         username={user?.name || 'Guest'}
         email={user?.email || 'email@example.com'}
+        loading={userPending}
       />
       <SidebarInset>
         <div className="flex min-h-screen flex-col bg-[#F5F5DC]">

@@ -16,9 +16,10 @@ import { ADMIN_MENU } from '@fixtures/sidebar.fixture';
 type Props = {
   username: string;
   email: string;
+  loading?: boolean;
 };
 
-const AdminSidebar = ({ username, email }: Props) => {
+const AdminSidebar = ({ username, email, loading }: Props) => {
   const adminMenuItems = ADMIN_MENU;
   const location = useLocation();
 
@@ -57,7 +58,11 @@ const AdminSidebar = ({ username, email }: Props) => {
           </SidebarGroup>
         ))}
       </SidebarContent>
-      <SidebarFooterComponent username={username} email={email} />
+      <SidebarFooterComponent
+        username={username}
+        email={email}
+        loading={loading}
+      />
     </Sidebar>
   );
 };
