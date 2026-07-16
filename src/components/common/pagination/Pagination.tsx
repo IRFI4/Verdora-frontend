@@ -46,9 +46,23 @@ export const PaginationComponent = ({
     }
 
     if (startPage > 0) {
+      if (startPage > 2) {
+        pages.push(
+          <PaginationItem key="start-ellipsis">
+            <PaginationEllipsis />
+          </PaginationItem>
+        );
+      }
+
       pages.push(
-        <PaginationItem key="start-ellipsis">
-          <PaginationEllipsis />
+        <PaginationItem key={0}>
+          <PaginationLink
+            href="#"
+            isActive={currentPage === 0}
+            onClick={e => handlePageChange(e, 0)}
+          >
+            1
+          </PaginationLink>
         </PaginationItem>
       );
     }
@@ -68,9 +82,23 @@ export const PaginationComponent = ({
     }
 
     if (endPage < totalPages - 1) {
+      if (endPage < totalPages - 1) {
+        pages.push(
+          <PaginationItem key="end-ellipsis">
+            <PaginationEllipsis />
+          </PaginationItem>
+        );
+      }
+
       pages.push(
-        <PaginationItem key="end-ellipsis">
-          <PaginationEllipsis />
+        <PaginationItem key={totalPages - 1}>
+          <PaginationLink
+            href="#"
+            isActive={currentPage === totalPages - 1}
+            onClick={e => handlePageChange(e, totalPages - 1)}
+          >
+            {totalPages}
+          </PaginationLink>
         </PaginationItem>
       );
     }
