@@ -26,34 +26,25 @@ export const PaginationComponent = ({
     page: number
   ) => {
     e.preventDefault();
-    if (page >= 0 && page < totalPages) {
+    if (page >= 0 && page < totalPages && page !== currentPage) {
       onPageChange(page);
     }
   };
 
   const renderPages = () => {
     const pages = [];
-    const maxVisiblePages = 5;
-    let startPage = Math.max(0, currentPage - 2);
-    let endPage = Math.min(totalPages - 1, currentPage + 2);
+    const maxVisible = 5;
 
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      if (startPage === 0) {
-        endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 1);
-      } else if (endPage === totalPages - 1) {
-        startPage = Math.max(0, endPage - maxVisiblePages + 1);
-      }
+    let startPage = Math.max(0, currentPage - 1);
+    let endPage = Math.min(totalPages - 1, currentPage + 1);
+
+    if (currentPage <= 1) {
+      endPage = Math.min(totalPages - 1, maxVisible - 1);
+    } else if (currentPage >= totalPages - 2) {
+      startPage = Math.max(0, totalPages - maxVisible);
     }
 
     if (startPage > 0) {
-      if (startPage > 2) {
-        pages.push(
-          <PaginationItem key="start-ellipsis">
-            <PaginationEllipsis />
-          </PaginationItem>
-        );
-      }
-
       pages.push(
         <PaginationItem key={0}>
           <PaginationLink
@@ -65,6 +56,14 @@ export const PaginationComponent = ({
           </PaginationLink>
         </PaginationItem>
       );
+
+      if (startPage > 1) {
+        pages.push(
+          <PaginationItem key="start-ellipsis">
+            <PaginationEllipsis />
+          </PaginationItem>
+        );
+      }
     }
 
     for (let i = startPage; i <= endPage; i++) {
@@ -82,7 +81,7 @@ export const PaginationComponent = ({
     }
 
     if (endPage < totalPages - 1) {
-      if (endPage < totalPages - 1) {
+      if (endPage < totalPages - 2) {
         pages.push(
           <PaginationItem key="end-ellipsis">
             <PaginationEllipsis />
@@ -114,21 +113,27 @@ export const PaginationComponent = ({
             href="#"
             onClick={e => handlePageChange(e, currentPage - 1)}
             aria-disabled={currentPage === 0}
+            tabIndex={currentPage === 0 ? -1 : undefined}
             className={
-              currentPage === 0 ? 'pointer-events-none opacity-50' : ''
+              currentPage === 0
+                ? 'pointer-events-none opacity-50'
+                : 'cursor-pointer'
             }
           />
         </PaginationItem>
+
         {renderPages()}
+
         <PaginationItem>
           <PaginationNext
             href="#"
             onClick={e => handlePageChange(e, currentPage + 1)}
             aria-disabled={currentPage === totalPages - 1}
+            tabIndex={currentPage === totalPages - 1 ? -1 : undefined}
             className={
               currentPage === totalPages - 1
                 ? 'pointer-events-none opacity-50'
-                : ''
+                : 'cursor-pointer'
             }
           />
         </PaginationItem>

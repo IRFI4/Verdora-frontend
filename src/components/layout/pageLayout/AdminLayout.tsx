@@ -1,5 +1,3 @@
-import { useAppSelector } from '@api/hooks';
-import { useGetCart } from '@api/cart/cart.hooks';
 import { SidebarInset, SidebarProvider } from '@components/ui/sidebar';
 import AdminSidebar from '@components/layout/pageComponents/sidebar/AdminSidebar';
 import AdminHeader from '@components/layout/pageComponents/AdminHeader';
@@ -7,12 +5,6 @@ import AdminFooter from '@components/layout/pageComponents/AdminFooter';
 import { useGetCurrentUser } from '@api/user/user.hooks';
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
-  const { initialized } = useAppSelector(state => state.auth);
-
-  useGetCart({
-    enabled: initialized,
-  });
-
   const { data: user, isPending: userPending } = useGetCurrentUser();
 
   return (
