@@ -1,4 +1,4 @@
-import AuthForm from '@components/layout/Auth';
+import AuthForm from '@/components/layout/pageComponents/Auth';
 import PasswordField from '@components/common/forms/PasswordField';
 import PasswordStrength from '@components/common/forms/PasswordStrength';
 import { Button } from '@components/ui/button';
@@ -66,7 +66,6 @@ const ResetPassword = () => {
           <Button
             type="button"
             className="w-full"
-            variant="active"
             onClick={() => navigate('/login')}
           >
             Back to Sign In
@@ -74,7 +73,7 @@ const ResetPassword = () => {
         </div>
       ) : (
         <form
-          className="flex flex-col items-center justify-center gap-24 w-full"
+          className="flex flex-col items-center justify-center gap-6 w-full"
           onSubmit={handleSubmit(onSubmit)}
         >
           <div className="w-full">
@@ -103,7 +102,6 @@ const ResetPassword = () => {
           )}
           <Button
             className="w-full"
-            variant={'active'}
             type="submit"
             disabled={!isValid || loading.reset}
           >
@@ -113,7 +111,7 @@ const ResetPassword = () => {
             to="/login"
             className="text-accent [font-family:var(--font-sans)] flex items-center"
           >
-            <ArrowIcon className="size-6 w-20 h-20 mr-12 cursor-pointer" />
+            <ArrowIcon className="size-5 mr-3 cursor-pointer" />
             Back to Sign In
           </Link>
         </form>

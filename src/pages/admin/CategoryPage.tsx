@@ -1,3 +1,4 @@
+import AdminLayout from '@components/layout/pageLayout/AdminLayout';
 import AdminSectionHeader from '@components/common/section/AdminSectionHeader';
 import { Button } from '@components/ui/button';
 import { FolderOpen, Plus } from 'lucide-react';
@@ -51,8 +52,8 @@ const AdminCategoriesPage = () => {
   const errorCreate = createMutation.error?.response?.data?.message;
 
   return (
-    <main className="min-h-screen bg-background text-text">
-      <div className="flex flex-1 flex-col w-full max-w-[1710px] mx-auto px-6 py-8">
+    <AdminLayout>
+      <div className="flex flex-1 flex-col w-full mx-auto px-6 py-8">
         <AdminSectionHeader
           title={
             <div className="flex items-center gap-3">
@@ -75,7 +76,7 @@ const AdminCategoriesPage = () => {
             }}
             className="w-full sm:w-auto cursor-pointer"
           >
-            <Plus className="size-16" aria-hidden="true" />
+            <Plus aria-hidden="true" />
             Create category
           </Button>
         </AdminSectionHeader>
@@ -93,11 +94,11 @@ const AdminCategoriesPage = () => {
             <EmptySection
               title="No categories yet"
               description="Create your first category to start organizing products."
-              className="rounded-xl border border-dashed border-border bg-card px-6 py-12"
+              className="rounded-xl border border-dashed border-border bg-card px-6 py-3"
               icon={
                 <div className="flex items-center justify-center rounded-full bg-primary/10 p-4">
                   <FolderOpen
-                    className="size-16 text-primary"
+                    className="size-4 text-primary"
                     aria-hidden="true"
                   />
                 </div>
@@ -110,7 +111,7 @@ const AdminCategoriesPage = () => {
                   }}
                   className="cursor-pointer"
                 >
-                  <Plus className="size-16" aria-hidden="true" />
+                  <Plus className="size-4" aria-hidden="true" />
                   Create category
                 </Button>
               }
@@ -174,7 +175,7 @@ const AdminCategoriesPage = () => {
           </div>
         </DialogComponent>
       </div>
-    </main>
+    </AdminLayout>
   );
 };
 

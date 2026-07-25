@@ -3,5 +3,18 @@ export type UserType = {
   name: string;
   email: string;
   phone: string;
-  createdAt: string;
+  role?: Roles;
 };
+
+export type UpdateUserPayload = {
+  name?: string;
+  phone?: string;
+};
+
+export type GetAllUsersPayload = {
+  page: number;
+  size: number;
+  sort?: string[];
+};
+
+export type Roles = 'GUEST' | 'USER' | 'ADMIN';
