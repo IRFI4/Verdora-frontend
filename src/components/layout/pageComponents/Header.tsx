@@ -6,7 +6,6 @@ import { logout } from '@api/auth/auth.actions';
 import { Spinner } from '@components/ui/spinner';
 import FavouriteIcon from '@assets/icons/heart.svg?react';
 import CartIcon from '@assets/icons/cart.svg?react';
-import SearchIcon from '@assets/icons/search.svg?react';
 import MenuIcon from '@assets/icons/menu.svg?react';
 import Navlink from '@components/common/Navlink';
 import { useQueryClient } from '@tanstack/react-query';
@@ -31,21 +30,20 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
   };
 
   return (
-    <header className="sticky flex justify-center top-0 z-50 w-full border-b border-zinc-200 bg-transparent backdrop-blur">
-      <div className=" w-full max-w-[1696px] mx-[2px] px-16 md:px-24">
-        <div className="flex w-full h-81 items-center justify-between">
+    <header className="sticky flex justify-center w-full border-b border-zinc-200 bg-transparent backdrop-blur">
+      <div className=" w-full mx-0.5 px-4 md:px-6">
+        <div className="flex w-full h-10 items-center justify-between">
           <Logo />
 
-          <nav className="hidden lg:flex items-center gap-32 [font-family:var(--font-sans)] text-[14px] text-text">
+          <nav className="hidden lg:flex items-center gap-4 [font-family:var(--font-sans)] text-[14px] text-text">
             <Navlink to="/">Main Page</Navlink>
             <Navlink to="/categories">Categories</Navlink>
             <Navlink to="/products">All products</Navlink>
             <Navlink to="/sales">All sales</Navlink>
           </nav>
 
-          <div className="flex items-center gap-16">
-            <div className="hidden md:flex items-center gap-12 rounded-full border border-zinc-300 bg-zinc-50 px-16 py-8 w-[224px] h-[38px]">
-              <SearchIcon />
+          <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-3 rounded-full border border-zinc-300 bg-zinc-50 px-4 py-2 w-56 h-9">
               <input
                 type="text"
                 placeholder="Search products..."
@@ -55,56 +53,48 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
 
             <Link
               to="/favourites"
-              className="relative flex size-40 items-center justify-center rounded-full hover:bg-zinc-100 transition-colors"
+              className="relative flex size-8 items-center justify-center rounded-full hover:bg-zinc-100 transition-colors"
               aria-label="Favourite items"
             >
-              <FavouriteIcon className="size-20" />
-              <span className="absolute -top-1 right-1 flex size-16 items-center justify-center rounded-full bg-[#E07A5F] text-[10px] font-bold text-white">
+              <FavouriteIcon className="size-8" />
+              <span className="absolute -top-1 right-1 flex size-4 items-center justify-center rounded-full bg-[#E07A5F] text-[10px] font-bold text-white">
                 2
               </span>
             </Link>
 
             <Link
               to="/cart"
-              className="relative flex size-40 items-center justify-center rounded-full hover:bg-zinc-100 transition-colors"
+              className="relative flex size-8 items-center justify-center rounded-full hover:bg-zinc-100 transition-colors"
               aria-label="Shopping cart"
             >
-              <CartIcon className="size-20" />
+              <CartIcon className="size-8" />
               {cartItemCount > 0 && (
-                <span className="absolute -top-1 right-1 flex size-16 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white">
+                <span className="absolute -top-1 right-1 flex size-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white">
                   {cartItemCount}
                 </span>
               )}
             </Link>
 
             {hydrating ? (
-              <Spinner className="h-24 w-24" />
+              <Spinner className="h-5 w-5" />
             ) : user ? (
-              <div className="flex items-center gap-12">
+              <div className="flex items-center gap-3">
                 <Link to="/profile">
-                  <div className="flex size-36 items-center justify-center rounded-full bg-accent text-white text-[13px] font-bold">
+                  <div className="flex size-9 items-center justify-center rounded-full bg-accent text-white text-[13px] font-bold">
                     {user.name?.charAt(0).toUpperCase() ?? '?'}
                   </div>
                 </Link>
-                <Button
-                  variant="default"
-                  className="h-36 px-20 text-[14px]"
-                  onClick={handleLogout}
-                >
+                <Button variant="default" onClick={handleLogout}>
                   Sign Out
                 </Button>
               </div>
             ) : (
-              <Button
-                variant="active"
-                className="h-36 px-20 text-[14px] w-[90px]"
-                asChild
-              >
+              <Button variant="default" asChild>
                 <Link to="/login">Sign In</Link>
               </Button>
             )}
             <button
-              className="lg:hidden flex size-40 items-center justify-center rounded-full hover:bg-zinc-100 transition-colors"
+              className="lg:hidden flex items-center justify-center rounded-full hover:bg-zinc-100 transition-colors"
               aria-label="Open menu"
               onClick={() => onOpenMenu()}
             >

@@ -10,7 +10,7 @@ import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { register } from '@api/auth/auth.actions';
 import { rateLimit } from '@/utils/rateLimit';
 import { useMemo } from 'react';
-import AuthForm from '@components/layout/Auth';
+import AuthForm from '@components/layout/pageComponents/Auth';
 
 const Register = () => {
   const dispatch = useAppDispatch();
@@ -46,7 +46,7 @@ const Register = () => {
       subtitle="Join Verdora and start your green journey"
     >
       <form
-        className="flex flex-col items-center justify-center gap-24 w-full"
+        className="flex flex-col items-center justify-center gap-6 w-full"
         onSubmit={handleSubmit(onSubmit)}
       >
         <TextField
@@ -116,7 +116,7 @@ const Register = () => {
 
             <div
               className={cn(
-                'flex size-16 items-center justify-center rounded-[4px] border border-zinc-400 bg-white mr-4 transition',
+                'flex size-4 items-center justify-center rounded-lg border border-zinc-400 bg-white mr-1 transition',
                 accepted && 'border-[#2F5BFF] bg-[#2F5BFF]'
               )}
             >
@@ -127,12 +127,9 @@ const Register = () => {
                 )}
               />
             </div>
-            <span className="text-[14px] text-[var(--text)] [font-family:var(--font-sans)]">
+            <span className="text-sm [font-family:var(--font-sans)]">
               I agree to the{' '}
-              <Link
-                to="/terms"
-                className="text-[var(--accent)] underline underline-offset-4"
-              >
+              <Link to="/terms" className="underline underline-offset-4">
                 Terms and Conditions
               </Link>
             </span>
@@ -145,7 +142,6 @@ const Register = () => {
         )}
         <Button
           className="w-full"
-          variant={'active'}
           type="submit"
           disabled={!isValid || !accepted || loading.register}
         >
@@ -154,7 +150,7 @@ const Register = () => {
       </form>
       <p className="text-[16px] text-zinc-500 [font-family:var(--font-sans)]">
         Already have an account?{' '}
-        <Link to="/login" className="text-[var(--accent)] hover:underline">
+        <Link to="/login" className="hover:underline">
           Sign in
         </Link>
       </p>

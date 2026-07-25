@@ -17,9 +17,9 @@ const PasswordField = (props: Props) => {
       type={show ? 'text' : 'password'}
       rightIcon={
         show ? (
-          <EyeOpenIcon className="size-20 absolute right-12 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer" />
+          <EyeOpenIcon className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer" />
         ) : (
-          <EyeClosedIcon className="size-20 absolute right-12 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer" />
+          <EyeClosedIcon className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer" />
         )
       }
       onRightIconClick={() => setShow(prev => !prev)}

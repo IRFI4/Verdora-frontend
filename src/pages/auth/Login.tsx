@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { login } from '@api/auth/auth.actions';
 import { rateLimit } from '@/utils/rateLimit';
 import { useMemo } from 'react';
-import AuthForm from '@components/layout/Auth';
+import AuthForm from '@/components/layout/pageComponents/Auth';
 
 const Login = () => {
   const dispatch = useAppDispatch();
@@ -32,8 +32,6 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    // Return the user to wherever this app is actually mounted (root in dev,
-    // /Front-end-Verdora/ on GitHub Pages). BASE_URL reflects the vite `base`.
     const returnTo = encodeURIComponent(
       window.location.origin + import.meta.env.BASE_URL
     );
@@ -46,7 +44,7 @@ const Login = () => {
       subtitle="Access your account and orders"
     >
       <form
-        className="flex flex-col items-center justify-center gap-24 w-full"
+        className="flex flex-col items-center justify-center gap-6 w-full"
         onSubmit={handleSubmit(onSubmit)}
       >
         <TextField
@@ -63,7 +61,7 @@ const Login = () => {
           labelRight={
             <Link
               to="/forgot-password"
-              className="text-sm text-[var(--accent)] hover:underline"
+              className="text-sm text-accent hover:underline"
             >
               Forgot password?
             </Link>
@@ -82,7 +80,6 @@ const Login = () => {
         )}
         <Button
           className="w-full"
-          variant={'active'}
           type="submit"
           disabled={!isValid || loading.login}
         >
@@ -91,9 +88,7 @@ const Login = () => {
       </form>
       <div className="w-full flex items-center gap-4">
         <div className="h-px flex-1 bg-zinc-200" />
-        <span className="text-[14px] text-zinc-500 mx-[16px]">
-          Or continue with
-        </span>
+        <span className="text-[14px] text-zinc-500 mx-4">Or continue with</span>
         <div className="h-px flex-1 bg-zinc-200" />
       </div>
       <Button
@@ -102,12 +97,12 @@ const Login = () => {
         type="button"
         onClick={handleGoogleLogin}
       >
-        <GoogleIcon className="size-6 w-20 h-20 mr-12" />
+        <GoogleIcon className="size-5 mr-3" />
         Continue with Google
       </Button>
-      <p className="text-[16px] text-zinc-500">
+      <p className="text-sm text-zinc-500">
         Don't have an account?{' '}
-        <Link to="/register" className="text-[var(--accent)] hover:underline">
+        <Link to="/register" className="hover:underline">
           Sign up
         </Link>
       </p>

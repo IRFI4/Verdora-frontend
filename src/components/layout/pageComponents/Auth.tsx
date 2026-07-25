@@ -19,10 +19,10 @@ const AuthForm = ({ title, subtitle, children }: AuthFormProps) => {
         />
       </div>
       <div className="w-[50vw] h-full flex items-center justify-center">
-        <div className="w-[448px] flex flex-col items-center justify-center gap-24">
+        <div className="w-[448px] flex flex-col items-center justify-center gap-6">
           <Link to="/" className="flex items-center gap-8">
-            <div className="flex size-40 items-center justify-center rounded-full bg-[var(--accent)]">
-              <LogoIcon className="size-20 text-white" />
+            <div className="flex size-10 items-center justify-center rounded-full bg-[var(--accent)]">
+              <LogoIcon className="size-5 text-white" />
             </div>
             <span className="text-[20px] font-bold text-text-h">Verdora</span>
           </Link>

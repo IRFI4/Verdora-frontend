@@ -51,7 +51,7 @@ const CategoryRow = ({ category, categoryMaxLength }: Props) => {
         onClick={handleOpenEdit}
         aria-label={`Edit ${category.name}`}
       >
-        <Pencil className="size-16" aria-hidden="true" />
+        <Pencil aria-hidden="true" />
         <span className="hidden sm:inline">Edit</span>
       </Button>
 
