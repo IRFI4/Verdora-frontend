@@ -35,6 +35,8 @@ import {
   Eye,
   Pencil,
   RefreshCw,
+  AlertCircle,
+  Loader2,
 } from 'lucide-react';
 import {
   DashboardMetricCard,
@@ -42,12 +44,15 @@ import {
 } from '@components/common/cards/DashboardMetricCard';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@components/ui/skeleton';
+import ErrorSection from '@components/common/section/ErrorSection';
+import { EmptySection } from '@components/common/section/EmptySection';
 
 const OrderManagement = () => {
   const {
     data: apiOrders,
     isLoading: ordersLoading,
     isError,
+    error: ordersError,
     refetch: refetchOrders,
     isRefetching,
   } = useAllOrders();
@@ -90,7 +95,6 @@ const OrderManagement = () => {
         },
         onError: () => {
           refetchOrders();
-          setEditingOrder(null);
           if (selectedOrderDetails?.orderId === targetId) {
             setSelectedOrderDetails(prev =>
               prev ? { ...prev, status: newStatus } : null
@@ -232,6 +236,30 @@ const OrderManagement = () => {
               <Skeleton className="h-12 w-full" />
             </div>
           </Card>
+        ) : isError ? (
+          <Card className="border-border py-8">
+            <ErrorSection
+              title="Failed to load orders"
+              message={
+                ordersError?.response?.data?.message ||
+                ordersError?.message ||
+                'Something went wrong while fetching orders. Please try again.'
+              }
+              onRetry={() => refetchOrders()}
+              retryText="Try again"
+            />
+          </Card>
+        ) : !apiOrders || apiOrders.length === 0 ? (
+          <EmptySection
+            title="No orders found"
+            description="There are no customer orders recorded in the system yet."
+            className="rounded-xl border border-dashed border-border bg-card px-6 py-12"
+            icon={
+              <div className="flex items-center justify-center rounded-full bg-primary/10 p-4">
+                <Package className="size-8 text-primary" aria-hidden="true" />
+              </div>
+            }
+          />
         ) : (
           <Card className="border-border shadow-sm">
             <CardHeader className="py-4 px-6 border-b">
@@ -239,121 +267,113 @@ const OrderManagement = () => {
                 <div>
                   <CardTitle className="text-base">Order Records</CardTitle>
                   <CardDescription className="text-xs mt-0.5">
-                    Showing {apiOrders?.length ?? 0} orders
+                    Showing {apiOrders.length} orders
                   </CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="p-0 overflow-x-auto">
-              {apiOrders?.length === 0 ? (
-                <div className="p-8 text-center text-muted-foreground text-sm">
-                  No orders match your filter criteria.
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-25 pl-6">Order ID</TableHead>
-                      <TableHead>Date & Time</TableHead>
-                      <TableHead>Items Overview</TableHead>
-                      <TableHead className="text-center">Qty</TableHead>
-                      <TableHead className="text-right">Total Amount</TableHead>
-                      <TableHead className="text-center">Status</TableHead>
-                      <TableHead className="text-right pr-6">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {apiOrders?.map(order => (
-                      <TableRow
-                        key={order.orderId}
-                        className="hover:bg-muted/30"
-                      >
-                        <TableCell className="font-semibold text-foreground pl-6">
-                          #{order.orderId}
-                        </TableCell>
-                        <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
-                          {formatDate(order.createdAt)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="max-w-70">
-                            <p className="text-sm font-medium truncate">
-                              {order.items[0]?.productName || 'Order items'}
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-25 pl-6">Order ID</TableHead>
+                    <TableHead>Date & Time</TableHead>
+                    <TableHead>Items Overview</TableHead>
+                    <TableHead className="text-center">Qty</TableHead>
+                    <TableHead className="text-right">Total Amount</TableHead>
+                    <TableHead className="text-center">Status</TableHead>
+                    <TableHead className="text-right pr-6">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {apiOrders.map(order => (
+                    <TableRow key={order.orderId} className="hover:bg-muted/30">
+                      <TableCell className="font-semibold text-foreground pl-6">
+                        #{order.orderId}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                        {formatDate(order.createdAt)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="max-w-70">
+                          <p className="text-sm font-medium truncate">
+                            {order.items[0]?.productName || 'Order items'}
+                          </p>
+                          {order.items.length > 1 && (
+                            <p className="text-xs text-muted-foreground">
+                              +{order.items.length - 1} other item
+                              {order.items.length - 1 > 1 ? 's' : ''}
                             </p>
-                            {order.items.length > 1 && (
-                              <p className="text-xs text-muted-foreground">
-                                +{order.items.length - 1} other item
-                                {order.items.length - 1 > 1 ? 's' : ''}
-                              </p>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center font-medium text-xs">
-                          {order.items.reduce((acc, i) => acc + i.quantity, 0)}
-                        </TableCell>
-                        <TableCell className="text-right font-semibold text-foreground">
-                          ${order.totalPrice.toFixed(2)}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Badge
-                            variant="outline"
-                            className={cn('border font-medium text-sm', {
-                              'text-amber-700 bg-amber-50 border-amber-200':
-                                order.status === 'PENDING',
-                              'text-emerald-700 bg-emerald-50 border-emerald-200':
-                                order.status === 'PAID',
-                              'text-blue-700 bg-blue-50 border-blue-200':
-                                order.status === 'SHIPPED',
-                              'text-rose-700 bg-rose-50 border-rose-200':
-                                order.status === 'CANCELLED',
-                            })}
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center font-medium text-xs">
+                        {order.items.reduce((acc, i) => acc + i.quantity, 0)}
+                      </TableCell>
+                      <TableCell className="text-right font-semibold text-foreground">
+                        ${order.totalPrice.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge
+                          variant="outline"
+                          className={cn('border font-medium text-sm', {
+                            'text-amber-700 bg-amber-50 border-amber-200':
+                              order.status === 'PENDING',
+                            'text-emerald-700 bg-emerald-50 border-emerald-200':
+                              order.status === 'PAID',
+                            'text-blue-700 bg-blue-50 border-blue-200':
+                              order.status === 'SHIPPED',
+                            'text-rose-700 bg-rose-50 border-rose-200':
+                              order.status === 'CANCELLED',
+                          })}
+                        >
+                          {order.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right pr-6">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSelectedOrderDetails(order)}
+                            className="cursor-pointer h-8 px-2 text-xs"
+                            title="View order details"
                           >
-                            {order.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right pr-6">
-                          <div className="flex items-center justify-end gap-2">
+                            <Eye className="size-3.5 mr-1" />
+                            Details
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              updateMutation.reset();
+                              setEditingOrder(order);
+                              setSelectedStatus(order.status);
+                            }}
+                            className="cursor-pointer h-8 px-2 text-xs"
+                            title="Edit order status"
+                          >
+                            <Pencil className="size-3.5 mr-1" />
+                            Status
+                          </Button>
+                          {order.status !== 'CANCELLED' && (
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => setSelectedOrderDetails(order)}
-                              className="cursor-pointer h-8 px-2 text-xs"
-                              title="View order details"
+                              onClick={() => setCancellingOrder(order)}
+                              className="cursor-pointer h-8 px-2 text-xs text-destructive hover:bg-destructive/10"
+                              title="Cancel order"
                             >
-                              <Eye className="size-3.5 mr-1" />
-                              Details
+                              <XCircle className="size-3.5 mr-1" />
+                              Cancel
                             </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setEditingOrder(order);
-                                setSelectedStatus(order.status);
-                              }}
-                              className="cursor-pointer h-8 px-2 text-xs"
-                              title="Edit order status"
-                            >
-                              <Pencil className="size-3.5 mr-1" />
-                              Status
-                            </Button>
-                            {order.status !== 'CANCELLED' && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setCancellingOrder(order)}
-                                className="cursor-pointer h-8 px-2 text-xs text-destructive hover:bg-destructive/10"
-                                title="Cancel order"
-                              >
-                                <XCircle className="size-3.5 mr-1" />
-                                Cancel
-                              </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         )}
@@ -394,6 +414,7 @@ const OrderManagement = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => {
+                  updateMutation.reset();
                   setEditingOrder(selectedOrderDetails);
                   setSelectedStatus(selectedOrderDetails.status);
                 }}
@@ -471,12 +492,34 @@ const OrderManagement = () => {
         autoCloseOnSubmit={false}
       >
         <div className="space-y-4 py-2">
+          {updateMutation.isPending && (
+            <div className="flex items-center justify-center gap-2 rounded-md bg-muted p-3 text-sm text-muted-foreground">
+              <Loader2 className="size-4 animate-spin text-primary" />
+              <span>Updating status...</span>
+            </div>
+          )}
+
+          {updateMutation.isError && (
+            <div
+              role="alert"
+              className="flex items-center gap-2 rounded-md bg-destructive/15 p-3 text-sm font-medium text-destructive"
+            >
+              <AlertCircle className="size-4 shrink-0" />
+              <span>
+                {updateMutation.error?.response?.data?.message ||
+                  updateMutation.error?.message ||
+                  'Failed to update order status. Please try again.'}
+              </span>
+            </div>
+          )}
+
           <div className="space-y-2">
             <label className="text-sm font-medium">Fulfillment Status</label>
             <select
               value={selectedStatus}
               onChange={e => setSelectedStatus(e.target.value as OrderStatus)}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              disabled={updateMutation.isPending}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
             >
               <option value="PENDING">Pending - Processing required</option>
               <option value="PAID">Paid - Payment confirmed</option>
@@ -484,11 +527,6 @@ const OrderManagement = () => {
               <option value="CANCELLED">Cancelled - Order voided</option>
             </select>
           </div>
-          {updateMutation.error?.response?.data?.message && (
-            <p className="text-sm text-destructive font-medium">
-              {updateMutation.error?.response?.data?.message}
-            </p>
-          )}
         </div>
       </DialogComponent>
 
