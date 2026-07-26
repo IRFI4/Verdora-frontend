@@ -1,0 +1,513 @@
+import { useState, useMemo } from 'react';
+import AdminLayout from '@components/layout/pageLayout/AdminLayout';
+import AdminSectionHeader from '@components/common/section/AdminSectionHeader';
+import { Button } from '@components/ui/button';
+import { Badge } from '@components/ui/badge';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@components/ui/table';
+import DialogComponent from '@components/common/dialog/DialogComponent';
+import AlertComponent from '@components/common/dialog/AlertComponent';
+import {
+  useAllOrders,
+  useUpdateOrder,
+  useCancelOrder,
+} from '@api/order/order.hooks';
+import type { Order, OrderStatus } from '@/types/order';
+import {
+  Package,
+  Clock,
+  CheckCircle2,
+  Truck,
+  XCircle,
+  Eye,
+  Pencil,
+  RefreshCw,
+} from 'lucide-react';
+import {
+  DashboardMetricCard,
+  DashboardMetricCardSkeleton,
+} from '@components/common/cards/DashboardMetricCard';
+import { cn } from '@/lib/utils';
+import { Skeleton } from '@components/ui/skeleton';
+
+const OrderManagement = () => {
+  const {
+    data: apiOrders,
+    isLoading: ordersLoading,
+    isError,
+    refetch: refetchOrders,
+    isRefetching,
+  } = useAllOrders();
+
+  const updateMutation = useUpdateOrder();
+  const cancelMutation = useCancelOrder();
+
+  const [selectedOrderDetails, setSelectedOrderDetails] =
+    useState<Order | null>(null);
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('PENDING');
+  const [cancellingOrder, setCancellingOrder] = useState<Order | null>(null);
+
+  const metrics = useMemo(() => {
+    return {
+      total: apiOrders?.length,
+      pending: apiOrders?.filter(o => o.status === 'PENDING').length,
+      paid: apiOrders?.filter(o => o.status === 'PAID').length,
+      shipped: apiOrders?.filter(o => o.status === 'SHIPPED').length,
+      cancelled: apiOrders?.filter(o => o.status === 'CANCELLED').length,
+    };
+  }, [apiOrders]);
+
+  const handleUpdateStatus = () => {
+    if (!editingOrder) return;
+    const targetId = editingOrder.orderId;
+    const newStatus = selectedStatus;
+
+    updateMutation.mutate(
+      { orderId: targetId, status: newStatus },
+      {
+        onSuccess: () => {
+          refetchOrders();
+          setEditingOrder(null);
+          if (selectedOrderDetails?.orderId === targetId) {
+            setSelectedOrderDetails(prev =>
+              prev ? { ...prev, status: newStatus } : null
+            );
+          }
+        },
+        onError: () => {
+          refetchOrders();
+          setEditingOrder(null);
+          if (selectedOrderDetails?.orderId === targetId) {
+            setSelectedOrderDetails(prev =>
+              prev ? { ...prev, status: newStatus } : null
+            );
+          }
+        },
+      }
+    );
+  };
+
+  const handleCancelOrder = () => {
+    if (!cancellingOrder) return;
+    const targetId = cancellingOrder.orderId;
+
+    cancelMutation.mutate(targetId, {
+      onSuccess: () => {
+        refetchOrders();
+        setCancellingOrder(null);
+        if (selectedOrderDetails?.orderId === targetId) {
+          setSelectedOrderDetails(prev =>
+            prev ? { ...prev, status: 'CANCELLED' } : null
+          );
+        }
+      },
+      onError: () => {
+        refetchOrders();
+        setCancellingOrder(null);
+        if (selectedOrderDetails?.orderId === targetId) {
+          setSelectedOrderDetails(prev =>
+            prev ? { ...prev, status: 'CANCELLED' } : null
+          );
+        }
+      },
+    });
+  };
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  return (
+    <AdminLayout>
+      <AdminSectionHeader
+        title={
+          <div className="flex items-center gap-3">
+            <span className="font-heading font-semibold text-text-h">
+              Order Management
+            </span>
+            {apiOrders && apiOrders.length > 0 && (
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                {apiOrders.length} total
+              </span>
+            )}
+          </div>
+        }
+        description="Monitor, process, and update customer orders across your catalog."
+      >
+        <Button
+          variant="outline"
+          onClick={() => refetchOrders()}
+          disabled={isRefetching}
+          className="cursor-pointer gap-2"
+        >
+          <RefreshCw
+            className={`size-4 ${isRefetching ? 'animate-spin' : ''}`}
+          />
+          Refresh
+        </Button>
+      </AdminSectionHeader>
+
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
+        {ordersLoading ? (
+          <>
+            <DashboardMetricCardSkeleton />
+            <DashboardMetricCardSkeleton />
+            <DashboardMetricCardSkeleton />
+            <DashboardMetricCardSkeleton />
+            <DashboardMetricCardSkeleton />
+          </>
+        ) : (
+          <>
+            <DashboardMetricCard
+              value={metrics?.total?.toString() ?? 'N/A'}
+              title="Total Orders"
+              description="All recorded orders"
+              icon={Package}
+              error={isError}
+              errorMessage="Failed to load orders. Please try again later."
+            />
+            <DashboardMetricCard
+              value={metrics?.pending?.toString() ?? 'N/A'}
+              title="Pending"
+              description="Awaiting processing"
+              icon={Clock}
+              error={isError}
+              errorMessage="Failed to load orders. Please try again later."
+            />
+            <DashboardMetricCard
+              value={metrics?.paid?.toString() ?? 'N/A'}
+              title="Paid"
+              description="Payment received"
+              icon={CheckCircle2}
+              error={isError}
+              errorMessage="Failed to load orders. Please try again later."
+            />
+            <DashboardMetricCard
+              value={metrics?.shipped?.toString() ?? 'N/A'}
+              title="Shipped"
+              description="In transit / fulfilled"
+              icon={Truck}
+              error={isError}
+              errorMessage="Failed to load orders. Please try again later."
+            />
+            <DashboardMetricCard
+              value={metrics?.cancelled?.toString() ?? 'N/A'}
+              title="Cancelled"
+              description="Voided orders"
+              icon={XCircle}
+              error={isError}
+              errorMessage="Failed to load orders. Please try again later."
+            />
+          </>
+        )}
+      </div>
+
+      <div className="mt-6">
+        {ordersLoading ? (
+          <Card className="border-border shadow-sm p-6">
+            <div className="space-y-4">
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          </Card>
+        ) : (
+          <Card className="border-border shadow-sm">
+            <CardHeader className="py-4 px-6 border-b">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <CardTitle className="text-base">Order Records</CardTitle>
+                  <CardDescription className="text-xs mt-0.5">
+                    Showing {apiOrders?.length ?? 0} orders
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0 overflow-x-auto">
+              {apiOrders?.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground text-sm">
+                  No orders match your filter criteria.
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-25 pl-6">Order ID</TableHead>
+                      <TableHead>Date & Time</TableHead>
+                      <TableHead>Items Overview</TableHead>
+                      <TableHead className="text-center">Qty</TableHead>
+                      <TableHead className="text-right">Total Amount</TableHead>
+                      <TableHead className="text-center">Status</TableHead>
+                      <TableHead className="text-right pr-6">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {apiOrders?.map(order => (
+                      <TableRow
+                        key={order.orderId}
+                        className="hover:bg-muted/30"
+                      >
+                        <TableCell className="font-semibold text-foreground pl-6">
+                          #{order.orderId}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                          {formatDate(order.createdAt)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="max-w-70">
+                            <p className="text-sm font-medium truncate">
+                              {order.items[0]?.productName || 'Order items'}
+                            </p>
+                            {order.items.length > 1 && (
+                              <p className="text-xs text-muted-foreground">
+                                +{order.items.length - 1} other item
+                                {order.items.length - 1 > 1 ? 's' : ''}
+                              </p>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center font-medium text-xs">
+                          {order.items.reduce((acc, i) => acc + i.quantity, 0)}
+                        </TableCell>
+                        <TableCell className="text-right font-semibold text-foreground">
+                          ${order.totalPrice.toFixed(2)}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge
+                            variant="outline"
+                            className={cn('border font-medium text-sm', {
+                              'text-amber-700 bg-amber-50 border-amber-200':
+                                order.status === 'PENDING',
+                              'text-emerald-700 bg-emerald-50 border-emerald-200':
+                                order.status === 'PAID',
+                              'text-blue-700 bg-blue-50 border-blue-200':
+                                order.status === 'SHIPPED',
+                              'text-rose-700 bg-rose-50 border-rose-200':
+                                order.status === 'CANCELLED',
+                            })}
+                          >
+                            {order.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right pr-6">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setSelectedOrderDetails(order)}
+                              className="cursor-pointer h-8 px-2 text-xs"
+                              title="View order details"
+                            >
+                              <Eye className="size-3.5 mr-1" />
+                              Details
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setEditingOrder(order);
+                                setSelectedStatus(order.status);
+                              }}
+                              className="cursor-pointer h-8 px-2 text-xs"
+                              title="Edit order status"
+                            >
+                              <Pencil className="size-3.5 mr-1" />
+                              Status
+                            </Button>
+                            {order.status !== 'CANCELLED' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setCancellingOrder(order)}
+                                className="cursor-pointer h-8 px-2 text-xs text-destructive hover:bg-destructive/10"
+                                title="Cancel order"
+                              >
+                                <XCircle className="size-3.5 mr-1" />
+                                Cancel
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      <DialogComponent
+        open={!!selectedOrderDetails}
+        onOpenChange={open => {
+          if (!open) setSelectedOrderDetails(null);
+        }}
+        headerTitle={`Order #${selectedOrderDetails?.orderId} Details`}
+        headerDescription={`Placed on ${selectedOrderDetails ? formatDate(selectedOrderDetails.createdAt) : ''}`}
+        contentClassName="sm:max-w-xl"
+        cancelText="Close"
+      >
+        {selectedOrderDetails && (
+          <div className="space-y-4 py-2">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/40 border border-border">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">Status:</span>
+                <Badge
+                  variant="outline"
+                  className={cn('border font-medium text-sm', {
+                    'text-amber-700 bg-amber-50 border-amber-200':
+                      selectedOrderDetails.status === 'PENDING',
+                    'text-emerald-700 bg-emerald-50 border-emerald-200':
+                      selectedOrderDetails.status === 'PAID',
+                    'text-blue-700 bg-blue-50 border-blue-200':
+                      selectedOrderDetails.status === 'SHIPPED',
+                    'text-rose-700 bg-rose-50 border-rose-200':
+                      selectedOrderDetails.status === 'CANCELLED',
+                  })}
+                >
+                  {selectedOrderDetails.status}
+                </Badge>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setEditingOrder(selectedOrderDetails);
+                  setSelectedStatus(selectedOrderDetails.status);
+                }}
+                className="h-8 text-xs cursor-pointer"
+              >
+                <Pencil className="size-3 mr-1" />
+                Change Status
+              </Button>
+            </div>
+
+            <div className="rounded-md border border-border overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/30">
+                    <TableHead className="text-xs">Product</TableHead>
+                    <TableHead className="text-center text-xs">Qty</TableHead>
+                    <TableHead className="text-right text-xs">
+                      Unit Price
+                    </TableHead>
+                    <TableHead className="text-right text-xs">
+                      Subtotal
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {selectedOrderDetails.items.map(item => (
+                    <TableRow key={item.orderItemId}>
+                      <TableCell className="text-sm font-medium">
+                        {item.productName}
+                      </TableCell>
+                      <TableCell className="text-center text-sm">
+                        {item.quantity}
+                      </TableCell>
+                      <TableCell className="text-right text-sm">
+                        ${item.priceAtPurchase.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="text-right text-sm font-medium">
+                        ${item.subtotal.toFixed(2)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            <div className="flex justify-between items-center pt-2 border-t border-border">
+              <span className="font-semibold text-base">Total Amount:</span>
+              <span className="font-bold text-lg text-primary">
+                ${selectedOrderDetails.totalPrice.toFixed(2)}
+              </span>
+            </div>
+          </div>
+        )}
+      </DialogComponent>
+
+      <DialogComponent
+        open={!!editingOrder}
+        onOpenChange={open => {
+          if (!open) {
+            setEditingOrder(null);
+            updateMutation.reset();
+          }
+        }}
+        headerTitle={`Update Order #${editingOrder?.orderId} Status`}
+        headerDescription="Select a new status for this order."
+        cancelText="Cancel"
+        submitText="Update Status"
+        onSubmit={handleUpdateStatus}
+        submitDisabled={
+          !editingOrder ||
+          selectedStatus === editingOrder.status ||
+          updateMutation.isPending
+        }
+        loading={updateMutation.isPending}
+        autoCloseOnSubmit={false}
+      >
+        <div className="space-y-4 py-2">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Fulfillment Status</label>
+            <select
+              value={selectedStatus}
+              onChange={e => setSelectedStatus(e.target.value as OrderStatus)}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="PENDING">Pending - Processing required</option>
+              <option value="PAID">Paid - Payment confirmed</option>
+              <option value="SHIPPED">Shipped - Dispatched to customer</option>
+              <option value="CANCELLED">Cancelled - Order voided</option>
+            </select>
+          </div>
+          {updateMutation.error?.response?.data?.message && (
+            <p className="text-sm text-destructive font-medium">
+              {updateMutation.error?.response?.data?.message}
+            </p>
+          )}
+        </div>
+      </DialogComponent>
+
+      <AlertComponent
+        isAlertDialogOpen={!!cancellingOrder}
+        onOpenChange={open => {
+          if (!open) {
+            setCancellingOrder(null);
+            cancelMutation.reset();
+          }
+        }}
+        actionText="Confirm Cancel Order"
+        loadingText="Cancelling..."
+        isDeleting={cancelMutation.isPending}
+        errorText={cancelMutation.error?.response?.data?.message}
+        onAction={handleCancelOrder}
+      />
+    </AdminLayout>
+  );
+};
+
+export default OrderManagement;
