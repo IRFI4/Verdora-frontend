@@ -149,6 +149,8 @@ const OrderCard = ({ order }: OrderCardProps) => {
           </form>
         </DialogComponent>
         <AlertComponent
+          title="Cancel Order"
+          description={`Are you sure you want to cancel order #${order.orderId}?`}
           buttonText="Cancel Order"
           isAlertDialogOpen={isCancelOpen}
           isDeleting={cancelMutation.isPending}

@@ -531,6 +531,8 @@ const OrderManagement = () => {
       </DialogComponent>
 
       <AlertComponent
+        title="Cancel Order"
+        description={`Are you sure you want to cancel order #${cancellingOrder?.orderId}?`}
         isAlertDialogOpen={!!cancellingOrder}
         onOpenChange={open => {
           if (!open) {

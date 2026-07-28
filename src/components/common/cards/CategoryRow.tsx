@@ -115,6 +115,8 @@ const CategoryRow = ({ category, categoryMaxLength }: Props) => {
       </DialogComponent>
 
       <AlertComponent
+        title="Delete category"
+        description={`Are you sure you want to delete category "${category.name}"?`}
         isAlertDialogOpen={isDeleteDialogOpen}
         errorText={errorDelete}
         onOpenChange={open => {
