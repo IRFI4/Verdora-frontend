@@ -85,16 +85,8 @@ const OrderManagement = () => {
       { orderId: targetId, status: newStatus },
       {
         onSuccess: () => {
-          refetchOrders();
           setEditingOrder(null);
-          if (selectedOrderDetails?.orderId === targetId) {
-            setSelectedOrderDetails(prev =>
-              prev ? { ...prev, status: newStatus } : null
-            );
-          }
-        },
-        onError: () => {
-          refetchOrders();
+
           if (selectedOrderDetails?.orderId === targetId) {
             setSelectedOrderDetails(prev =>
               prev ? { ...prev, status: newStatus } : null
@@ -111,17 +103,8 @@ const OrderManagement = () => {
 
     cancelMutation.mutate(targetId, {
       onSuccess: () => {
-        refetchOrders();
         setCancellingOrder(null);
-        if (selectedOrderDetails?.orderId === targetId) {
-          setSelectedOrderDetails(prev =>
-            prev ? { ...prev, status: 'CANCELLED' } : null
-          );
-        }
-      },
-      onError: () => {
-        refetchOrders();
-        setCancellingOrder(null);
+
         if (selectedOrderDetails?.orderId === targetId) {
           setSelectedOrderDetails(prev =>
             prev ? { ...prev, status: 'CANCELLED' } : null
