@@ -14,6 +14,7 @@ import AdminCategoriesPage from '@pages/admin/CategoryPage';
 import { TooltipProvider } from '@components/ui/tooltip';
 import AdminDashboard from '@pages/admin/Dashboard';
 import ProtectedRoute from '@/guards/ProtectedRoute';
+import OrderManagement from '@pages/admin/OrderManagement';
 
 const queryClient = new QueryClient();
 createRoot(document.getElementById('root')!).render(
@@ -78,6 +79,14 @@ createRoot(document.getElementById('root')!).render(
                 element={
                   <ProtectedRoute allowedRoles={['ADMIN']}>
                     <AdminCategoriesPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="orders"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <OrderManagement />
                   </ProtectedRoute>
                 }
               />

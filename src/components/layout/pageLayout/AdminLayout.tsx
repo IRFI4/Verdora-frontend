@@ -17,7 +17,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
       <SidebarInset>
         <div className="flex min-h-screen flex-col bg-[#F5F5DC]">
           <AdminHeader />
-          <main className="flex flex-1 flex-col w-full max-w-427.5 mx-auto px-4 py-2">
+          <main className="flex flex-1 flex-col gap-6 w-full max-w-427.5 mx-auto px-4 py-2 animate-in fade-in-0 duration-500">
             {children}
           </main>
           <AdminFooter />

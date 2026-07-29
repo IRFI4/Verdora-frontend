@@ -1,12 +1,14 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardHeader, CardTitle, CardContent } from '@components/ui/card';
-import type { LucideIcon } from 'lucide-react';
+import { X, type LucideIcon } from 'lucide-react';
 
 type Props = {
   value: string;
   title: string;
   description: string;
   icon: LucideIcon;
+  error: boolean;
+  errorMessage: string;
 };
 
 const DashboardMetricCard = ({
@@ -14,18 +16,30 @@ const DashboardMetricCard = ({
   title,
   description,
   icon: Icon,
+  error,
+  errorMessage,
 }: Props) => {
   return (
     <Card className="border-border shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
 
-        <Icon className="size-4 text-muted-foreground" />
+        {!error ? (
+          <Icon className="size-4 text-muted-foreground" />
+        ) : (
+          <X className="size-4 text-red-500" />
+        )}
       </CardHeader>
 
       <CardContent>
-        <div className="text-2xl font-bold text-foreground">{value}</div>
-        <p className="text-xs text-muted-foreground">{description}</p>
+        {!error ? (
+          <div className="text-2xl font-bold text-foreground">{value}</div>
+        ) : (
+          <div className="text-sm font-bold text-red-500">{errorMessage}</div>
+        )}
+        {!error && (
+          <p className="text-xs text-muted-foreground">{description}</p>
+        )}
       </CardContent>
     </Card>
   );

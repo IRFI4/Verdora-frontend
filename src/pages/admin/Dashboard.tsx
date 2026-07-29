@@ -43,166 +43,168 @@ const AdminDashboard = () => {
 
   return (
     <AdminLayout>
-      <div className="flex flex-col gap-6 w-full animate-in fade-in-0 duration-500">
-        <AdminSectionHeader
-          title="Dashboard"
-          description="Overview of your store's performance."
-        />
+      <AdminSectionHeader
+        title="Dashboard"
+        description="Overview of your store's performance."
+      />
 
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-          {KPI_METRICS.map((metric, index) => (
-            <DashboardMetricCard
-              key={index}
-              value={metric.value}
-              title={metric.title}
-              description={metric.description}
-              icon={metric.icon}
-            />
-          ))}
-          {userPending ? (
-            <DashboardMetricCardSkeleton />
-          ) : (
-            !userError &&
-            usersData && (
-              <DashboardMetricCard
-                key="total-users"
-                value={usersData.totalElements.toString()}
-                title="Total Users"
-                description="Number of users registered"
-                icon={Users}
-              />
-            )
-          )}
-          {categoriesPending ? (
-            <DashboardMetricCardSkeleton />
-          ) : (
-            !categoriesError &&
-            categoriesData && (
-              <DashboardMetricCard
-                key="total-categories"
-                value={categoriesData.length.toString()}
-                title="Total Categories"
-                description="Number of categories"
-                icon={ChartBarStacked}
-              />
-            )
-          )}
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        {KPI_METRICS.map((metric, index) => (
+          <DashboardMetricCard
+            key={index}
+            value={metric.value}
+            title={metric.title}
+            description={metric.description}
+            icon={metric.icon}
+            error={false}
+            errorMessage={''}
+          />
+        ))}
+        {userPending ? (
+          <DashboardMetricCardSkeleton />
+        ) : (
+          <DashboardMetricCard
+            key="total-users"
+            value={usersData?.totalElements.toString() ?? 'N/A'}
+            title="Total Users"
+            description={
+              usersData?.totalElements.toString()
+                ? 'Number of users registered'
+                : 'No user data'
+            }
+            icon={Users}
+            error={userError}
+            errorMessage={'Failed to load users. Please try again later.'}
+          />
+        )}
+        {categoriesPending ? (
+          <DashboardMetricCardSkeleton />
+        ) : (
+          <DashboardMetricCard
+            key="total-categories"
+            value={categoriesData?.length.toString() ?? 'N/A'}
+            title="Total Categories"
+            description={
+              categoriesData?.length.toString()
+                ? 'Number of categories'
+                : 'No category data'
+            }
+            icon={ChartBarStacked}
+            error={categoriesError}
+            errorMessage={'Failed to load categories. Please try again later.'}
+          />
+        )}
+      </div>
+
+      {userError && (
+        <div className="p-4 rounded-md bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20">
+          An error occurred while loading the data. Please try again later.
         </div>
+      )}
 
-        {userError && (
-          <div className="p-4 rounded-md bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20">
-            An error occurred while loading the data. Please try again later.
-          </div>
-        )}
+      {userPending && !userError && (
+        <div className="flex justify-center items-center p-8">
+          <Spinner className="size-8 text-primary" />
+        </div>
+      )}
 
-        {userPending && !userError && (
-          <div className="flex justify-center items-center p-8">
-            <Spinner className="size-8 text-primary" />
-          </div>
-        )}
-
-        {!userPending && !userError && usersData && (
-          <Card className="border-border shadow-sm">
-            <CardHeader>
-              <CardTitle>Recent Users</CardTitle>
-              <CardDescription>
-                Overview of the latest registered users.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[100px] sm:w-[120px]">ID</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead className="hidden sm:table-cell">
-                      Email
-                    </TableHead>
-                    <TableHead className="text-right">Phone</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {usersData.content.map(user => (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.id}</TableCell>
-                      <TableCell className="font-medium">{user.name}</TableCell>
-                      <TableCell className="hidden sm:table-cell text-muted-foreground">
-                        {user.email}
-                      </TableCell>
-                      <TableCell className="text-right">{user.phone}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              {usersData.totalPages > 1 && (
-                <div className="mt-4">
-                  <PaginationComponent
-                    currentPage={usersData.number}
-                    totalPages={usersData.totalPages}
-                    onPageChange={setPage}
-                  />
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
+      {!userPending && !userError && usersData && (
         <Card className="border-border shadow-sm">
           <CardHeader>
-            <CardTitle>Recent Orders</CardTitle>
+            <CardTitle>Recent Users</CardTitle>
             <CardDescription>
-              You made {RECENT_ORDERS.length} sales this week.
+              Overview of the latest registered users.
             </CardDescription>
           </CardHeader>
           <CardContent className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[100px] sm:w-[120px]">
-                    Order
-                  </TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead className="hidden sm:table-cell">Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead className="w-[100px] sm:w-[120px]">ID</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead className="hidden sm:table-cell">Email</TableHead>
+                  <TableHead className="text-right">Phone</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {RECENT_ORDERS.map(order => (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-medium">{order.id}</TableCell>
-                    <TableCell>
-                      <div className="font-medium">{order.customer}</div>
-                      <div className="text-xs text-muted-foreground hidden sm:block">
-                        {order.email}
-                      </div>
+                {usersData.content.map(user => (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">{user.id}</TableCell>
+                    <TableCell className="font-medium">{user.name}</TableCell>
+                    <TableCell className="hidden sm:table-cell text-muted-foreground">
+                      {user.email}
                     </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      {order.date}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          order.status === 'Completed'
-                            ? 'default'
-                            : order.status === 'Processing'
-                              ? 'secondary'
-                              : 'outline'
-                        }
-                      >
-                        {order.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      {order.amount}
-                    </TableCell>
+                    <TableCell className="text-right">{user.phone}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+            {usersData.totalPages > 1 && (
+              <div className="mt-4">
+                <PaginationComponent
+                  currentPage={usersData.number}
+                  totalPages={usersData.totalPages}
+                  onPageChange={setPage}
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
-      </div>
+      )}
+
+      <Card className="border-border shadow-sm">
+        <CardHeader>
+          <CardTitle>Recent Orders</CardTitle>
+          <CardDescription>
+            You made {RECENT_ORDERS.length} sales this week.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px] sm:w-[120px]">Order</TableHead>
+                <TableHead>Customer</TableHead>
+                <TableHead className="hidden sm:table-cell">Date</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {RECENT_ORDERS.map(order => (
+                <TableRow key={order.id}>
+                  <TableCell className="font-medium">{order.id}</TableCell>
+                  <TableCell>
+                    <div className="font-medium">{order.customer}</div>
+                    <div className="text-xs text-muted-foreground hidden sm:block">
+                      {order.email}
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    {order.date}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        order.status === 'Completed'
+                          ? 'default'
+                          : order.status === 'Processing'
+                            ? 'secondary'
+                            : 'outline'
+                      }
+                    >
+                      {order.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {order.amount}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </AdminLayout>
   );
 };
