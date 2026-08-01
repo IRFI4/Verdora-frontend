@@ -15,6 +15,7 @@ import { TooltipProvider } from '@components/ui/tooltip';
 import AdminDashboard from '@pages/admin/Dashboard';
 import ProtectedRoute from '@/guards/ProtectedRoute';
 import OrderManagement from '@pages/admin/OrderManagement';
+import ProductManagement from '@pages/admin/ProductManagement';
 
 const queryClient = new QueryClient();
 createRoot(document.getElementById('root')!).render(
@@ -87,6 +88,14 @@ createRoot(document.getElementById('root')!).render(
                 element={
                   <ProtectedRoute allowedRoles={['ADMIN']}>
                     <OrderManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="products"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <ProductManagement />
                   </ProtectedRoute>
                 }
               />
