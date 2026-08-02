@@ -37,8 +37,14 @@ export const EditProductDialog: React.FC<EditProductDialogProps> = ({
       form.reset({
         name: product.name,
         description: product.description,
-        price: product.price,
-        discountPrice: product.discountPrice ?? undefined,
+        price:
+          product.price !== undefined && product.price !== null
+            ? String(product.price)
+            : '',
+        discountPrice:
+          product.discountPrice !== undefined && product.discountPrice !== null
+            ? String(product.discountPrice)
+            : undefined,
         categoryId: product.categoryId,
         imageUrl: product.imageUrl,
       });
@@ -113,9 +119,9 @@ export const EditProductDialog: React.FC<EditProductDialogProps> = ({
             label="Price ($)"
             id="edit-price"
             placeholder="0.00"
-            value={form.watch('price')?.toString() || ''}
+            value={form.watch('price') || ''}
             onChange={val =>
-              form.setValue('price', Number(val), { shouldValidate: true })
+              form.setValue('price', val, { shouldValidate: true })
             }
             error={form.formState.errors.price?.message}
           />
@@ -125,13 +131,11 @@ export const EditProductDialog: React.FC<EditProductDialogProps> = ({
             label="Discount Price ($)"
             id="edit-discount"
             placeholder="Optional"
-            value={form.watch('discountPrice')?.toString() || ''}
+            value={form.watch('discountPrice') || ''}
             onChange={val =>
-              form.setValue(
-                'discountPrice',
-                val === '' ? undefined : Number(val),
-                { shouldValidate: true }
-              )
+              form.setValue('discountPrice', val === '' ? undefined : val, {
+                shouldValidate: true,
+              })
             }
             error={form.formState.errors.discountPrice?.message}
           />
