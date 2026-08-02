@@ -5,6 +5,9 @@ import { clearAuth } from '@api/auth/auth.slice';
 const instance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
+  paramsSerializer: {
+    indexes: null,
+  },
 });
 
 let isRefreshing = false;
@@ -30,12 +33,9 @@ instance.interceptors.response.use(
     const originalRequest = error.config;
 
     const url: string = originalRequest?.url ?? '';
-    const skipRefresh = [
-      '/auth/login',
-      '/auth/register',
-      '/auth/refresh',
-      '/users/current-user',
-    ].some(path => url.includes(path));
+    const skipRefresh = ['/auth/login', '/auth/register', '/auth/refresh'].some(
+      path => url.includes(path)
+    );
 
     if (
       error.response?.status === 401 &&

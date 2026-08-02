@@ -17,15 +17,15 @@ const MobileMenu = ({ onClose }: MobileMenuProps) => {
 
       <div className="fixed top-0 right-0 z-50 h-full w-[280px] bg-white shadow-xl lg:hidden">
         <button
-          className="absolute top-25 left-25"
+          className="absolute top-[25px] left-[25px]"
           type="button"
           onClick={onClose}
           aria-label="Close menu"
         >
-          <CloseIcon className="size-32" />
+          <CloseIcon className="size-8" />
         </button>
 
-        <nav className="flex flex-col gap-8 p-6 pt-20 mt-48 [font-family:var(--font-sans)] text-[14px] text-text">
+        <nav className="flex flex-col gap-2 p-6 pt-5 mt-12 [font-family:var(--font-sans)] text-[14px] text-text">
           <Navlink to="/">Main Page</Navlink>
           <Navlink to="/categories">Categories</Navlink>
           <Navlink to="/products">All products</Navlink>

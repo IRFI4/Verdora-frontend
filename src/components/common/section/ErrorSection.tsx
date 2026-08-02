@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@components/ui/button';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
 type ErrorSectionProps = {

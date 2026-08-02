@@ -1,3 +1,4 @@
+import AdminLayout from '@components/layout/pageLayout/AdminLayout';
 import AdminSectionHeader from '@components/common/section/AdminSectionHeader';
 import { Button } from '@components/ui/button';
 import { FolderOpen, Plus } from 'lucide-react';
@@ -51,130 +52,128 @@ const AdminCategoriesPage = () => {
   const errorCreate = createMutation.error?.response?.data?.message;
 
   return (
-    <main className="min-h-screen bg-background text-text">
-      <div className="flex flex-1 flex-col w-full max-w-[1710px] mx-auto px-6 py-8">
-        <AdminSectionHeader
-          title={
-            <div className="flex items-center gap-3">
-              <span className="font-heading font-semibold text-text-h">
-                Categories
+    <AdminLayout>
+      <AdminSectionHeader
+        title={
+          <div className="flex items-center gap-3">
+            <span className="font-heading font-semibold text-text-h">
+              Categories
+            </span>
+            {items && items.length > 0 && (
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                {items.length} total
               </span>
-              {items && items.length > 0 && (
-                <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
-                  {items.length} total
-                </span>
-              )}
-            </div>
-          }
-          description="Manage how products are organized in your catalog."
-        >
-          <Button
-            onClick={() => {
-              createMutation.reset();
-              setIsCreateOpen(true);
-            }}
-            className="w-full sm:w-auto cursor-pointer"
-          >
-            <Plus className="size-16" aria-hidden="true" />
-            Create category
-          </Button>
-        </AdminSectionHeader>
-
-        <div className="mt-8">
-          {isLoading ? (
-            <CategoryListSkeleton />
-          ) : error ? (
-            <ErrorSection
-              title={'Something went wrong'}
-              message={error?.response?.data?.message || 'Failed to load'}
-              onRetry={() => refetch()}
-            />
-          ) : !items || items.length === 0 ? (
-            <EmptySection
-              title="No categories yet"
-              description="Create your first category to start organizing products."
-              className="rounded-xl border border-dashed border-border bg-card px-6 py-12"
-              icon={
-                <div className="flex items-center justify-center rounded-full bg-primary/10 p-4">
-                  <FolderOpen
-                    className="size-16 text-primary"
-                    aria-hidden="true"
-                  />
-                </div>
-              }
-              action={
-                <Button
-                  onClick={() => {
-                    createMutation.reset();
-                    setIsCreateOpen(true);
-                  }}
-                  className="cursor-pointer"
-                >
-                  <Plus className="size-16" aria-hidden="true" />
-                  Create category
-                </Button>
-              }
-            />
-          ) : (
-            <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
-              {items.map(category => (
-                <CategoryRow
-                  key={category.categoryId}
-                  category={category}
-                  categoryMaxLength={categoryMaxLength}
-                />
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <DialogComponent
-          open={isCreateOpen}
-          onOpenChange={open => {
-            setIsCreateOpen(open);
-            if (!open) {
-              resetCreate();
-              createMutation.reset();
-            }
-          }}
-          headerTitle="Create category"
-          headerDescription="Add a new category to organize your products."
-          cancelText="Cancel"
-          submitText="Create"
-          onSubmit={handleCreateSubmit(handleCreate)}
-          submitDisabled={!isCreateValid || createMutation.isPending}
-          autoCloseOnSubmit={false}
-          loading={createMutation.isPending}
-        >
-          <div className="space-y-4">
-            <TextField
-              type="text"
-              label="Name"
-              id="category"
-              placeholder="e.g. Garden Shovels"
-              value={watchCreate('category')}
-              onChange={value =>
-                setCreateValue('category', value, { shouldValidate: true })
-              }
-              error={createFormErrors.category?.message}
-            />
-            {errorCreate ? (
-              <p
-                id="category-name-error"
-                role="alert"
-                className="text-sm text-destructive"
-              >
-                {errorCreate}
-              </p>
-            ) : (
-              <p className="text-xs text-muted-foreground">
-                Maximum {categoryMaxLength} characters.
-              </p>
             )}
           </div>
-        </DialogComponent>
+        }
+        description="Manage how products are organized in your catalog."
+      >
+        <Button
+          onClick={() => {
+            createMutation.reset();
+            setIsCreateOpen(true);
+          }}
+          className="w-full sm:w-auto cursor-pointer"
+        >
+          <Plus aria-hidden="true" />
+          Create category
+        </Button>
+      </AdminSectionHeader>
+
+      <div className="mt-8">
+        {isLoading ? (
+          <CategoryListSkeleton />
+        ) : error ? (
+          <ErrorSection
+            title={'Something went wrong'}
+            message={error?.response?.data?.message || 'Failed to load'}
+            onRetry={() => refetch()}
+          />
+        ) : !items || items.length === 0 ? (
+          <EmptySection
+            title="No categories yet"
+            description="Create your first category to start organizing products."
+            className="rounded-xl border border-dashed border-border bg-card px-6 py-3"
+            icon={
+              <div className="flex items-center justify-center rounded-full bg-primary/10 p-4">
+                <FolderOpen
+                  className="size-4 text-primary"
+                  aria-hidden="true"
+                />
+              </div>
+            }
+            action={
+              <Button
+                onClick={() => {
+                  createMutation.reset();
+                  setIsCreateOpen(true);
+                }}
+                className="cursor-pointer"
+              >
+                <Plus className="size-4" aria-hidden="true" />
+                Create category
+              </Button>
+            }
+          />
+        ) : (
+          <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
+            {items.map(category => (
+              <CategoryRow
+                key={category.categoryId}
+                category={category}
+                categoryMaxLength={categoryMaxLength}
+              />
+            ))}
+          </ul>
+        )}
       </div>
-    </main>
+
+      <DialogComponent
+        open={isCreateOpen}
+        onOpenChange={open => {
+          setIsCreateOpen(open);
+          if (!open) {
+            resetCreate();
+            createMutation.reset();
+          }
+        }}
+        headerTitle="Create category"
+        headerDescription="Add a new category to organize your products."
+        cancelText="Cancel"
+        submitText="Create"
+        onSubmit={handleCreateSubmit(handleCreate)}
+        submitDisabled={!isCreateValid || createMutation.isPending}
+        autoCloseOnSubmit={false}
+        loading={createMutation.isPending}
+      >
+        <div className="space-y-4">
+          <TextField
+            type="text"
+            label="Name"
+            id="category"
+            placeholder="e.g. Garden Shovels"
+            value={watchCreate('category')}
+            onChange={value =>
+              setCreateValue('category', value, { shouldValidate: true })
+            }
+            error={createFormErrors.category?.message}
+          />
+          {errorCreate ? (
+            <p
+              id="category-name-error"
+              role="alert"
+              className="text-sm text-destructive"
+            >
+              {errorCreate}
+            </p>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              Maximum {categoryMaxLength} characters.
+            </p>
+          )}
+        </div>
+      </DialogComponent>
+    </AdminLayout>
   );
 };
 
