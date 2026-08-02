@@ -23,19 +23,21 @@ import {
   ProductRow,
 } from '@components/common/cards/ProductRow';
 import type { Product } from '@/types/product';
+import type { AxiosError } from 'axios';
+import type { ApiErrorResponse } from '@/types/api';
 
 type ProductTableProps = {
   products: Product[];
   isLoading: boolean;
   isFetching: boolean;
   isError: boolean;
-  error?: unknown;
+  error?: AxiosError<ApiErrorResponse> | null;
   page: number;
   totalPages: number;
   totalElements: number;
   hasActiveFilters: boolean;
   search: string;
-  selectedCategory: string;
+  categoryId: 'ALL' | number;
   categoryIdToNameMap: Map<number, string>;
   onPageChange: (page: number) => void;
   onRefetch: () => void;
@@ -57,7 +59,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   totalElements,
   hasActiveFilters,
   search,
-  selectedCategory,
+  categoryId,
   categoryIdToNameMap,
   onPageChange,
   onRefetch,
@@ -70,6 +72,22 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   const getCategoryName = (catId: number) => {
     return categoryIdToNameMap.get(catId) || `Category ${catId}`;
   };
+
+  const emptyStateDescription = (() => {
+    if (search && categoryId !== 'ALL') {
+      return `No products match "${search}" in category "${categoryIdToNameMap.get(categoryId)}".`;
+    }
+
+    if (search) {
+      return `No products match "${search}".`;
+    }
+
+    if (categoryId !== 'ALL') {
+      return `No products found in category "${categoryIdToNameMap.get(categoryId)}".`;
+    }
+
+    return 'No products available.';
+  })();
 
   return (
     <div className="mt-6 relative">
@@ -101,16 +119,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         <Card className="border-border py-8 shadow-sm">
           <ErrorSection
             title="Failed to load products"
-            message={
-              (
-                error as {
-                  response?: { data?: { message?: string } };
-                  message?: string;
-                }
-              )?.response?.data?.message ||
-              (error as Error)?.message ||
-              'Something went wrong while fetching products from the server.'
-            }
+            message={error?.response?.data?.message}
             onRetry={onRefetch}
             retryText="Try again"
           />
@@ -120,11 +129,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
           {hasActiveFilters ? (
             <EmptySection
               title="No results found"
-              description={`No products match search "${search}" ${
-                selectedCategory !== 'ALL'
-                  ? `in category "${selectedCategory}"`
-                  : ''
-              }. Try clearing or adjusting your filters.`}
+              description={emptyStateDescription}
               className="px-6"
               icon={
                 <div className="flex items-center justify-center rounded-full bg-muted p-4">

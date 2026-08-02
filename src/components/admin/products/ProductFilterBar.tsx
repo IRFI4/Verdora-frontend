@@ -14,9 +14,11 @@ import type { Category } from '@/types/category';
 
 type ProductFilterBarProps = {
   search: string;
-  selectedCategory: string;
+  categoryId: 'ALL' | number;
   sortBy: string;
   categoriesData?: Category[];
+  isCategoriesLoading: boolean;
+  isCategoriesError: boolean;
   sortOptions: { value: string; label: string }[];
   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onCategoryChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
@@ -29,9 +31,11 @@ type ProductFilterBarProps = {
 
 export const ProductFilterBar: React.FC<ProductFilterBarProps> = ({
   search,
-  selectedCategory,
+  categoryId,
   sortBy,
   categoriesData,
+  isCategoriesLoading,
+  isCategoriesError,
   sortOptions,
   onSearchChange,
   onCategoryChange,
@@ -43,7 +47,7 @@ export const ProductFilterBar: React.FC<ProductFilterBarProps> = ({
 }) => {
   const hasActiveFilters = Boolean(
     search.trim() ||
-    (selectedCategory && selectedCategory !== 'ALL') ||
+    (categoryId && categoryId !== 'ALL') ||
     sortBy !== 'createdAt,desc'
   );
 
@@ -76,11 +80,15 @@ export const ProductFilterBar: React.FC<ProductFilterBarProps> = ({
           <div className="md:col-span-4 relative">
             <div className="relative flex items-center">
               <Filter className="absolute left-3 size-4 text-muted-foreground pointer-events-none" />
+              {isCategoriesError && (
+                <p>Failed to load categories. Please try again.</p>
+              )}
               <select
-                value={selectedCategory}
+                value={categoryId}
                 onChange={onCategoryChange}
                 className="w-full h-10 rounded-md border border-input bg-background pl-9 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer text-foreground"
                 aria-label="Filter by category"
+                disabled={isCategoriesLoading}
               >
                 <option value="ALL">All Categories (Catalog)</option>
                 {categoriesData?.map(c => {
@@ -136,12 +144,12 @@ export const ProductFilterBar: React.FC<ProductFilterBarProps> = ({
               </Badge>
             )}
 
-            {selectedCategory && selectedCategory !== 'ALL' && (
+            {categoryId && categoryId !== 'ALL' && (
               <Badge
                 variant="secondary"
                 className="gap-1 px-2.5 py-1 text-xs font-medium bg-primary/10 text-primary border border-primary/20 hover:bg-primary/15"
               >
-                Category: {selectedCategory}
+                Category: {categoryId}
                 <button
                   type="button"
                   onClick={onClearCategory}

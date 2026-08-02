@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import DialogComponent from '@components/common/dialog/DialogComponent';
 import TextField from '@components/common/forms/TextField';
 import { AlertCircle } from 'lucide-react';
@@ -32,19 +32,44 @@ export const CreateProductDialog: React.FC<CreateProductDialogProps> = ({
     defaultValues: {
       name: '',
       description: '',
-      price: 0,
+      price: '',
       discountPrice: undefined,
-      categoryId: categoriesData?.[0]?.categoryId || 1,
+      categoryId: undefined,
       imageUrl: '',
     },
   });
 
+  useEffect(() => {
+    if (!categoriesData?.length) return;
+
+    form.setValue('categoryId', categoriesData[0].categoryId, {
+      shouldValidate: true,
+    });
+  }, [categoriesData, form]);
+
+  const resetForm = () =>
+    form.reset({
+      name: '',
+      description: '',
+      price: '',
+      discountPrice: undefined,
+      categoryId: categoriesData?.[0]?.categoryId,
+      imageUrl: '',
+    });
+
   const handleClose = (isOpen: boolean) => {
     onOpenChange(isOpen);
+
     if (!isOpen) {
-      form.reset();
+      resetForm();
     }
   };
+
+  useEffect(() => {
+    if (!open) {
+      resetForm();
+    }
+  }, [open]);
 
   return (
     <DialogComponent
@@ -93,6 +118,9 @@ export const CreateProductDialog: React.FC<CreateProductDialogProps> = ({
             }
             className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           >
+            <option value="" disabled>
+              Select category
+            </option>
             {categoriesData?.map(cat => (
               <option key={cat.categoryId} value={cat.categoryId}>
                 {cat.name}
@@ -107,9 +135,9 @@ export const CreateProductDialog: React.FC<CreateProductDialogProps> = ({
             label="Price ($)"
             id="create-price"
             placeholder="29.99"
-            value={form.watch('price')?.toString() || ''}
+            value={form.watch('price') || ''}
             onChange={val =>
-              form.setValue('price', Number(val), { shouldValidate: true })
+              form.setValue('price', val, { shouldValidate: true })
             }
             error={form.formState.errors.price?.message}
           />
@@ -119,13 +147,9 @@ export const CreateProductDialog: React.FC<CreateProductDialogProps> = ({
             label="Discount Price ($)"
             id="create-discount"
             placeholder="19.99 (Optional)"
-            value={form.watch('discountPrice')?.toString() || ''}
+            value={form.watch('discountPrice') || ''}
             onChange={val =>
-              form.setValue(
-                'discountPrice',
-                val === '' ? undefined : Number(val),
-                { shouldValidate: true }
-              )
+              form.setValue('discountPrice', val, { shouldValidate: true })
             }
             error={form.formState.errors.discountPrice?.message}
           />

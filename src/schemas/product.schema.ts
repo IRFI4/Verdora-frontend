@@ -10,12 +10,17 @@ export const adminProductSchema = z.object({
     .min(1, 'Description is required')
     .max(1000, 'Max 1000 characters'),
   price: z
-    .number({ message: 'Price must be a number' })
-    .gt(0, 'Price must be greater than 0'),
+    .string()
+    .min(1, 'Price is required')
+    .refine(value => !Number.isNaN(Number(value)), {
+      message: 'Price must be a number',
+    }),
   discountPrice: z
-    .number({ message: 'Discount price must be a number' })
-    .nonnegative('Discount price cannot be negative')
-    .optional(),
+    .string()
+    .optional()
+    .refine(value => !value || !Number.isNaN(Number(value)), {
+      message: 'Discount price must be a number',
+    }),
   categoryId: z
     .number({ message: 'Category is required' })
     .min(1, 'Category is required'),

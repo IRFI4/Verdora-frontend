@@ -20,6 +20,7 @@ import {
 import { useAllCategories } from '@api/category/category.hooks';
 import type { Product } from '@/types/product';
 import type { AdminProductFormData } from '@/schemas/product.schema';
+import { useDebounce } from 'use-debounce';
 
 const SORT_OPTIONS = [
   { value: 'createdAt,desc', label: 'Date added: Newest first' },
@@ -35,7 +36,8 @@ const PAGE_SIZE = 12;
 const ProductManagement = () => {
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
+  const [debouncedSearch] = useDebounce(search, 500);
+  const [categoryId, setCategoryId] = useState<'ALL' | number>('ALL');
   const [sortBy, setSortBy] = useState<string>('createdAt,desc');
 
   const [selectedProductDetails, setSelectedProductDetails] =
@@ -44,35 +46,31 @@ const ProductManagement = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
 
-  const { data: categoriesData } = useAllCategories();
+  const {
+    data: categoriesData,
+    isLoading: isCategoriesLoading,
+    isError: isCategoriesError,
+  } = useAllCategories();
 
-  const { categoryIdToNameMap, categoryNameToIdMap } = useMemo(() => {
-    const idToName = new Map<number, string>();
-    const nameToId = new Map<string, number>();
+  const categoryIdToNameMap = useMemo(() => {
+    const map = new Map<number, string>();
 
-    if (categoriesData) {
-      categoriesData.forEach(cat => {
-        idToName.set(cat.categoryId, cat.name);
-        nameToId.set(cat.name.trim().toLowerCase(), cat.categoryId);
-      });
-    }
-    return { categoryIdToNameMap: idToName, categoryNameToIdMap: nameToId };
+    categoriesData?.forEach(cat => {
+      map.set(cat.categoryId, cat.name);
+    });
+
+    return map;
   }, [categoriesData]);
-
-  const activeCategoryId = useMemo(() => {
-    if (!selectedCategory || selectedCategory === 'ALL') return undefined;
-    return categoryNameToIdMap.get(selectedCategory.trim().toLowerCase());
-  }, [selectedCategory, categoryNameToIdMap]);
 
   const queryParams = useMemo(() => {
     return {
       page,
       size: PAGE_SIZE,
-      search: search.trim() || undefined,
-      categoryId: activeCategoryId,
+      search: debouncedSearch.trim() || undefined,
+      categoryId: categoryId === 'ALL' ? undefined : categoryId,
       sort: sortBy,
     };
-  }, [page, search, activeCategoryId, sortBy]);
+  }, [page, debouncedSearch, categoryId, sortBy]);
 
   const {
     data: productsData,
@@ -93,10 +91,9 @@ const ProductManagement = () => {
         name: data.name,
         description: data.description,
         price: Number(data.price),
-        discountPrice:
-          data.discountPrice !== undefined && data.discountPrice !== null
-            ? Number(data.discountPrice)
-            : undefined,
+        discountPrice: data.discountPrice
+          ? Number(data.discountPrice)
+          : undefined,
         categoryId: Number(data.categoryId),
         imageUrl: data.imageUrl,
       },
@@ -149,7 +146,7 @@ const ProductManagement = () => {
 
   const hasActiveFilters = Boolean(
     search.trim() ||
-    (selectedCategory && selectedCategory !== 'ALL') ||
+    (categoryId && categoryId !== 'ALL') ||
     sortBy !== 'createdAt,desc'
   );
 
@@ -188,25 +185,29 @@ const ProductManagement = () => {
               setIsCreateOpen(true);
             }}
             className="cursor-pointer gap-2 w-full sm:w-auto"
+            disabled={isCategoriesLoading || isCategoriesError}
           >
             <Plus className="size-4" />
             Create product
           </Button>
         </div>
       </AdminSectionHeader>
-
       <ProductFilterBar
         search={search}
-        selectedCategory={selectedCategory}
+        categoryId={categoryId}
+        isCategoriesError={isCategoriesError}
         sortBy={sortBy}
         categoriesData={categoriesData}
+        isCategoriesLoading={isCategoriesLoading}
         sortOptions={SORT_OPTIONS}
         onSearchChange={e => {
           setSearch(e.target.value);
           setPage(0);
         }}
         onCategoryChange={e => {
-          setSelectedCategory(e.target.value);
+          setCategoryId(
+            e.target.value === 'ALL' ? 'ALL' : Number(e.target.value)
+          );
           setPage(0);
         }}
         onSortChange={e => {
@@ -218,7 +219,7 @@ const ProductManagement = () => {
           setPage(0);
         }}
         onClearCategory={() => {
-          setSelectedCategory('ALL');
+          setCategoryId('ALL');
           setPage(0);
         }}
         onClearSort={() => {
@@ -227,7 +228,7 @@ const ProductManagement = () => {
         }}
         onClearAllFilters={() => {
           setSearch('');
-          setSelectedCategory('ALL');
+          setCategoryId('ALL');
           setSortBy('createdAt,desc');
           setPage(0);
         }}
@@ -244,13 +245,13 @@ const ProductManagement = () => {
         totalElements={totalElements}
         hasActiveFilters={hasActiveFilters}
         search={search}
-        selectedCategory={selectedCategory}
+        categoryId={categoryId}
         categoryIdToNameMap={categoryIdToNameMap}
         onPageChange={setPage}
         onRefetch={refetchProducts}
         onClearAllFilters={() => {
           setSearch('');
-          setSelectedCategory('ALL');
+          setCategoryId('ALL');
           setSortBy('createdAt,desc');
           setPage(0);
         }}
