@@ -51,7 +51,10 @@ const TextField = ({
         <div className="flex items-center justify-between">
           {label && (
             <FieldLabel
-              className={cn('text-xs font-medium text-text-h', labelClassName)}
+              className={cn(
+                'text-xs font-medium text-[#BBBBBB]',
+                labelClassName
+              )}
               htmlFor={id}
             >
               {label}

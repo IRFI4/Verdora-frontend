@@ -5,6 +5,7 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 @import '@fontsource-variable/inter';
+
 @font-face {
   font-family: 'DM Sans';
   src: url('./assets/fonts/DMSans-Font.woff2') format('woff2');
@@ -57,6 +58,8 @@ svg {
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+  --link-text: #0c0c0c;
+
   --text: #5c665d;
   --text-h: #2c332d;
   --text-muted: #8a948c;
@@ -234,9 +237,11 @@ svg {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }

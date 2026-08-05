@@ -1,42 +1,62 @@
-import loginPreview from '@assets/images/login-preview.png';
-import LogoIcon from '@assets/icons/logo.svg?react';
-import { Link } from 'react-router';
+import { Card, CardHeader, CardContent, CardFooter } from '@components/ui/card';
+import { Button } from '@components/ui/button';
+import LinkComponent from '@components/common/Link';
 
 type AuthFormProps = {
   title: string;
   subtitle: string;
   children: React.ReactNode;
+  continueWithGoogle?: boolean;
+  footerText: string;
+  footerLink: string;
+  footerLinkText: string;
 };
 
-const AuthForm = ({ title, subtitle, children }: AuthFormProps) => {
+const AuthForm = ({
+  title,
+  subtitle,
+  children,
+  continueWithGoogle,
+  footerText,
+  footerLink,
+  footerLinkText,
+}: AuthFormProps) => {
+  const handleGoogleLogin = () => {
+    const returnTo = encodeURIComponent(
+      window.location.origin + import.meta.env.BASE_URL
+    );
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google?return_to=${returnTo}`;
+  };
+
   return (
-    <div className="flex items-center justify-center ">
-      <div className="hidden lg:block w-[50vw]">
-        <img
-          src={loginPreview}
-          alt="Login preview"
-          className="w-full h-auto rounded-lg"
-        />
-      </div>
-      <div className="w-[50vw] h-full flex items-center justify-center">
-        <div className="w-[448px] flex flex-col items-center justify-center gap-6">
-          <Link to="/" className="flex items-center gap-8">
-            <div className="flex size-10 items-center justify-center rounded-full bg-[var(--accent)]">
-              <LogoIcon className="size-5 text-white" />
+    <div className="flex items-center justify-center min-h-screen">
+      <Card>
+        <CardHeader className="text-center">
+          <h2 className="text-sm">{title}</h2>
+          <p className="text-sm text-[#888888]">{subtitle}</p>
+        </CardHeader>
+        <CardContent>{children}</CardContent>
+        <CardFooter className="flex flex-col gap-3">
+          {continueWithGoogle && (
+            <div className="flex flex-col gap-3 w-full">
+              <div className="w-full flex items-center">
+                <div className="h-px flex-1 bg-zinc-200" />
+                <p className="text-[14px] text-zinc-500 mx-2">
+                  OR CONTINUE WITH
+                </p>
+                <div className="h-px flex-1 bg-zinc-200" />
+              </div>
+              <Button onClick={handleGoogleLogin} type="button">
+                Log in with Google
+              </Button>
             </div>
-            <span className="text-[20px] font-bold text-text-h">Verdora</span>
-          </Link>
-          <div className="flex flex-col items-center">
-            <h2 className="my-[8px] text-[36px] leading-[40px] text-text-h font-bold font-outfit">
-              {title}
-            </h2>
-            <p className="text-text text-[16px] [font-family:var(--font-sans)]">
-              {subtitle}
-            </p>
+          )}
+          <div className="flex items-center justify-center gap-1">
+            <p className="text-[16px] text-zinc-500">{footerText}</p>
+            <LinkComponent to={footerLink} text={footerLinkText} />
           </div>
-          {children}
-        </div>
-      </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 };
