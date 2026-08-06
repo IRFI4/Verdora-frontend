@@ -1,12 +1,13 @@
 import { Card, CardHeader, CardContent, CardFooter } from '@components/ui/card';
 import { Button } from '@components/ui/button';
 import LinkComponent from '@components/common/Link';
+import AuthBg from '@assets/images/auth-bg.png';
 
 type AuthFormProps = {
   title: string;
   subtitle: string;
   children: React.ReactNode;
-  continueWithGoogle?: boolean;
+  continueWithGoogle: boolean;
   footerText: string;
   footerLink: string;
   footerLinkText: string;
@@ -29,8 +30,11 @@ const AuthForm = ({
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <Card>
+    <div
+      className="flex items-center justify-center min-h-screen bg-cover bg-center"
+      style={{ backgroundImage: `url(${AuthBg})` }}
+    >
+      <Card className="sm:min-w-sm">
         <CardHeader className="text-center">
           <h2 className="text-sm">{title}</h2>
           <p className="text-sm text-[#888888]">{subtitle}</p>
@@ -40,13 +44,17 @@ const AuthForm = ({
           {continueWithGoogle && (
             <div className="flex flex-col gap-3 w-full">
               <div className="w-full flex items-center">
-                <div className="h-px flex-1 bg-zinc-200" />
-                <p className="text-[14px] text-zinc-500 mx-2">
+                <div className="h-px flex-1 bg-[#888888]" />
+                <p className="text-[14px] text-[#888888] mx-2">
                   OR CONTINUE WITH
                 </p>
-                <div className="h-px flex-1 bg-zinc-200" />
+                <div className="h-px flex-1 bg-[#888888]" />
               </div>
-              <Button onClick={handleGoogleLogin} type="button">
+              <Button
+                onClick={handleGoogleLogin}
+                type="button"
+                variant={'transparent'}
+              >
                 Log in with Google
               </Button>
             </div>
