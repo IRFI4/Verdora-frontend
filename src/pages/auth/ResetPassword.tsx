@@ -2,8 +2,6 @@ import AuthForm from '@/components/layout/pageComponents/Auth';
 import PasswordField from '@components/common/forms/PasswordField';
 import PasswordStrength from '@components/common/forms/PasswordStrength';
 import { Button } from '@components/ui/button';
-import { Link } from 'react-router';
-import ArrowIcon from '@assets/icons/arrrow.svg?react';
 import {
   useResetPasswordForm,
   type ResetPasswordFormData,
@@ -13,6 +11,7 @@ import { resetPassword } from '@api/auth/auth.actions';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useEffect, useMemo, useState } from 'react';
 import { rateLimit } from '@/utils/rateLimit';
+import LockIcon from '@assets/icons/lock.svg?react';
 
 const ResetPassword = () => {
   const dispatch = useAppDispatch();
@@ -51,8 +50,12 @@ const ResetPassword = () => {
 
   return (
     <AuthForm
-      title="Reset Your Password"
-      subtitle="Enter a new password for your account"
+      title="Reset password"
+      subtitle="Please type something you’ll remember"
+      continueWithGoogle={false}
+      footerText="Remember password?"
+      footerLinkText="Log in"
+      footerLink="/login"
     >
       {success ? (
         <div className="flex flex-col items-center gap-8">
@@ -78,24 +81,26 @@ const ResetPassword = () => {
         >
           <div className="w-full">
             <PasswordField
-              label="Password"
-              placeholder="At least 8 characters"
+              label="New password"
+              placeholder="********"
               value={watch('password')}
               onChange={value =>
                 setValue('password', value, { shouldValidate: true })
               }
               error={formErrors.password?.message}
+              leftIcon={<LockIcon />}
             />
             <PasswordStrength password={watch('password')} />
           </div>
           <PasswordField
-            label="Confirm Password"
-            placeholder="Re-enter your new password"
+            label="Confirm new password"
+            placeholder="********"
             value={watch('confirmPassword')}
             onChange={value =>
               setValue('confirmPassword', value, { shouldValidate: true })
             }
             error={formErrors.confirmPassword?.message}
+            leftIcon={<LockIcon />}
           />
           {!success && errors.reset && (
             <p className="text-red-500 text-sm">{errors.reset}</p>
@@ -107,13 +112,6 @@ const ResetPassword = () => {
           >
             {loading.reset ? 'Resetting...' : 'Reset Password'}
           </Button>
-          <Link
-            to="/login"
-            className="text-accent [font-family:var(--font-sans)] flex items-center"
-          >
-            <ArrowIcon className="size-5 mr-3 cursor-pointer" />
-            Back to Sign In
-          </Link>
         </form>
       )}
     </AuthForm>

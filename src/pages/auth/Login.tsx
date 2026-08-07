@@ -1,14 +1,16 @@
 import { Button } from '@components/ui/button';
-import GoogleIcon from '@assets/icons/google.svg?react';
 import PasswordField from '@components/common/forms/PasswordField';
 import TextField from '@components/common/forms/TextField';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { useLoginForm, type LoginFormData } from '@hooks/useLoginForm';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { login } from '@api/auth/auth.actions';
 import { rateLimit } from '@/utils/rateLimit';
 import { useMemo } from 'react';
-import AuthForm from '@/components/layout/pageComponents/Auth';
+import AuthForm from '@components/layout/pageComponents/Auth';
+import LinkComponent from '@components/common/Link';
+import MailIcon from '@assets/icons/message.svg?react';
+import LockIcon from '@assets/icons/lock.svg?react';
 
 const Login = () => {
   const dispatch = useAppDispatch();
@@ -31,81 +33,55 @@ const Login = () => {
     navigate('/');
   };
 
-  const handleGoogleLogin = () => {
-    const returnTo = encodeURIComponent(
-      window.location.origin + import.meta.env.BASE_URL
-    );
-    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google?return_to=${returnTo}`;
-  };
-
   return (
     <AuthForm
-      title="Sign in to Verdora"
-      subtitle="Access your account and orders"
+      title="Welcome back"
+      subtitle="Sign in to your account to continue"
+      footerText="Don’t have an account?"
+      footerLink="/register"
+      footerLinkText="Sign up"
+      continueWithGoogle={true}
     >
       <form
-        className="flex flex-col items-center justify-center gap-6 w-full"
+        className="flex flex-col justify-center gap-5 w-full"
         onSubmit={handleSubmit(onSubmit)}
       >
         <TextField
           type="text"
-          label="Email Address"
+          label="Email"
           id="email"
-          placeholder="your@email.com"
+          placeholder="Enter your email address"
           value={watch('email')}
           onChange={value => setValue('email', value, { shouldValidate: true })}
           error={formErrors.email?.message}
+          leftIcon={<MailIcon />}
         />
         <PasswordField
           label="Password"
-          labelRight={
-            <Link
-              to="/forgot-password"
-              className="text-sm text-accent hover:underline"
-            >
-              Forgot password?
-            </Link>
-          }
-          placeholder="Enter your password"
+          placeholder="********"
           value={watch('password')}
           onChange={value =>
             setValue('password', value, { shouldValidate: true })
           }
           error={formErrors.password?.message}
+          leftIcon={<LockIcon />}
         />
+        <div className="flex flex-col gap-2 mt-5">
+          <LinkComponent to="/forgot-password" text="Forgot password?" />
+          <Button
+            className="w-full"
+            type="submit"
+            disabled={!isValid || loading.login}
+          >
+            {loading.login ? 'Signing in...' : 'Log in'}
+          </Button>
+        </div>
         {errors.login && (
           <p className="text-red-500 text-sm mt-2 text-center">
             {errors.login}
           </p>
         )}
-        <Button
-          className="w-full"
-          type="submit"
-          disabled={!isValid || loading.login}
-        >
-          {loading.login ? 'Signing in...' : 'Sign In'}
-        </Button>
       </form>
-      <div className="w-full flex items-center gap-4">
-        <div className="h-px flex-1 bg-zinc-200" />
-        <span className="text-[14px] text-zinc-500 mx-4">Or continue with</span>
-        <div className="h-px flex-1 bg-zinc-200" />
-      </div>
-      <Button
-        variant={'default'}
-        className="w-full cursor-pointer"
-        type="button"
-        onClick={handleGoogleLogin}
-      >
-        <GoogleIcon className="size-5 mr-3" />
-        Continue with Google
-      </Button>
-      <p className="text-sm text-zinc-500">
-        Don't have an account?{' '}
-        <Link to="/register" className="hover:underline">
-          Sign up
-        </Link>
-      </p>
     </AuthForm>
   );
 };
