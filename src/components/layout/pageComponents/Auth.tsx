@@ -61,7 +61,11 @@ const AuthForm = ({
           )}
           <div className="flex items-center justify-center gap-1">
             <p className="text-[16px] text-zinc-500">{footerText}</p>
-            <LinkComponent to={footerLink} text={footerLinkText} />
+            <LinkComponent
+              to={footerLink}
+              text={footerLinkText}
+              className="text-[#1E331B]"
+            />
           </div>
         </CardFooter>
       </Card>

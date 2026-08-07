@@ -64,9 +64,17 @@ const TextField = ({
         className={cn(
           `w-full rounded-[12px] bg-block-bg
           border-2 border-zinc-300
-          has-[[data-slot=input-group-control]:focus-visible]:border-accent
-          has-[[data-slot=input-group-control]:focus-visible]:ring-0`,
-          error && 'border-red-500 focus-within:ring-red-500',
+          hover:border-[#25531F] transition-all duration-100 ease-in-out
+          focus-within:border-[#25531F]!
+
+          /* Автоматична зміна кольору для всіх вкладених SVG */
+          [&_svg]:text-zinc-400 [&_svg]:transition-colors
+          hover:[&_svg]:text-[#25531F]
+          focus-within:[&_svg]:text-[#25531F]!`,
+
+          error &&
+            `border-red-500 focus-within:border-red-500! 
+                    [&_svg]:text-red-500 focus-within:[&_svg]:text-red-500!`,
           containerClassName
         )}
       >
@@ -77,7 +85,7 @@ const TextField = ({
           value={value}
           onChange={e => onChange(e.target.value)}
           className={cn(
-            `text-xs text-text-h
+            `text-xs text-text-h focus:outline-none focus-visible:outline-none focus-visible:ring-0
             placeholder:text-xs placeholder:[font-family:var(--font-sans)] placeholder:text-text-muted`,
             error && 'placeholder:text-red-400',
             inputClassName

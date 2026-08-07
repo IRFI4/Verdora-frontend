@@ -20,7 +20,7 @@ const PasswordStrength = ({ password }: Props) => {
             {[1, 2, 3].map(i => (
               <div
                 key={i}
-                className={`h-4 flex-1 rounded-full transition-all duration-300 
+                className={`h-2 flex-1 rounded-full transition-all duration-300 
                     ${
                       displayScore >= i
                         ? `${passwordStrength.bg}`

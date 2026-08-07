@@ -10,7 +10,7 @@ const LinkComponent = ({ text, to, className }: Props) => {
   return (
     <Link
       to={to}
-      className={`${className} text-link-text text-[16px] hover:underline cursor-pointer`}
+      className={`${className} text-link-text text-[16px] hover:underline cursor-pointer font-semibold`}
     >
       {text}
     </Link>
