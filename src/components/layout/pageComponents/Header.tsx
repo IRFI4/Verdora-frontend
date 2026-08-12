@@ -20,7 +20,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
   const queryClient = useQueryClient();
   const { user, hydrating } = useAppSelector(state => state.auth);
 
-  const { data: cart } = useGetCart();
+  const { data: cart } = useGetCart({ enabled: Boolean(user) });
   const items = cart?.items || [];
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 

@@ -9,10 +9,10 @@ import { useGetCart } from '@api/cart/cart.hooks';
 const LayoutPage = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { initialized } = useAppSelector(state => state.auth);
+  const { user } = useAppSelector(state => state.auth);
 
   useGetCart({
-    enabled: initialized,
+    enabled: Boolean(user),
   });
 
   useEffect(() => {
