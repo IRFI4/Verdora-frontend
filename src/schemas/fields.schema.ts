@@ -25,7 +25,7 @@ export const passwordSchema = z
 export const usernameSchema = z
   .string()
   .min(2, 'Min 2 characters')
-  .max(10, 'Max 10 characters')
+  .max(40, 'Max 40 characters')
   .regex(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers and underscore');
 
 export const phoneNumberSchema = z

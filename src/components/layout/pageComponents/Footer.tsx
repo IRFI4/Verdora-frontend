@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import SocialMedia1 from '@assets/icons/social-media-1.svg?react';
 import SocialMedia2 from '@assets/icons/social-media-2.svg?react';
 import { Separator } from '@components/ui/separator';

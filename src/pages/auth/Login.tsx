@@ -33,6 +33,13 @@ const Login = () => {
     navigate('/');
   };
 
+  const handleGoogleLogin = () => {
+    const returnTo = encodeURIComponent(
+      window.location.origin + import.meta.env.BASE_URL
+    );
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google?return_to=${returnTo}`;
+  };
+
   return (
     <AuthForm
       title="Welcome back"
@@ -40,7 +47,7 @@ const Login = () => {
       footerText="Don’t have an account?"
       footerLink="/register"
       footerLinkText="Sign up"
-      continueWithGoogle={true}
+      onGoogleAuth={handleGoogleLogin}
     >
       <form
         className="flex flex-col justify-center gap-5 w-full"
@@ -66,6 +73,11 @@ const Login = () => {
           error={formErrors.password?.message}
           leftIcon={<LockIcon />}
         />
+        {errors.login && (
+          <p className="text-red-500 text-sm mt-2 text-center">
+            {errors.login}
+          </p>
+        )}
         <div className="flex flex-col gap-2 mt-5">
           <LinkComponent to="/forgot-password" text="Forgot password?" />
           <Button
@@ -76,11 +88,6 @@ const Login = () => {
             {loading.login ? 'Signing in...' : 'Log in'}
           </Button>
         </div>
-        {errors.login && (
-          <p className="text-red-500 text-sm mt-2 text-center">
-            {errors.login}
-          </p>
-        )}
       </form>
     </AuthForm>
   );

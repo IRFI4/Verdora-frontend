@@ -183,6 +183,7 @@ svg {
 }
 
 @theme {
+  --color-link-text: var(--link-text);
   --font-sans: 'DM Sans', sans-serif;
   --font-inter: 'Inter', sans-serif;
   --font-outfit: 'Outfit', sans-serif;

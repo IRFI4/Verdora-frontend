@@ -77,7 +77,7 @@ const ForgotPassword = () => {
           type="submit"
           disabled={!isValid || loading.forgot}
         >
-          {loading.forgot ? 'Sending...' : 'Send code'}
+          {loading.forgot ? 'Sending...' : 'Send reset link'}
         </Button>
       </form>
     </AuthForm>

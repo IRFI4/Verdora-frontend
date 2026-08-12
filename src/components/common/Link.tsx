@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
+import { cn } from '@/lib/utils';
 
 type Props = {
   text: string;
@@ -10,7 +11,10 @@ const LinkComponent = ({ text, to, className }: Props) => {
   return (
     <Link
       to={to}
-      className={`${className} text-link-text text-[16px] hover:underline cursor-pointer font-semibold`}
+      className={cn(
+        'cursor-pointer text-[16px] font-semibold text-link-text hover:underline',
+        className
+      )}
     >
       {text}
     </Link>

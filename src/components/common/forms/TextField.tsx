@@ -51,7 +51,10 @@ const TextField = ({
         <div className="flex items-center justify-between">
           {label && (
             <FieldLabel
-              className={cn('text-xs font-sans text-[#BBBBBB]', labelClassName)}
+              className={cn(
+                'font-sans text-base text-text-muted',
+                labelClassName
+              )}
               htmlFor={id}
             >
               {label}
@@ -62,19 +65,19 @@ const TextField = ({
       )}
       <InputGroup
         className={cn(
-          `w-full rounded-[12px] bg-block-bg
-          border-2 border-zinc-300
-          hover:border-[#25531F] transition-all duration-100 ease-in-out
-          focus-within:border-[#25531F]!
+          `w-full rounded-[12px] border-2 border-zinc-300 bg-block-bg
+          transition-all duration-100 ease-in-out
+          hover:border-primary
+          focus-within:border-primary!
+          has-[[data-slot=input-group-control]:focus-visible]:ring-0
 
-          /* Автоматична зміна кольору для всіх вкладених SVG */
-          [&_svg]:text-zinc-400 [&_svg]:transition-colors
-          hover:[&_svg]:text-[#25531F]
-          focus-within:[&_svg]:text-[#25531F]!`,
-
+          [&_svg]:text-zinc-400
+          [&_svg]:transition-colors
+          hover:[&_svg]:text-primary
+          focus-within:[&_svg]:text-primary!`,
           error &&
-            `border-red-500 focus-within:border-red-500! 
-                    [&_svg]:text-red-500 focus-within:[&_svg]:text-red-500!`,
+            `border-red-500 focus-within:border-red-500!
+            [&_svg]:text-red-500 focus-within:[&_svg]:text-red-500!`,
           containerClassName
         )}
       >
@@ -85,8 +88,11 @@ const TextField = ({
           value={value}
           onChange={e => onChange(e.target.value)}
           className={cn(
-            `text-xs text-text-h focus:outline-none focus-visible:outline-none focus-visible:ring-0
-            placeholder:text-xs placeholder:[font-family:var(--font-sans)] placeholder:text-text-muted`,
+            `text-sm text-text-h
+            focus:outline-none focus-visible:outline-none focus-visible:ring-0
+            placeholder:text-sm
+            placeholder:[font-family:var(--font-sans)]
+            placeholder:text-text-muted`,
             error && 'placeholder:text-red-400',
             inputClassName
           )}
