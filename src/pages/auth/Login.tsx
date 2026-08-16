@@ -42,15 +42,13 @@ const Login = () => {
 
   return (
     <AuthForm
-      title="Welcome back"
-      subtitle="Sign in to your account to continue"
       footerText="Don’t have an account?"
       footerLink="/register"
       footerLinkText="Sign up"
       onGoogleAuth={handleGoogleLogin}
     >
       <form
-        className="flex flex-col justify-center gap-5 w-full"
+        className="flex flex-col justify-center gap-4 w-full"
         onSubmit={handleSubmit(onSubmit)}
       >
         <TextField
@@ -74,11 +72,9 @@ const Login = () => {
           leftIcon={<LockIcon />}
         />
         {errors.login && (
-          <p className="text-red-500 text-sm mt-2 text-center">
-            {errors.login}
-          </p>
+          <p className="text-red-500 text-sm text-center">{errors.login}</p>
         )}
-        <div className="flex flex-col gap-2 mt-5">
+        <div className="flex flex-col gap-2">
           <LinkComponent to="/forgot-password" text="Forgot password?" />
           <Button
             className="w-full"

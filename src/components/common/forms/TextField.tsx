@@ -52,7 +52,7 @@ const TextField = ({
           {label && (
             <FieldLabel
               className={cn(
-                'font-sans text-base text-text-muted',
+                'font-sans text-base text-secondary-foreground',
                 labelClassName
               )}
               htmlFor={id}

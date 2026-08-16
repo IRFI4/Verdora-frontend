@@ -50,33 +50,26 @@ const ResetPassword = () => {
 
   return (
     <AuthForm
-      title="Reset password"
-      subtitle="Please type something you’ll remember"
+      title={success ? 'Successfully reseted' : 'New password'}
+      subtitle={
+        success
+          ? 'Your new password was saved. Now you can log in with new password'
+          : 'Create new password witch you never used'
+      }
       continueWithGoogle={false}
       footerText="Remember password?"
       footerLinkText="Log in"
       footerLink="/login"
     >
       {success ? (
-        <div className="flex flex-col items-center gap-8">
-          <h2 className="text-xl font-semibold">Password Updated</h2>
-
-          <p className="text-center text-sm text-muted-foreground max-w-sm">
-            Your password has been updated. You can now sign in with your new
-            password.
-          </p>
-
-          <Button
-            type="button"
-            className="w-full"
-            onClick={() => navigate('/login')}
-          >
-            Back to Sign In
+        <div className="flex flex-col items-center gap-4">
+          <Button type="button" onClick={() => navigate('/login')}>
+            Log in with new password
           </Button>
         </div>
       ) : (
         <form
-          className="flex flex-col items-center justify-center gap-6 w-full"
+          className="flex flex-col items-center justify-center gap-4 w-full"
           onSubmit={handleSubmit(onSubmit)}
         >
           <div className="w-full">
@@ -93,7 +86,7 @@ const ResetPassword = () => {
             <PasswordStrength password={watch('password')} />
           </div>
           <PasswordField
-            label="Confirm new password"
+            label="Confirm password"
             placeholder="********"
             value={watch('confirmPassword')}
             onChange={value =>
@@ -105,11 +98,7 @@ const ResetPassword = () => {
           {!success && errors.reset && (
             <p className="text-red-500 text-sm">{errors.reset}</p>
           )}
-          <Button
-            className="w-full"
-            type="submit"
-            disabled={!isValid || loading.reset}
-          >
+          <Button type="submit" disabled={!isValid || loading.reset}>
             {loading.reset ? 'Resetting...' : 'Reset Password'}
           </Button>
         </form>

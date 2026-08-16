@@ -53,15 +53,13 @@ const Register = () => {
 
   return (
     <AuthForm
-      title="Welcome"
-      subtitle="Fill your detailed information"
       footerText="Have an account?"
       footerLink="/login"
       footerLinkText="Log in"
       onGoogleAuth={handleGoogleLogin}
     >
       <form
-        className="flex flex-col items-center justify-center gap-3 w-full"
+        className="flex flex-col items-center justify-center gap-4 w-full"
         onSubmit={handleSubmit(onSubmit)}
       >
         <TextField
@@ -121,7 +119,7 @@ const Register = () => {
           error={formErrors.confirmPassword?.message}
           leftIcon={<LockIcon />}
         />
-        <div className="flex flex-col gap-2 mt-5 w-full">
+        <div className="flex flex-col gap-2 w-full">
           <div className="flex items-center gap-1">
             <Checkbox
               id="acceptedTerms"
@@ -131,7 +129,6 @@ const Register = () => {
                   shouldValidate: true,
                 })
               }
-              className="border-zinc-400 data-checked:bg-white data-checked:text-black"
             />
             <label
               htmlFor="acceptedTerms"
@@ -141,19 +138,18 @@ const Register = () => {
             </label>
             <LinkComponent text="Terms and Conditions" to="/terms" />
           </div>
+          {errors.register && (
+            <p className="text-red-500 text-sm mt-2 text-center">
+              {errors.register}
+            </p>
+          )}
           <Button
-            className="w-full"
             type="submit"
             disabled={!isValid || !accepted || loading.register}
           >
             {loading.register ? 'Creating...' : 'Log in'}
           </Button>
         </div>
-        {errors.register && (
-          <p className="text-red-500 text-sm mt-2 text-center">
-            {errors.register}
-          </p>
-        )}
       </form>
     </AuthForm>
   );

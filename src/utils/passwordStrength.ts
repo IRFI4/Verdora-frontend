@@ -32,33 +32,40 @@ export function getPasswordStrength(password: string): PasswordStrength {
   let score = 0;
 
   if (password.length >= 8) score++;
-  if (/[A-Z]/.test(password)) score++;
+  if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
   if (/\d/.test(password)) score++;
   if (/[^A-Za-z0-9]/.test(password)) score++;
 
-  const normalizedScore = Math.min(score, 3);
-
-  if (normalizedScore <= 1) {
+  if (score <= 1) {
     return {
-      score: normalizedScore,
-      label: 'Weak password',
+      score: 1,
+      label: 'Very weak',
       bg: 'bg-red-500',
       text: 'text-red-500',
     };
   }
 
-  if (normalizedScore === 2) {
+  if (score === 2) {
     return {
-      score: normalizedScore,
-      label: 'Medium strength',
+      score: 2,
+      label: 'Weak',
       bg: 'bg-yellow-400',
-      text: 'text-yellow-400',
+      text: 'text-yellow-500',
+    };
+  }
+
+  if (score === 3) {
+    return {
+      score: 3,
+      label: 'Good',
+      bg: 'bg-green-500',
+      text: 'text-green-500',
     };
   }
 
   return {
-    score: normalizedScore,
-    label: 'Strong password',
+    score: 4,
+    label: 'Strong',
     bg: 'bg-green-500',
     text: 'text-green-500',
   };
