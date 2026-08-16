@@ -84,6 +84,7 @@ const Login = () => {
             className="w-full"
             type="submit"
             disabled={!isValid || loading.login}
+            variant={'outline'}
           >
             {loading.login ? 'Signing in...' : 'Log in'}
           </Button>
