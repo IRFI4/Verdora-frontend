@@ -1,9 +1,7 @@
 import { Button } from '@components/ui/button';
 import PasswordField from '@components/common/forms/PasswordField';
 import TextField from '@components/common/forms/TextField';
-import { Link, useNavigate } from 'react-router';
-import CheckIcon from '@assets/icons/checkbox.svg?react';
-import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router';
 import { useRegisterForm, type RegisterFormData } from '@hooks/useRegisterForm';
 import PasswordStrength from '@components/common/forms/PasswordStrength';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
@@ -11,6 +9,12 @@ import { register } from '@api/auth/auth.actions';
 import { rateLimit } from '@/utils/rateLimit';
 import { useMemo } from 'react';
 import AuthForm from '@components/layout/pageComponents/Auth';
+import LinkComponent from '@components/common/Link';
+import { Checkbox } from '@components/ui/checkbox';
+import UserIcon from '@assets/icons/user.svg?react';
+import PhoneIcon from '@assets/icons/call.svg?react';
+import MailIcon from '@assets/icons/message.svg?react';
+import LockIcon from '@assets/icons/lock.svg?react';
 
 const Register = () => {
   const dispatch = useAppDispatch();
@@ -40,40 +44,52 @@ const Register = () => {
     navigate('/');
   };
 
+  const handleGoogleLogin = () => {
+    const returnTo = encodeURIComponent(
+      window.location.origin + import.meta.env.BASE_URL
+    );
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google?return_to=${returnTo}`;
+  };
+
   return (
     <AuthForm
-      title="Create Account"
-      subtitle="Join Verdora and start your green journey"
+      footerText="Have an account?"
+      footerLink="/login"
+      footerLinkText="Log in"
+      onGoogleAuth={handleGoogleLogin}
     >
       <form
-        className="flex flex-col items-center justify-center gap-6 w-full"
+        className="flex flex-col items-center justify-center gap-4 w-full"
         onSubmit={handleSubmit(onSubmit)}
       >
         <TextField
           type="text"
-          label="Username"
+          label="Full name"
           id="username"
-          placeholder="john_doe"
+          placeholder="Name Surname"
           value={watch('username')}
           onChange={value =>
             setValue('username', value, { shouldValidate: true })
           }
           error={formErrors.username?.message}
+          leftIcon={<UserIcon />}
         />
         <TextField
           type="text"
-          label="Email Address"
+          label="Email"
           id="email"
-          placeholder="your@email.com"
+          placeholder="yourmail@gmail.com"
           value={watch('email')}
           onChange={value => setValue('email', value, { shouldValidate: true })}
           error={formErrors.email?.message}
+          leftIcon={<MailIcon />}
         />
         <TextField
           type="tel"
-          label="Phone Number"
+          label="Phone number"
           id="phone"
-          placeholder="+1 (555) 000-0000"
+          placeholder="+38066671122"
+          leftIcon={<PhoneIcon />}
           value={watch('phoneNumber')}
           onChange={value =>
             setValue('phoneNumber', value, { shouldValidate: true })
@@ -83,77 +99,58 @@ const Register = () => {
         <div className="w-full">
           <PasswordField
             label="Password"
-            placeholder="Enter your password"
+            placeholder="********"
             value={watch('password')}
             onChange={value =>
               setValue('password', value, { shouldValidate: true })
             }
             error={formErrors.password?.message}
+            leftIcon={<LockIcon />}
           />
           <PasswordStrength password={watch('password')} />
         </div>
         <PasswordField
           label="Confirm Password"
-          placeholder="Re-enter your password"
+          placeholder="********"
           value={watch('confirmPassword')}
           onChange={value =>
             setValue('confirmPassword', value, { shouldValidate: true })
           }
           error={formErrors.confirmPassword?.message}
+          leftIcon={<LockIcon />}
         />
-        <div className="w-full">
-          <label className="flex items-center gap-4 cursor-pointer">
-            <input
-              type="checkbox"
+        <div className="flex flex-col gap-2 w-full">
+          <div className="flex items-center gap-1">
+            <Checkbox
+              id="acceptedTerms"
               checked={accepted}
-              onChange={() =>
-                setValue('acceptedTerms', !accepted, {
+              onCheckedChange={checked =>
+                setValue('acceptedTerms', checked === true, {
                   shouldValidate: true,
                 })
               }
-              className="sr-only"
             />
-
-            <div
-              className={cn(
-                'flex size-4 items-center justify-center rounded-lg border border-zinc-400 bg-white mr-1 transition',
-                accepted && 'border-[#2F5BFF] bg-[#2F5BFF]'
-              )}
+            <label
+              htmlFor="acceptedTerms"
+              className="text-sm text-[#888888] [font-family:var(--font-sans)] cursor-pointer"
             >
-              <CheckIcon
-                className={cn(
-                  'size-8 text-white opacity-0 transition',
-                  accepted && 'opacity-100'
-                )}
-              />
-            </div>
-            <span className="text-sm [font-family:var(--font-sans)]">
-              I agree to the{' '}
-              <Link to="/terms" className="underline underline-offset-4">
-                Terms and Conditions
-              </Link>
-            </span>
-          </label>
+              Agreed with
+            </label>
+            <LinkComponent text="Terms and Conditions" to="/terms" />
+          </div>
+          {errors.register && (
+            <p className="text-red-500 text-sm mt-2 text-center">
+              {errors.register}
+            </p>
+          )}
+          <Button
+            type="submit"
+            disabled={!isValid || !accepted || loading.register}
+          >
+            {loading.register ? 'Creating...' : 'Log in'}
+          </Button>
         </div>
-        {errors.register && (
-          <p className="text-red-500 text-sm mt-2 text-center">
-            {errors.register}
-          </p>
-        )}
-        <Button
-          className="w-full"
-          type="submit"
-          disabled={!isValid || !accepted || loading.register}
-        >
-          {loading.register ? 'Creating...' : 'Create Account'}
-        </Button>
       </form>
-      <p className="text-[16px] text-zinc-500 [font-family:var(--font-sans)]">
-        Already have an account?{' '}
-        <Link to="/login" className="hover:underline">
-          Sign in
-        </Link>
-      </p>
     </AuthForm>
   );
 };

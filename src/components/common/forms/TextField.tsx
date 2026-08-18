@@ -51,7 +51,10 @@ const TextField = ({
         <div className="flex items-center justify-between">
           {label && (
             <FieldLabel
-              className={cn('text-xs font-medium text-text-h', labelClassName)}
+              className={cn(
+                'font-sans text-base text-secondary-foreground',
+                labelClassName
+              )}
               htmlFor={id}
             >
               {label}
@@ -62,11 +65,19 @@ const TextField = ({
       )}
       <InputGroup
         className={cn(
-          `h-10 w-full rounded-[12px] bg-block-bg
-          border-2 border-zinc-300
-          has-[[data-slot=input-group-control]:focus-visible]:border-accent
-          has-[[data-slot=input-group-control]:focus-visible]:ring-0`,
-          error && 'border-red-500 focus-within:ring-red-500',
+          `w-full rounded-[12px] border-2 border-zinc-300 bg-block-bg
+          transition-all duration-100 ease-in-out
+          hover:border-primary
+          focus-within:border-primary!
+          has-[[data-slot=input-group-control]:focus-visible]:ring-0
+
+          [&_svg]:text-zinc-400
+          [&_svg]:transition-colors
+          hover:[&_svg]:text-primary
+          focus-within:[&_svg]:text-primary!`,
+          error &&
+            `border-red-500 focus-within:border-red-500!
+            [&_svg]:text-red-500 focus-within:[&_svg]:text-red-500!`,
           containerClassName
         )}
       >
@@ -77,9 +88,11 @@ const TextField = ({
           value={value}
           onChange={e => onChange(e.target.value)}
           className={cn(
-            `h-full w-full bg-transparent
-            text-sm text-text-h
-            placeholder:text-sm placeholder:[font-family:var(--font-sans)] placeholder:text-text-muted`,
+            `text-sm text-text-h
+            focus:outline-none focus-visible:outline-none focus-visible:ring-0
+            placeholder:text-sm
+            placeholder:[font-family:var(--font-sans)]
+            placeholder:text-text-muted`,
             error && 'placeholder:text-red-400',
             inputClassName
           )}

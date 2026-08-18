@@ -1,6 +1,6 @@
 import { Separator } from '@components/ui/separator';
 import { Button } from '@components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { cn } from '@/lib/utils';
 import CheckIcon from '@assets/icons/checkbox.svg?react';
 import { Skeleton } from '@components/ui/skeleton';

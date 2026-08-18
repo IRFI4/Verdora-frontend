@@ -1,8 +1,6 @@
 import AuthForm from '@/components/layout/pageComponents/Auth';
 import TextField from '@components/common/forms/TextField';
 import { Button } from '@components/ui/button';
-import { Link } from 'react-router';
-import ArrowIcon from '@assets/icons/arrrow.svg?react';
 import {
   useForgotPasswordForm,
   type ForgotPasswordFormData,
@@ -11,6 +9,7 @@ import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { forgotPassword } from '@api/auth/auth.actions';
 import { useMemo, useState } from 'react';
 import { rateLimit } from '@/utils/rateLimit';
+import MailIcon from '@assets/icons/message.svg?react';
 
 const ForgotPassword = () => {
   const dispatch = useAppDispatch();
@@ -45,7 +44,11 @@ const ForgotPassword = () => {
   return (
     <AuthForm
       title="Forgot Password?"
-      subtitle="Enter your email and we'll send you a reset link"
+      subtitle="Don’t worry! It happens. Please enter the email associated with your account."
+      continueWithGoogle={false}
+      footerText="Remember password?"
+      footerLinkText="Log in"
+      footerLink="/login"
     >
       <form
         className="flex flex-col items-center justify-center gap-6 w-full"
@@ -53,12 +56,13 @@ const ForgotPassword = () => {
       >
         <TextField
           type="text"
-          label="Email Address"
+          label="Email"
           id="email"
-          placeholder="your@email.com"
+          placeholder="Enter your email address"
           value={watch('email')}
           onChange={handleEmailChange}
           error={formErrors.email?.message}
+          leftIcon={<MailIcon />}
         />
         {send && (
           <p className="text-green-500 text-sm mt-2">
@@ -73,15 +77,8 @@ const ForgotPassword = () => {
           type="submit"
           disabled={!isValid || loading.forgot}
         >
-          {loading.forgot ? 'Sending...' : 'Send Reset Link'}
+          {loading.forgot ? 'Sending...' : 'Send reset link'}
         </Button>
-        <Link
-          to="/login"
-          className="text-accent [font-family:var(--font-sans)] flex items-center"
-        >
-          <ArrowIcon className="size-5 mr-3 cursor-pointer" />
-          Back to Sign In
-        </Link>
       </form>
     </AuthForm>
   );

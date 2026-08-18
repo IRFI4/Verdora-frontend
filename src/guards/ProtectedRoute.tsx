@@ -17,9 +17,9 @@ const ProtectedRoute: React.FC<Props> = ({
   requireAuth = true,
   children,
 }) => {
-  const { data: user, isPending, isError } = useGetCurrentUser();
+  const { data: user, isFetched, isError } = useGetCurrentUser();
 
-  if (isPending) {
+  if (!isFetched) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Spinner className="size-8 text-primary" />

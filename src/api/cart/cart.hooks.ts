@@ -109,6 +109,7 @@ export const useGetCart = (options?: { enabled?: boolean }) => {
   return useQuery<Cart, CartAxiosError>({
     queryKey: ['cart'],
     queryFn: () => cartService.getCart(),
+    retry: false,
     ...options,
   });
 };
