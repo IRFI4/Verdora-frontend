@@ -38,6 +38,7 @@ export const useGetCurrentUser = () => {
     queryKey: ['profile'],
     queryFn: () => userService.getCurrentUser(),
     retry: false,
+    refetchOnWindowFocus: false,
   });
 };
 

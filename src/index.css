@@ -5,6 +5,7 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 @import '@fontsource-variable/inter';
+
 @font-face {
   font-family: 'DM Sans';
   src: url('./assets/fonts/DMSans-Font.woff2') format('woff2');
@@ -57,13 +58,15 @@ svg {
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+  --link-text: #0c0c0c;
+
   --text: #5c665d;
   --text-h: #2c332d;
   --text-muted: #8a948c;
 
   --bg: #fff;
   --block-bg: #fcfdfb;
-  --border: oklch(0.922 0 0);
+  --border: oklch(80.388% 0.0181 140.238);
 
   --accent: oklch(0.97 0 0);
   --accent-hover: #658232;
@@ -71,7 +74,7 @@ svg {
   --accent-text: #fff;
   --accent-foreground: oklch(0.205 0 0);
 
-  --radius: 0.625rem;
+  --radius: 0.3rem;
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -79,8 +82,11 @@ svg {
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
 
-  --primary: oklch(0.527 0.154 150.069);
-  --primary-foreground: oklch(0.982 0.018 155.826);
+  --primary: oklch(57.391% 0.14648 141.676);
+  --primary-hover: oklch(39.745% 0.09474 140.698);
+  --primary-disable: oklch(94.779% 0.00277 129.847);
+  --primary-foreground: oklch(100% 0.00011 271.152);
+  --primary-disable-foreground: oklch(48.828% 0.02773 139.52);
 
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -88,8 +94,9 @@ svg {
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
 
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --secondary: oklch(89.59% 0.0067 160.873);
+  --secondary-foreground: oklch(15.434% 0.00002 271.152);
+  --secondary-disabled-foreground: oklch(80.388% 0.0181 140.238);
 
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
@@ -180,6 +187,7 @@ svg {
 }
 
 @theme {
+  --color-link-text: var(--link-text);
   --font-sans: 'DM Sans', sans-serif;
   --font-inter: 'Inter', sans-serif;
   --font-outfit: 'Outfit', sans-serif;
@@ -234,9 +242,11 @@ svg {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }
@@ -267,9 +277,13 @@ svg {
   --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-disabled-foreground: var(--secondary-disabled-foreground);
   --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-disable: var(--primary-disable);
+  --color-primary-disable-foreground: var(--primary-disable-foreground);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);

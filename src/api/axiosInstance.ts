@@ -37,10 +37,13 @@ instance.interceptors.response.use(
       path => url.includes(path)
     );
 
+    const hadSession = Boolean(store.getState().auth.user);
+
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !skipRefresh
+      !skipRefresh &&
+      hadSession
     ) {
       originalRequest._retry = true;
 

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import SocialMedia1 from '@assets/icons/social-media-1.svg?react';
 import SocialMedia2 from '@assets/icons/social-media-2.svg?react';
 import { Separator } from '@components/ui/separator';
@@ -12,9 +12,9 @@ const Footer = () => {
       <div className="mx-auto max-w-427.5">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 my-5">
           <div className="max-w-md">
-            <Link to="/" className="mb-6 flex items-center gap-5">
+            <div className="mb-6 flex items-center gap-5">
               <Logo />
-            </Link>
+            </div>
 
             <p className="mb-8 text-base text-[#A8B0A9]">
               Your trusted online shop for premium garden products, plants, and

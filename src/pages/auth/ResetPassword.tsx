@@ -2,8 +2,6 @@ import AuthForm from '@/components/layout/pageComponents/Auth';
 import PasswordField from '@components/common/forms/PasswordField';
 import PasswordStrength from '@components/common/forms/PasswordStrength';
 import { Button } from '@components/ui/button';
-import { Link } from 'react-router';
-import ArrowIcon from '@assets/icons/arrrow.svg?react';
 import {
   useResetPasswordForm,
   type ResetPasswordFormData,
@@ -13,6 +11,7 @@ import { resetPassword } from '@api/auth/auth.actions';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useEffect, useMemo, useState } from 'react';
 import { rateLimit } from '@/utils/rateLimit';
+import LockIcon from '@assets/icons/lock.svg?react';
 
 const ResetPassword = () => {
   const dispatch = useAppDispatch();
@@ -51,69 +50,57 @@ const ResetPassword = () => {
 
   return (
     <AuthForm
-      title="Reset Your Password"
-      subtitle="Enter a new password for your account"
+      title={success ? 'Successfully reseted' : 'New password'}
+      subtitle={
+        success
+          ? 'Your new password was saved. Now you can log in with new password'
+          : 'Create new password witch you never used'
+      }
+      continueWithGoogle={false}
+      footerText="Remember password?"
+      footerLinkText="Log in"
+      footerLink="/login"
     >
       {success ? (
-        <div className="flex flex-col items-center gap-8">
-          <h2 className="text-xl font-semibold">Password Updated</h2>
-
-          <p className="text-center text-sm text-muted-foreground max-w-sm">
-            Your password has been updated. You can now sign in with your new
-            password.
-          </p>
-
-          <Button
-            type="button"
-            className="w-full"
-            onClick={() => navigate('/login')}
-          >
-            Back to Sign In
+        <div className="flex flex-col items-center gap-4">
+          <Button type="button" onClick={() => navigate('/login')}>
+            Log in with new password
           </Button>
         </div>
       ) : (
         <form
-          className="flex flex-col items-center justify-center gap-6 w-full"
+          className="flex flex-col items-center justify-center gap-4 w-full"
           onSubmit={handleSubmit(onSubmit)}
         >
           <div className="w-full">
             <PasswordField
-              label="Password"
-              placeholder="At least 8 characters"
+              label="New password"
+              placeholder="********"
               value={watch('password')}
               onChange={value =>
                 setValue('password', value, { shouldValidate: true })
               }
               error={formErrors.password?.message}
+              leftIcon={<LockIcon />}
             />
             <PasswordStrength password={watch('password')} />
           </div>
           <PasswordField
-            label="Confirm Password"
-            placeholder="Re-enter your new password"
+            label="Confirm password"
+            placeholder="********"
             value={watch('confirmPassword')}
             onChange={value =>
               setValue('confirmPassword', value, { shouldValidate: true })
             }
             error={formErrors.confirmPassword?.message}
+            leftIcon={<LockIcon />}
           />
           {!success && errors.reset && (
             <p className="text-red-500 text-sm">{errors.reset}</p>
           )}
-          <Button
-            className="w-full"
-            type="submit"
-            disabled={!isValid || loading.reset}
-          >
+          <Button type="submit" disabled={!isValid || loading.reset}>
             {loading.reset ? 'Resetting...' : 'Reset Password'}
           </Button>
-          <Link
-            to="/login"
-            className="text-accent [font-family:var(--font-sans)] flex items-center"
-          >
-            <ArrowIcon className="size-5 mr-3 cursor-pointer" />
-            Back to Sign In
-          </Link>
         </form>
       )}
     </AuthForm>
