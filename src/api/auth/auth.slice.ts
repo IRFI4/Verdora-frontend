@@ -52,7 +52,13 @@ const initialState: AuthState = {
 const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {},
+  reducers: {
+    // Local-only auth reset (no network call). Used when a token refresh
+    // fails, so we clear the user without firing a pointless /auth/logout.
+    clearAuth: state => {
+      state.user = null;
+    },
+  },
   extraReducers: builder => {
     builder
       // register
@@ -142,5 +148,7 @@ const authSlice = createSlice({
       });
   },
 });
+
+export const { clearAuth } = authSlice.actions;
 
 export default authSlice.reducer;

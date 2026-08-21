@@ -18,6 +18,12 @@ dist-ssr
 *.local
 .env
 
+# TLS certificates / private keys (never commit secrets)
+certs/
+*.key
+*.crt
+*.pem
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

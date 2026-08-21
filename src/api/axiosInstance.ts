@@ -1,10 +1,13 @@
 import axios from 'axios';
 import { store } from '@api/store';
-import { logout } from '@api/auth/auth.actions';
+import { clearAuth } from '@api/auth/auth.slice';
 
 const instance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
+  paramsSerializer: {
+    indexes: null,
+  },
 });
 
 let isRefreshing = false;
@@ -29,7 +32,19 @@ instance.interceptors.response.use(
   async error => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const url: string = originalRequest?.url ?? '';
+    const skipRefresh = ['/auth/login', '/auth/register', '/auth/refresh'].some(
+      path => url.includes(path)
+    );
+
+    const hadSession = Boolean(store.getState().auth.user);
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !skipRefresh &&
+      hadSession
+    ) {
       originalRequest._retry = true;
 
       if (isRefreshing) {
@@ -47,7 +62,7 @@ instance.interceptors.response.use(
         return instance(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError);
-        store.dispatch(logout());
+        store.dispatch(clearAuth());
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

@@ -1,4 +1,4 @@
-import LayoutPage from '@components/layout/LayoutPage';
+import LayoutPage from '@components/layout/pageLayout/LayoutPage';
 import HeroImage from '@assets/images/hero-plants.png';
 import ProductOfTheDayImage from '@assets/images/plant.png';
 import SectionImage from '@assets/images/section-background.png';
@@ -303,3 +303,5 @@ export const Home = () => {
     </LayoutPage>
   );
 };
+
+export default Home;

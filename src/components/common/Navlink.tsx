@@ -15,8 +15,8 @@ const Navlink = (props: NavlinkProps) => {
         cn(
           'text-[14px] font-medium transition-colors',
           isActive
-            ? 'pb-2 text-[var(--accent)] border-b-[2px] border-[var(--accent)]'
-            : 'pb-2 text-[var(--text-h)] border-b-[2px] border-transparent'
+            ? 'pb-2 text-accent border-b-[2px] border-accent'
+            : 'pb-2 text-text-h border-b-[2px] border-transparent'
         )
       }
     >

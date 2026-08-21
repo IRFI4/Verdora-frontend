@@ -52,7 +52,7 @@ const TextField = ({
           {label && (
             <FieldLabel
               className={cn(
-                'text-[14px] font-medium text-[var(--text-h)]',
+                'font-sans text-base text-secondary-foreground',
                 labelClassName
               )}
               htmlFor={id}
@@ -65,11 +65,19 @@ const TextField = ({
       )}
       <InputGroup
         className={cn(
-          `h-[50px] w-full rounded-[12px] border bg-[var(--block-bg)]
-          border-2 border-zinc-300
-          has-[[data-slot=input-group-control]:focus-visible]:border-[var(--accent)]
-          has-[[data-slot=input-group-control]:focus-visible]:ring-0`,
-          error && 'border-red-500 focus-within:ring-red-500',
+          `w-full rounded-[12px] border-2 border-zinc-300 bg-block-bg
+          transition-all duration-100 ease-in-out
+          hover:border-primary
+          focus-within:border-primary!
+          has-[[data-slot=input-group-control]:focus-visible]:ring-0
+
+          [&_svg]:text-zinc-400
+          [&_svg]:transition-colors
+          hover:[&_svg]:text-primary
+          focus-within:[&_svg]:text-primary!`,
+          error &&
+            `border-red-500 focus-within:border-red-500!
+            [&_svg]:text-red-500 focus-within:[&_svg]:text-red-500!`,
           containerClassName
         )}
       >
@@ -80,9 +88,11 @@ const TextField = ({
           value={value}
           onChange={e => onChange(e.target.value)}
           className={cn(
-            `h-full w-full bg-transparent pl-16 pr-16
-            text-[16px] text-[var(--text-h)]
-            placeholder:text-[16px] placeholder:[font-family:var(--font-sans)] placeholder:text-[var(--text-muted)]`,
+            `text-sm text-text-h
+            focus:outline-none focus-visible:outline-none focus-visible:ring-0
+            placeholder:text-sm
+            placeholder:[font-family:var(--font-sans)]
+            placeholder:text-text-muted`,
             error && 'placeholder:text-red-400',
             inputClassName
           )}
