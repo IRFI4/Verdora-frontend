@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import Logo from '@components/common/Logo';
 import { Button } from '@components/ui/button';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { logout } from '@api/auth/auth.actions';
@@ -8,6 +8,7 @@ import CartIcon from '@assets/icons/cart.svg?react';
 import SearchIcon from '@assets/icons/search.svg?react';
 import MenuIcon from '@assets/icons/menu.svg?react';
 import LinkComponent from '@components/common/Link';
+import { Link } from 'react-router';
 
 type HeaderProps = {
   onOpenMenu: () => void;
@@ -24,9 +25,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
   return (
     <header className="sticky flex justify-space-between gap-16 top-12 z-50 max-w-355 h-23 mx-auto px-6 rounded-[34px] bg-transparent backdrop-blur border border-white">
       <div className="flex items-center">
-        <Link to="/" className="text-2xl font-bold text-[#25531F]">
-          Verdora
-        </Link>
+        <Logo fontSize="text-2xl" className="text-[#25531F]" />
       </div>
       <nav className="hidden lg:flex items-center gap-4 [font-family:var(--font-sans)] text-[16px] text-[#0C0C0C]">
         <LinkComponent text="Home" to="/" />
