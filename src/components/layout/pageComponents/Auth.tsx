@@ -51,11 +51,11 @@ const AuthForm = ({
           <Card className="w-full max-w-full sm:max-w-[440px] bg-white dark:bg-zinc-900 rounded-t-[36px] rounded-b-none sm:rounded-[28px] border-0 shadow-sm p-6 sm:p-8 flex flex-col justify-start gap-4 sm:gap-5 flex-1 sm:flex-initial">
             {title && (
               <CardHeader className="text-center space-y-1 pb-1 px-0">
-                <CardTitle className="text-2xl font-bold tracking-tight text-foreground">
+                <CardTitle className="text-xl font-medium font-sans tracking-tight text-foreground">
                   {title}
                 </CardTitle>
                 {subtitle && (
-                  <CardDescription className="text-sm text-muted-foreground">
+                  <CardDescription className="text-[16px] font-medium text-foreground">
                     {subtitle}
                   </CardDescription>
                 )}
@@ -67,7 +67,7 @@ const AuthForm = ({
                 <div className="flex flex-col gap-3 w-full">
                   <div className="w-full flex gap-3 items-center my-1">
                     <div className="h-px flex-1 bg-zinc-300 dark:bg-zinc-700" />
-                    <p className="text-xs text-zinc-500 mx-1">
+                    <p className="text-sm text-zinc-500 mx-1">
                       Or continue with
                     </p>
                     <div className="h-px flex-1 bg-zinc-300 dark:bg-zinc-700" />
@@ -76,14 +76,14 @@ const AuthForm = ({
                     onClick={onGoogleAuth}
                     type="button"
                     variant="outline"
-                    className="w-full rounded-xl py-5 text-sm font-medium border-zinc-200 dark:border-zinc-700"
+                    className="w-full rounded-xl py-5 text-[16px] font-medium border-zinc-200 dark:border-zinc-700"
                   >
                     Continue with Google
                   </Button>
                 </div>
               )}
-              <div className="flex items-center justify-center gap-1 mt-1 text-sm">
-                <p className="text-zinc-500">{footerText}</p>
+              <div className="flex items-center justify-center gap-1 mt-1 text-[16px] font-medium">
+                <p className="text-primary-disable-foreground">{footerText}</p>
                 <LinkComponent
                   to={footerLink}
                   text={footerLinkText}
