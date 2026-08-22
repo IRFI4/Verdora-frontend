@@ -1,9 +1,17 @@
 import { Link } from 'react-router';
+import { cn } from '@/lib/utils';
 
-const Logo = () => {
+type LogoProps = {
+  fontSize?: string;
+  className?: string;
+};
+
+const Logo = ({ fontSize = 'text-5xl', className }: LogoProps) => {
   return (
     <Link to="/">
-      <span className="text-5xl font-sans text-primary font-black">
+      <span
+        className={cn('font-sans text-primary font-black', fontSize, className)}
+      >
         Verdora
       </span>
     </Link>
