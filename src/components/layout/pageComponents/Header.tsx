@@ -8,13 +8,10 @@ import CartIcon from '@assets/icons/cart.svg?react';
 import SearchIcon from '@assets/icons/search.svg?react';
 import MenuIcon from '@assets/icons/menu.svg?react';
 import LinkComponent from '@components/common/Link';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
+import { SidebarTrigger } from '@components/ui/sidebar';
 
-type HeaderProps = {
-  onOpenMenu: () => void;
-};
-
-const Header = ({ onOpenMenu }: HeaderProps) => {
+const Header = () => {
   const dispatch = useAppDispatch();
   const { user, hydrating } = useAppSelector(state => state.auth);
 
@@ -23,7 +20,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
   };
 
   return (
-    <header className="sticky flex justify-space-between gap-16 top-12 z-50 max-w-355 h-23 mx-auto px-6 rounded-[34px] bg-transparent backdrop-blur border border-white">
+    <header className="sticky flex justify-between items-center gap-16 top-12 z-50 max-w-355 h-23 mx-auto px-6 rounded-[34px] bg-transparent backdrop-blur border border-white">
       <div className="flex items-center">
         <Logo fontSize="text-2xl" className="text-[#25531F]" />
       </div>
@@ -34,7 +31,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
       </nav>
 
       <div className="flex items-center gap-8">
-        <div className="hidden md:flex items-center gap-2 rounded-[16px] bg-white px-3 py-auto  w-60 h-13">
+        <div className="hidden md:flex items-center gap-2 rounded-[16px] bg-white px-3 py-auto w-60 h-13">
           <input
             type="text"
             placeholder="Search plants"
@@ -69,23 +66,18 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
                   {user.name?.charAt(0).toUpperCase() ?? '?'}
                 </div>
               </Link>
-              <Button variant={'outline'} onClick={handleLogout}>
+              <Button variant="outline" onClick={handleLogout}>
                 Log Out
               </Button>
             </div>
           ) : (
-            <Button variant={'outline'}>
+            <Button variant="outline" asChild>
               <Link to="/login">Log in</Link>
             </Button>
           )}
-
-          <button
-            className="lg:hidden flex size-40 items-center justify-center rounded-full hover:bg-zinc-100 transition-colors"
-            aria-label="Open menu"
-            onClick={() => onOpenMenu()}
-          >
-            <MenuIcon />
-          </button>
+          <SidebarTrigger>
+            <MenuIcon className="size-5" />
+          </SidebarTrigger>
         </div>
       </div>
     </header>
