@@ -15,16 +15,30 @@ import LikeMessageIcon from '@assets/icons/like-message.svg?react';
 import PlantIcon from '@assets/icons/plant.svg?react';
 import { Button } from '@/components/ui/button';
 import FrameIcon from '@assets/icons/frame.svg?react';
-import ProductCard from '@/components/ui/ProductCard';
+import ProductCard from '@/components/common/cards/ProductCard';
+import { ArrowRight, Star, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export const Home = () => {
   const categories = [
-    { name: 'Planting material', image: PlantingMaterialImage },
-    { name: 'Protective products', image: ProtectiveImage },
-    { name: 'Fertilizer', image: FertilizerImage },
-    { name: 'Tools', image: ToolsImage },
-    { name: 'Equipment', image: EquipmentImage },
-    { name: 'Pots & Planters', image: PotsImage },
+    {
+      name: 'Planting material',
+      image: PlantingMaterialImage,
+      path: '/categories/planting-material',
+    },
+    {
+      name: 'Protective products',
+      image: ProtectiveImage,
+      path: '/categories/protective-products',
+    },
+    {
+      name: 'Fertilizer',
+      image: FertilizerImage,
+      path: '/categories/fertilizer',
+    },
+    { name: 'Tools', image: ToolsImage, path: '/categories/tools' },
+    { name: 'Equipment', image: EquipmentImage, path: '/categories/equipment' },
+    { name: 'Pots & Planters', image: PotsImage, path: '/categories/pots' },
   ];
 
   const reviews = [
@@ -62,114 +76,130 @@ export const Home = () => {
 
   return (
     <LayoutPage>
-      <div className="mt-[108px] flex flex-col items-center justify-between gap-[64px] w-full">
-        <div className="flex flex-col items-center justify-between gap-[20px]">
-          <div className="flex flex-col gap-[24px] w-[52rem]">
+      <div className="mt-8 sm:mt-16 flex flex-col items-center gap-16 sm:gap-24 w-full max-w-6xl mx-auto px-4 sm:px-6 pb-16">
+        <section className="flex flex-col items-center text-center w-full max-w-4xl mx-auto">
+          <div className="flex flex-col items-center gap-6 w-full">
             <h1
-              className="text-center text-7xl font-bold leading-[0.95]
-                tracking-[-0.05em] text-transparent
+              className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] sm:leading-[0.98]
+                tracking-tight text-transparent
                 bg-[url('@assets/images/text-background.avif')] bg-cover bg-center bg-clip-text
-                font-sans"
+                font-sans max-w-3xl"
             >
-              We're glad you found us.
-              <br />
-              Now let's find your plant!
+              We're glad you found us. Now let's find your plant!
             </h1>
-            <p className="text-center text-[20px] leading-[1.5] text-[#4A4A4A] ">
+            <p className="text-base sm:text-lg lg:text-xl leading-relaxed text-[#4A5568] max-w-2xl">
               Your home deserves more than furniture and paint. It deserves life
               — real, breathing, growing life. Our collection brings together
-              the most beautiful plants from around the world, chosen for their
-              form, their character, and the way they make a space feel whole.
+              the most beautiful plants from around the world.
             </p>
-            <Button className="self-center w-32 bg-[#1E331B] text-[#FFF] text-xs hover:bg-[#1E331B]/80">
-              Start shopping
+            <Button asChild>
+              <Link to="/sales">Start shopping</Link>
             </Button>
           </div>
-          <div className="relative z-10 -mt-[116px]">
+          <div className="relative z-10 -mt-12 sm:-mt-24 max-w-3xl w-full pointer-events-none transition-transform hover:scale-[1.01] duration-500">
             <img
               src={HeroImage}
               alt="Hero Plants"
-              className="w-full h-full object-contain"
+              className="w-full h-auto object-contain"
             />
           </div>
-        </div>
-        <div className="flex gap-[110px] bg-[#1E331B] opacity-72 w-full justify-center py-[12px]">
-          <div className="flex flex-col jcontent-center items-center gap-[8px]">
-            <DeliveryIcon className="size-8" />
-            <p className="text-center text-[16px] leading-[1.5] text-[#FFF]">
-              Shipped Direct from the Nursery
-            </p>
-          </div>
-          <div className="flex flex-col jcontent-center items-center gap-[8px]">
-            <LabelIcon className="size-8" />
-            <p className="text-center text-[16px] leading-[1.5] text-[#FFF]">
-              30 Day Happiness Guarantee
-            </p>
-          </div>
-          <div className="flex flex-col jcontent-center items-center gap-[8px]">
-            <LikeMessageIcon className="size-8" />
-            <p className="text-center text-[16px] leading-[1.5] text-[#FFF]">
-              Expert Customer Support
-            </p>
-          </div>
-          <div className="flex flex-col jcontent-center items-center gap-[8px]">
-            <PlantIcon className="size-8" />
-            <p className="text-center text-[16px] leading-[1.5] text-[#FFF]">
-              Care Instructions Provided
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-col gap-[24px] w-[62rem]">
-          <h1 className="text-3xl font-bold">Product of the day</h1>
-          <div className="flex gap-[24px]">
-            <div>
-              <div className="relative aspect-[1.19] w-[500px] px-[36px] py-[32px]">
-                <FrameIcon className="pointer-events-none absolute inset-0 z-20 h-full w-full" />
+        </section>
 
-                <div className="relative z-10 h-full overflow-hidden rounded-[70px] bg-[#50614A]">
+        <section className="w-full bg-[#1E331B] rounded-3xl p-6 sm:p-8 shadow-sm">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 items-center text-white">
+            <div className="flex flex-col items-center text-center gap-3 p-3 rounded-2xl hover:bg-white/10 transition-colors duration-300">
+              <DeliveryIcon className="size-8 text-[#A8C89A]" />
+              <p className="text-xs sm:text-sm font-medium leading-snug">
+                Shipped Direct from the Nursery
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center gap-3 p-3 rounded-2xl hover:bg-white/10 transition-colors duration-300">
+              <LabelIcon className="size-8 text-[#A8C89A]" />
+              <p className="text-xs sm:text-sm font-medium leading-snug">
+                30 Day Happiness Guarantee
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center gap-3 p-3 rounded-2xl hover:bg-white/10 transition-colors duration-300">
+              <LikeMessageIcon className="size-8 text-[#A8C89A]" />
+              <p className="text-xs sm:text-sm font-medium leading-snug">
+                Expert Customer Support
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center gap-3 p-3 rounded-2xl hover:bg-white/10 transition-colors duration-300">
+              <PlantIcon className="size-8 text-[#A8C89A]" />
+              <p className="text-xs sm:text-sm font-medium leading-snug">
+                Care Instructions Provided
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="flex flex-col gap-6 w-full">
+          <div className="flex items-center gap-3">
+            <Sparkles className="size-6 text-[#1E331B]" />
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#0C0C0C]">
+              Product of the day
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white/70 backdrop-blur-sm rounded-3xl p-6 sm:p-8 border border-white/80 shadow-xs hover:shadow-md transition-all duration-300">
+            <div className="lg:col-span-6 flex justify-center w-full">
+              <div className="relative aspect-[1.19] w-full max-w-[480px] p-4 sm:p-6">
+                <FrameIcon className="pointer-events-none absolute inset-0 z-20 size-full" />
+                <div className="relative z-10 size-full overflow-hidden rounded-[48px] sm:rounded-[70px] bg-[#50614A] flex items-center justify-center p-4">
                   <img
                     src={ProductOfTheDayImage}
-                    alt="Spider plant in a pot"
-                    className="absolute inset-0 h-full w-full object-contain p-4"
+                    alt="Spider plant"
+                    className="size-full object-contain p-4 transition-transform duration-500 hover:scale-105"
                   />
-                  <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 whitespace-nowrap">
-                    <span className="block rounded-[8px] bg-red-600 px-3 py-1 text-2xl font-semibold text-white">
+                  <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap shadow-lg">
+                    <span className="rounded-xl bg-red-600 px-3.5 py-1.5 text-xl sm:text-2xl font-bold text-white">
                       1609₴
                     </span>
-                    <span className="absolute ml-1 left-full rounded-[5px] bg-[#0C0C0C] opacity-56 px-2 text-lg text-white line-through">
+                    <span className="rounded-lg bg-[#0C0C0C]/70 backdrop-blur-xs px-2.5 py-1 text-sm sm:text-base text-white line-through">
                       2000₴
                     </span>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="flex flex-col gap-[8px] justify-center">
-              <h2 className="text-2xl font-bold">Spider Plant</h2>
-              <p className="text-[16px] font-sans font-normal leading-[1.5] tracking-normal text-[#000]">
+
+            <div className="lg:col-span-6 flex flex-col items-start gap-4">
+              <span className="inline-flex items-center rounded-full bg-[#1E331B]/10 px-3 py-1 text-xs font-semibold text-[#1E331B]">
+                Deal of the Day
+              </span>
+              <h3 className="text-2xl sm:text-4xl font-bold text-[#0C0C0C]">
+                Spider Plant
+              </h3>
+              <p className="text-sm sm:text-base text-[#4A5568] leading-relaxed">
                 A popular, low-maintenance houseplant with long, arching green
                 leaves edged in creamy white. Spider plants produce baby
                 plantlets that can be propagated easily. They thrive in bright,
                 indirect light, tolerate occasional neglect, and help improve
-                indoor air quality, making them an excellent choice for homes
-                and offices.
+                indoor air quality.
               </p>
-              <Button className="w-32 bg-[#1E331B] text-[#FFF] text-xs hover:bg-[#1E331B]/80">
-                View product
+              <Button asChild>
+                <Link to="/categories">View product</Link>
               </Button>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="flex flex-col gap-[24px] w-[62rem]">
-          <div className="flex items-center justify-between gap-[24px]">
-            <h1 className="text-3xl font-bold">Sales</h1>
-            <span className="text-[20px] font-sans font-normal leading-[1.5] text-[#000]">
+        <section className="flex flex-col gap-6 w-full">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#0C0C0C]">
+              Sales
+            </h2>
+            <Link
+              to="/sales"
+              className="group flex items-center gap-1.5 text-base sm:text-lg font-medium text-[#1E331B] hover:text-[#2A4726] transition-colors"
+            >
               View all
-            </span>
+              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+            </Link>
           </div>
 
-          {/* Product cards would go here */}
-          <div className="grid grid-cols-1 gap-[10px] sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {[1, 2, 3, 4, 5, 6, 7, 8].map(item => (
               <ProductCard
                 key={item}
@@ -180,83 +210,95 @@ export const Home = () => {
               />
             ))}
           </div>
-        </div>
-        <div className="w-[62rem]">
-          <h2 className="mb-8 text-3xl font-bold text-[#0C0C0C]">
+        </section>
+
+        <section className="w-full flex flex-col gap-6">
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#0C0C0C]">
             Integrate in your house
           </h2>
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,2.46fr)_minmax(320px,1fr)]">
-            <div className="relative aspect-[1.62] overflow-hidden rounded-2xl">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            <div className="lg:col-span-8 relative aspect-[4/3] sm:aspect-[16/10] overflow-hidden rounded-3xl shadow-xs group">
               <img
                 src={SectionImage}
                 alt="Cozy living room with houseplants"
-                className="size-full object-cover"
+                className="size-full object-cover transition-transform duration-700 group-hover:scale-102"
               />
               <button
                 type="button"
-                className="absolute bottom-[22%] left-[23%] flex size-16 items-center justify-center rounded-full bg-[#1E331B] text-4xl font-light leading-none text-white"
+                className="absolute bottom-[22%] left-[23%] flex size-12 sm:size-14 items-center justify-center rounded-full bg-[#1E331B]/90 backdrop-blur-xs text-3xl font-light leading-none text-white hover:scale-110 hover:bg-[#1E331B] transition-all shadow-lg"
                 aria-label="View plant details"
               >
                 +
               </button>
               <button
                 type="button"
-                className="absolute bottom-[31%] left-[49%] flex size-16 items-center justify-center rounded-full bg-[#1E331B] text-4xl font-light leading-none text-white"
+                className="absolute bottom-[31%] left-[49%] flex size-12 sm:size-14 items-center justify-center rounded-full bg-[#1E331B]/90 backdrop-blur-xs text-3xl font-light leading-none text-white hover:scale-110 hover:bg-[#1E331B] transition-all shadow-lg"
                 aria-label="View plant details"
               >
                 +
               </button>
             </div>
-            <div className="flex flex-col justify-center gap-[24px] min-h-[430px] rounded-[16px] bg-[#FBFBFB] text-center">
-              <h3 className="mt-[24px] text-[24px] font-sans font-medium leading-[1.25] text-[#0C0C0C]">
+
+            <div className="lg:col-span-4 flex flex-col justify-between items-center gap-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-white/80 p-6 text-center shadow-xs">
+              <h3 className="text-xl sm:text-2xl font-bold text-[#0C0C0C]">
                 Rubber Plant
               </h3>
-              <div className="relative z-10  h-[62%]">
+              <div className="relative z-10 w-full h-56 flex items-center justify-center">
                 <img
                   src={PlantImage}
                   alt="Rubber Plant"
-                  className="absolute h-full w-full object-contain"
+                  className="h-full w-auto object-contain transition-transform duration-500 hover:scale-105"
                 />
-                <span className="absolute bottom-[37px] left-1/2 z-10 -translate-x-1/2 rounded-xl bg-[#0C0C0C] px-5 py-3 text-[28px] leading-none text-white">
+                <span className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-xl bg-[#0C0C0C] px-5 py-2 text-xl font-bold text-white shadow-md">
                   150$
                 </span>
               </div>
-              <div className="flex justify-center mx-[24px]">
-                <Button className="w-full rounded-[16px] bg-[#1E331B] text-[20px] font-normal text-white hover:bg-[#1E331B]/80">
-                  Buy now
-                </Button>
-              </div>
+              <Button asChild>
+                <Link to="/cart">Buy now</Link>
+              </Button>
             </div>
           </div>
-        </div>
-        <div className="flex flex-col gap-[24px] w-[62rem]">
-          <h1 className="mb-8 text-3xl font-bold text-[#0C0C0C]">Categories</h1>
-          <div className="grid grid-cols-3 gap-[8px]">
+        </section>
+
+        <section className="flex flex-col gap-6 w-full">
+          <h2 className="text-2xl sm:text-4xl font-semibold text-link-text">
+            Categories
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
             {categories.map(item => (
-              <div
+              <Link
+                to={item.path}
                 key={item.name}
-                className="flex flex-col justify-center items-center gap-[16px] rounded-[16px] bg-[#FBFBFB] h-[14rem] p-[24px] text-center overflow-hidden"
+                className="group flex flex-col justify-between items-center gap-3 rounded-2xl bg-white/70 hover:bg-white backdrop-blur-sm border border-white/80 p-4 h-48 text-center shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer"
               >
-                <p className="text-[20px] font-sans font-medium leading-[1.25] text-[#0C0C0C]">
+                <p className="text-sm sm:text-base font-semibold leading-tight text-link-text group-hover:text-[#1E331B] transition-colors">
                   {item.name}
                 </p>
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="h-[80%] w-full object-contain"
-                />
-              </div>
+                <div className="h-28 w-full flex items-center justify-center overflow-hidden">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="max-h-full w-auto object-contain transition-transform duration-300 group-hover:scale-110"
+                  />
+                </div>
+              </Link>
             ))}
           </div>
-        </div>
-        <div className="flex flex-col gap-[24px] w-[62rem]">
-          <div className="flex items-center justify-between gap-[24px]">
-            <h1 className="text-3xl font-bold">Find your perfect plant</h1>
-            <span className="text-[20px] font-sans font-normal leading-[1.5] text-[#000]">
+        </section>
+
+        <section className="flex flex-col gap-6 w-full">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-2xl sm:text-4xl font-semibold text-link-text">
+              Find your perfect plant
+            </h2>
+            <Link
+              to="/categories"
+              className="text-2xl sm:text-4xl font-semibold text-link-text hover:text-[#2A4726] transition-colors"
+            >
               View all
-            </span>
+            </Link>
           </div>
-          <div className="grid grid-cols-1 gap-[10px] sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
             {[1, 2, 3, 4, 5, 6, 7, 8].map(item => (
               <ProductCard
                 key={item}
@@ -266,39 +308,40 @@ export const Home = () => {
               />
             ))}
           </div>
-        </div>
-        <div className="flex flex-col gap-6 w-[62rem]">
-          <h1 className="mb-8 text-3xl font-bold text-[#0C0C0C]">
+        </section>
+
+        <section className="flex flex-col gap-6 w-full">
+          <h2 className="text-2xl sm:text-4xl font-semibold text-link-text">
             Our reviews
-          </h1>
+          </h2>
           <div
-            className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 no-scrollbar"
             aria-label="Customer reviews"
           >
             {reviews.map(review => (
               <article
                 key={review.name}
-                className="flex h-[172px] min-w-[320px] snap-start flex-col justify-between rounded-[16px] bg-[#F1F1F1] p-[24px]"
+                className="flex min-w-[280px] sm:min-w-[340px] snap-start flex-col justify-between rounded-2xl bg-white/80 backdrop-blur-sm border border-white/80 p-6 shadow-xs hover:shadow-md transition-all duration-300"
               >
-                <p className="text-[16px] leading-[1.45] text-[#1E331B]">
-                  {review.text}
+                <p className="text-sm sm:text-base leading-relaxed text-[#2C332D] mb-4">
+                  "{review.text}"
                 </p>
-                <div className="flex items-center justify-between gap-4 text-[13px] text-[#1E331B]">
-                  <div className="flex min-w-0 items-center gap-2">
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#D9E3D5] text-[10px] font-semibold text-[#1E331B]">
+                <div className="flex items-center justify-between gap-4 text-xs sm:text-sm text-[#1E331B] font-medium pt-2 border-t border-black/5">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#D9E3D5] text-xs font-bold text-[#1E331B]">
                       {review.initials}
                     </span>
                     <span className="truncate">{review.name}</span>
                   </div>
-                  <span className="shrink-0">
-                    <span className="mr-1 text-[#FFC400]">★</span>
+                  <span className="flex items-center gap-1 shrink-0 bg-[#FFF8E7] px-2.5 py-1 rounded-full text-xs font-semibold text-[#B78103]">
+                    <Star className="size-3.5 fill-[#FFC400] text-[#FFC400]" />
                     {review.rating}
                   </span>
                 </div>
               </article>
             ))}
           </div>
-        </div>
+        </section>
       </div>
     </LayoutPage>
   );
