@@ -38,12 +38,12 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky flex justify-between items-center h-16 px-6 z-50 w-full max-w-6xl mx-auto bg-transparent backdrop-blur border border-white/80 shadow-xs px-4 sm:px-8 sm:rounded-full sm:top-6">
+    <header className="sticky flex justify-between items-center h-16 px-6 z-50 w-full max-w-6xl mx-auto bg-transparent backdrop-blur border border-white/80 shadow-xs sm:px-8 sm:rounded-full sm:top-6">
       <div className="flex items-center">
         <Logo fontSize="text-2xl" className="text-[#25531F]" />
       </div>
 
-      <nav className="hidden lg:flex items-center gap-6 text-[16px] text-[#0C0C0C]">
+      <nav className="hidden lg:flex items-center gap-6 text-[16px] text-link-text">
         <LinkComponent text="Home" to="/" />
         <LinkComponent text="Sales" to="/sales" />
         <LinkComponent text="Categories" to="/categories" />
@@ -102,7 +102,7 @@ const Header = () => {
 
       <div className="flex lg:hidden items-center">
         <SidebarTrigger>
-          <MenuIcon className="size-6 text-[#0C0C0C]" />
+          <MenuIcon className="size-6 text-link-text" />
         </SidebarTrigger>
       </div>
     </header>

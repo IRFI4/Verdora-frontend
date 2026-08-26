@@ -3,43 +3,27 @@ import HeroImage from '@assets/images/hero-plants.png';
 import ProductOfTheDayImage from '@assets/images/plant.png';
 import SectionImage from '@assets/images/section-background.png';
 import PlantImage from '@assets/images/Plant1.png';
-import PlantingMaterialImage from '@assets/images/planting-material.png';
-import ProtectiveImage from '@assets/images/protective-products.png';
-import FertilizerImage from '@assets/images/fertilizer.png';
-import ToolsImage from '@assets/images/tools.png';
-import EquipmentImage from '@assets/images/equipment.png';
-import PotsImage from '@assets/images/pots.png';
 import DeliveryIcon from '@assets/icons/delivery.svg?react';
 import LabelIcon from '@assets/icons/label.svg?react';
 import LikeMessageIcon from '@assets/icons/like-message.svg?react';
 import PlantIcon from '@assets/icons/plant.svg?react';
 import { Button } from '@/components/ui/button';
 import FrameIcon from '@assets/icons/frame.svg?react';
-import ProductCard from '@/components/common/cards/ProductCard';
-import { ArrowRight, Star, Sparkles } from 'lucide-react';
+import { Star, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAllCategories } from '@api/category/category.hooks';
+import { useGetProducts } from '@api/product/product.hooks';
+import ProductGridSection from '@components/common/section/ProductGridSection';
+import CategoryGridSection from '@components/common/section/CategoryGridSection';
+import SectionLayout from '@components/common/section/SectionLayout';
 
 export const Home = () => {
-  const categories = [
-    {
-      name: 'Planting material',
-      image: PlantingMaterialImage,
-      path: '/categories/planting-material',
-    },
-    {
-      name: 'Protective products',
-      image: ProtectiveImage,
-      path: '/categories/protective-products',
-    },
-    {
-      name: 'Fertilizer',
-      image: FertilizerImage,
-      path: '/categories/fertilizer',
-    },
-    { name: 'Tools', image: ToolsImage, path: '/categories/tools' },
-    { name: 'Equipment', image: EquipmentImage, path: '/categories/equipment' },
-    { name: 'Pots & Planters', image: PotsImage, path: '/categories/pots' },
-  ];
+  const { data: categories, isLoading: isCategoriesLoading } =
+    useAllCategories();
+  const { data: products, isLoading: isProductsLoading } = useGetProducts();
+  const { data: salesProducts, isLoading: isSalesLoading } = useGetProducts({
+    discount: true,
+  });
 
   const reviews = [
     {
@@ -93,7 +77,7 @@ export const Home = () => {
               the most beautiful plants from around the world.
             </p>
             <Button asChild>
-              <Link to="/sales">Start shopping</Link>
+              <Link to="/catalog">Start shopping</Link>
             </Button>
           </div>
           <div className="relative z-10 -mt-12 sm:-mt-24 max-w-3xl w-full pointer-events-none transition-transform hover:scale-[1.01] duration-500">
@@ -137,7 +121,7 @@ export const Home = () => {
         <section className="flex flex-col gap-6 w-full">
           <div className="flex items-center gap-3">
             <Sparkles className="size-6 text-[#1E331B]" />
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#0C0C0C]">
+            <h2 className="text-2xl sm:text-3xl font-bold text-link-text">
               Product of the day
             </h2>
           </div>
@@ -156,7 +140,7 @@ export const Home = () => {
                     <span className="rounded-xl bg-red-600 px-3.5 py-1.5 text-xl sm:text-2xl font-bold text-white">
                       1609₴
                     </span>
-                    <span className="rounded-lg bg-[#0C0C0C]/70 backdrop-blur-xs px-2.5 py-1 text-sm sm:text-base text-white line-through">
+                    <span className="rounded-lg bg-link-text]/70 backdrop-blur-xs px-2.5 py-1 text-sm sm:text-base text-white line-through">
                       2000₴
                     </span>
                   </div>
@@ -168,7 +152,7 @@ export const Home = () => {
               <span className="inline-flex items-center rounded-full bg-[#1E331B]/10 px-3 py-1 text-xs font-semibold text-[#1E331B]">
                 Deal of the Day
               </span>
-              <h3 className="text-2xl sm:text-4xl font-bold text-[#0C0C0C]">
+              <h3 className="text-2xl sm:text-4xl font-bold text-link-text">
                 Spider Plant
               </h3>
               <p className="text-sm sm:text-base text-[#4A5568] leading-relaxed">
@@ -185,39 +169,19 @@ export const Home = () => {
           </div>
         </section>
 
-        <section className="flex flex-col gap-6 w-full">
-          <div className="flex items-center justify-between gap-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#0C0C0C]">
-              Sales
-            </h2>
-            <Link
-              to="/sales"
-              className="group flex items-center gap-1.5 text-base sm:text-lg font-medium text-[#1E331B] hover:text-[#2A4726] transition-colors"
-            >
-              View all
-              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
+        <ProductGridSection
+          title="Sales"
+          viewAllLink="/sales"
+          products={salesProducts?.content}
+          isLoading={isSalesLoading}
+          limit={8}
+          emptyTitle="No sales products found"
+          emptyDescription="There are no discounted products available at the moment."
+        />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map(item => (
-              <ProductCard
-                key={item}
-                title="Rubber Plant"
-                price={2000}
-                newPrice={1609}
-                imageSrc={ProductOfTheDayImage}
-              />
-            ))}
-          </div>
-        </section>
-
-        <section className="w-full flex flex-col gap-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#0C0C0C]">
-            Integrate in your house
-          </h2>
+        <SectionLayout title="Integrate in your house">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-            <div className="lg:col-span-8 relative aspect-[4/3] sm:aspect-[16/10] overflow-hidden rounded-3xl shadow-xs group">
+            <div className="lg:col-span-8 relative aspect-4/3 sm:aspect-16/10 overflow-hidden rounded-3xl shadow-xs group">
               <img
                 src={SectionImage}
                 alt="Cozy living room with houseplants"
@@ -240,7 +204,7 @@ export const Home = () => {
             </div>
 
             <div className="lg:col-span-4 flex flex-col justify-between items-center gap-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-white/80 p-6 text-center shadow-xs">
-              <h3 className="text-xl sm:text-2xl font-bold text-[#0C0C0C]">
+              <h3 className="text-xl sm:text-2xl font-bold text-link-text">
                 Rubber Plant
               </h3>
               <div className="relative z-10 w-full h-56 flex items-center justify-center">
@@ -249,7 +213,7 @@ export const Home = () => {
                   alt="Rubber Plant"
                   className="h-full w-auto object-contain transition-transform duration-500 hover:scale-105"
                 />
-                <span className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-xl bg-[#0C0C0C] px-5 py-2 text-xl font-bold text-white shadow-md">
+                <span className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-xl bg-link-text px-5 py-2 text-xl font-bold text-white shadow-md">
                   150$
                 </span>
               </div>
@@ -258,62 +222,23 @@ export const Home = () => {
               </Button>
             </div>
           </div>
-        </section>
+        </SectionLayout>
 
-        <section className="flex flex-col gap-6 w-full">
-          <h2 className="text-2xl sm:text-4xl font-semibold text-link-text">
-            Categories
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-            {categories.map(item => (
-              <Link
-                to={item.path}
-                key={item.name}
-                className="group flex flex-col justify-between items-center gap-3 rounded-2xl bg-white/70 hover:bg-white backdrop-blur-sm border border-white/80 p-4 h-48 text-center shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer"
-              >
-                <p className="text-sm sm:text-base font-semibold leading-tight text-link-text group-hover:text-[#1E331B] transition-colors">
-                  {item.name}
-                </p>
-                <div className="h-28 w-full flex items-center justify-center overflow-hidden">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="max-h-full w-auto object-contain transition-transform duration-300 group-hover:scale-110"
-                  />
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+        <CategoryGridSection
+          categories={categories}
+          isLoading={isCategoriesLoading}
+          limit={6}
+        />
 
-        <section className="flex flex-col gap-6 w-full">
-          <div className="flex items-center justify-between gap-4">
-            <h2 className="text-2xl sm:text-4xl font-semibold text-link-text">
-              Find your perfect plant
-            </h2>
-            <Link
-              to="/categories"
-              className="text-2xl sm:text-4xl font-semibold text-link-text hover:text-[#2A4726] transition-colors"
-            >
-              View all
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map(item => (
-              <ProductCard
-                key={item}
-                title="Rubber Plant"
-                price={2000}
-                imageSrc={ProductOfTheDayImage}
-              />
-            ))}
-          </div>
-        </section>
+        <ProductGridSection
+          title="Find your perfect plant"
+          viewAllLink="/categories"
+          products={products?.content}
+          isLoading={isProductsLoading}
+          limit={8}
+        />
 
-        <section className="flex flex-col gap-6 w-full">
-          <h2 className="text-2xl sm:text-4xl font-semibold text-link-text">
-            Our reviews
-          </h2>
+        <SectionLayout title="Our reviews">
           <div
             className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 no-scrollbar"
             aria-label="Customer reviews"
@@ -321,7 +246,7 @@ export const Home = () => {
             {reviews.map(review => (
               <article
                 key={review.name}
-                className="flex min-w-[280px] sm:min-w-[340px] snap-start flex-col justify-between rounded-2xl bg-white/80 backdrop-blur-sm border border-white/80 p-6 shadow-xs hover:shadow-md transition-all duration-300"
+                className="flex min-w-70 sm:min-w-85 snap-start flex-col justify-between rounded-2xl bg-white/80 backdrop-blur-sm border border-white/80 p-6 shadow-xs hover:shadow-md transition-all duration-300"
               >
                 <p className="text-sm sm:text-base leading-relaxed text-[#2C332D] mb-4">
                   "{review.text}"
@@ -333,7 +258,7 @@ export const Home = () => {
                     </span>
                     <span className="truncate">{review.name}</span>
                   </div>
-                  <span className="flex items-center gap-1 shrink-0 bg-[#FFF8E7] px-2.5 py-1 rounded-full text-xs font-semibold text-[#B78103]">
+                  <span className="flex items-center gap-1 shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold text-[#B78103]">
                     <Star className="size-3.5 fill-[#FFC400] text-[#FFC400]" />
                     {review.rating}
                   </span>
@@ -341,7 +266,7 @@ export const Home = () => {
               </article>
             ))}
           </div>
-        </section>
+        </SectionLayout>
       </div>
     </LayoutPage>
   );

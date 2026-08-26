@@ -27,6 +27,7 @@ const Catalog = () => {
             {products?.content?.map(product => (
               <ProductCard
                 key={product.productId}
+                productId={product.productId}
                 title={product.name}
                 price={product.price}
                 newPrice={product.discountPrice}
