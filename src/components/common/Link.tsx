@@ -14,9 +14,9 @@ const LinkComponent = ({ text, to, className }: Props) => {
     <Link
       to={to}
       className={cn(
-        'cursor-pointer text-[16px] font-semibold text-link-text hover:underline',
+        'cursor-pointer text-[16px] font-semibold text-text hover:text-link-text hover:underline transition-colors duration-100',
         className,
-        currentLocation.pathname === to && 'underline'
+        currentLocation.pathname === to && 'text-link-text underline'
       )}
     >
       {text}
