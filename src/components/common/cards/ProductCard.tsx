@@ -1,12 +1,14 @@
-import { Link } from 'react-router-dom';
 import ProductCardImage from '@assets/images/product.png';
 import FavouriteIcon from '@assets/icons/heart.svg?react';
 import CartIcon from '@assets/icons/cart.svg?react';
 import { Button } from '@components/ui/button';
 import { cn } from '@/lib/utils';
+import { useAddItemToCart } from '@api/cart/cart.hooks';
+import { Spinner } from '@components/ui/spinner';
+import type React from 'react';
 
 interface ProductCardProps {
-  key?: number;
+  productId?: number;
   title?: string;
   price?: number;
   newPrice?: number;
@@ -14,27 +16,52 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({
+  productId,
   title,
   price,
   newPrice,
   imageSrc,
 }: ProductCardProps) => {
+  const { mutate: addToCart, isPending: isAdding } = useAddItemToCart();
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (productId) {
+      addToCart({ productId, quantity: 1 });
+    }
+  };
+
   return (
     <div className="group relative aspect-square w-full overflow-hidden rounded-[16px] bg-white/80 backdrop-blur-xs border border-white/80 p-4 shadow-xs hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
       <div className="relative z-10 flex items-center justify-between gap-2.5">
-        <p className="text-[16px] leading-none text-[#0C0C0C]">
+        <p className="text-[16px] leading-none text-link-text">
           {title || 'Rubber Plant'}
         </p>
         <div className="flex gap-[8px]">
-          <Button asChild variant={'outline'} size={'icon-sm'}>
-            <Link to="/favourites" aria-label="Favourite items">
-              <FavouriteIcon className="size-4 text-[#0C0C0C]" />
-            </Link>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-sm"
+            className={cn('transition-colors cursor-pointer')}
+            aria-label="Toggle favourite"
+          >
+            <FavouriteIcon className="size-4 text-link-text transition-colors" />
           </Button>
-          <Button asChild size={'icon-sm'}>
-            <Link to="/cart" aria-label="Shopping cart">
+
+          <Button
+            type="button"
+            size="icon-sm"
+            onClick={handleAddToCart}
+            disabled={isAdding}
+            className="cursor-pointer"
+            aria-label="Add to cart"
+          >
+            {isAdding ? (
+              <Spinner className="size-3.5 text-white" />
+            ) : (
               <CartIcon className="size-4 text-white" />
-            </Link>
+            )}
           </Button>
         </div>
       </div>
@@ -55,8 +82,8 @@ const ProductCard = ({
           className={cn(
             'rounded-[8px] px-2 py-1 text-[16px] font-semibold leading-none',
             newPrice
-              ? 'ml-1 rounded-[5px] bg-[#0C0C0C] opacity-56 px-1.5 py-[4px] text-[11px] leading-none text-white line-through'
-              : 'bg-[#0C0C0C] text-white'
+              ? 'ml-1 rounded-[5px] bg-link-text opacity-56 px-1.5 py-[4px] text-[11px] leading-none text-white line-through'
+              : 'bg-link-text text-white'
           )}
         >
           {price}₴
