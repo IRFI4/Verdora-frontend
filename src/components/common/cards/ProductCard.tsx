@@ -4,13 +4,20 @@ import CartIcon from '@assets/icons/cart.svg?react';
 import { Button } from '@components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAddItemToCart } from '@api/cart/cart.hooks';
+import {
+  useAddToFavorites,
+  useCheckIfProductIsFavorite,
+  useRemoveFromFavorites,
+} from '@api/favorites/favorites.hooks';
 import { Spinner } from '@components/ui/spinner';
+import { useAppSelector } from '@api/hooks';
+import { useNavigate } from 'react-router-dom';
 import type React from 'react';
 
 interface ProductCardProps {
-  productId?: number;
-  title?: string;
-  price?: number;
+  productId: number;
+  title: string;
+  price: number;
   newPrice?: number;
   imageSrc?: string;
 }
@@ -22,11 +29,44 @@ const ProductCard = ({
   newPrice,
   imageSrc,
 }: ProductCardProps) => {
+  const navigate = useNavigate();
+  const { user } = useAppSelector(state => state.auth);
+
   const { mutate: addToCart, isPending: isAdding } = useAddItemToCart();
+  const { mutate: addToFavorites, isPending: isAddingToFavorites } =
+    useAddToFavorites();
+  const { mutate: removeFromFavorites, isPending: isRemovingFromFavorites } =
+    useRemoveFromFavorites();
+
+  // Only check if product is favorite if user is authenticated
+  const { data: isFavorite, isLoading: isFavoriteLoading } =
+    useCheckIfProductIsFavorite(productId, Boolean(user));
+
+  const handleToggleFavorites = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    if (isFavorite) {
+      removeFromFavorites(productId);
+    } else {
+      addToFavorites(productId);
+    }
+  };
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
     if (productId) {
       addToCart({ productId, quantity: 1 });
     }
@@ -43,10 +83,26 @@ const ProductCard = ({
             type="button"
             variant="outline"
             size="icon-sm"
-            className={cn('transition-colors cursor-pointer')}
+            className={cn(
+              'transition-colors cursor-pointer',
+              isFavorite && 'bg-[#1E331B]/10 border-[#1E331B]'
+            )}
+            onClick={handleToggleFavorites}
+            disabled={isAddingToFavorites || isRemovingFromFavorites}
             aria-label="Toggle favourite"
           >
-            <FavouriteIcon className="size-4 text-link-text transition-colors" />
+            {isFavoriteLoading ? (
+              <Spinner className="size-3.5 text-link-text" />
+            ) : (
+              <FavouriteIcon
+                className={cn(
+                  'size-4 transition-colors',
+                  isFavorite
+                    ? 'fill-[#1E331B] text-[#1E331B]'
+                    : 'text-link-text'
+                )}
+              />
+            )}
           </Button>
 
           <Button
