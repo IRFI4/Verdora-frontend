@@ -11,10 +11,13 @@ import {
   SidebarGroupLabel,
   useSidebar,
 } from '@components/ui/sidebar';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { MAIN_MENU } from '@fixtures/sidebar.fixture';
 import { Button } from '@components/ui/button';
 import { LogIn } from 'lucide-react';
+import TextField from '@components/common/forms/TextField';
+import SearchIcon from '@assets/icons/search.svg?react';
+import React, { useState } from 'react';
 
 type Props = {
   username?: string;
@@ -25,17 +28,38 @@ type Props = {
 const MainSidebar = ({ username, email, loading }: Props) => {
   const menuItems = MAIN_MENU;
   const location = useLocation();
+  const navigate = useNavigate();
   const { setOpenMobile, setOpen } = useSidebar();
+  const [search, setSearch] = useState('');
 
   const handleLinkClick = () => {
     setOpenMobile(false);
     setOpen(false);
   };
 
+  const handleSearchSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmed = search.trim();
+    if (trimmed) {
+      handleLinkClick();
+      navigate(`/catalog?search=${encodeURIComponent(trimmed)}`);
+    }
+  };
+
   return (
     <Sidebar side="right">
       <SidebarHeaderComponent />
-      <SidebarContent>
+      <SidebarContent className="px-2">
+        <form onSubmit={handleSearchSubmit} className="p-2">
+          <TextField
+            type="text"
+            placeholder="Search plants"
+            rightIcon={<SearchIcon />}
+            value={search}
+            onChange={val => setSearch(val)}
+            onRightIconClick={handleSearchSubmit}
+          />
+        </form>
         {menuItems.map(section => (
           <SidebarGroup key={section.label}>
             <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
