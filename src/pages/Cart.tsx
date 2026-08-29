@@ -70,11 +70,6 @@ const Cart = () => {
 
   const handleProceedToCheckout = handleSubmit(() => {
     if (!canSubmit()) return;
-
-    setValue('totalItems', totalItems);
-    setValue('shippingCost', shippingCost);
-    setValue('totalCost', totalPrice);
-
     navigate('/checkout');
   });
 
