@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import LayoutPage from '@components/layout/pageLayout/LayoutPage';
 import { Button } from '@components/ui/button';
@@ -15,17 +15,11 @@ import { useCreateOrder } from '@api/order/order.hooks';
 import { useGetCurrentUser } from '@api/user/user.hooks';
 import { useCheckoutForm } from '@hooks/useCheckoutForm';
 import type { CheckoutFormData } from '@/schemas/checkout.schema';
-import {
-  Truck,
-  Store,
-  MapPin,
-  User,
-  Mail,
-  Phone,
-  AlertCircle,
-  RotateCcw,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { rateLimit } from '@/utils/rateLimit';
+import { Truck, User, Mail, Phone, AlertCircle, RotateCcw } from 'lucide-react';
+import DeliveryMethodSelector from '@components/checkout/DeliveryMethodSelector';
+import DeliveryAddressForm from '@components/checkout/DeliveryAddressForm';
+import PickupLocationSelector from '@components/checkout/PickupLocationSelector';
 
 const PICKUP_LOCATIONS = [
   {
@@ -59,6 +53,7 @@ const Checkout = () => {
 
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const isPreFilledRef = useRef(false);
+  const canSubmit = useMemo(() => rateLimit(2000), []);
 
   const {
     handleSubmit,
@@ -104,6 +99,7 @@ const Checkout = () => {
   };
 
   const handlePlaceOrderClick = () => {
+    if (!canSubmit() || createOrderMutation.isPending) return;
     handleSubmit(onFormSubmit)();
   };
 
@@ -265,177 +261,37 @@ const Checkout = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 pt-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setValue('deliveryMethod', 'delivery');
-                    trigger();
-                  }}
-                  className={cn(
-                    'flex items-start gap-4 p-4 rounded-xl border-2 text-left transition-all cursor-pointer',
-                    deliveryMethod === 'delivery'
-                      ? 'border-emerald-600 bg-emerald-50/40 ring-2 ring-emerald-600/20'
-                      : 'border-gray-200 hover:border-gray-300 bg-white'
-                  )}
-                >
-                  <div
-                    className={cn(
-                      'p-2 rounded-lg shrink-0 mt-0.5',
-                      deliveryMethod === 'delivery'
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'bg-gray-100 text-gray-600'
-                    )}
-                  >
-                    <Truck className="size-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-semibold text-sm text-gray-900">
-                        Courier Delivery
-                      </span>
-                      <span className="text-xs font-semibold text-emerald-700">
-                        ${baseShippingCost.toFixed(2)}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Direct to your home or office address
-                    </p>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setValue('deliveryMethod', 'pickup');
-                    trigger();
-                  }}
-                  className={cn(
-                    'flex items-start gap-4 p-4 rounded-xl border-2 text-left transition-all cursor-pointer',
-                    deliveryMethod === 'pickup'
-                      ? 'border-emerald-600 bg-emerald-50/40 ring-2 ring-emerald-600/20'
-                      : 'border-gray-200 hover:border-gray-300 bg-white'
-                  )}
-                >
-                  <div
-                    className={cn(
-                      'p-2 rounded-lg shrink-0 mt-0.5',
-                      deliveryMethod === 'pickup'
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'bg-gray-100 text-gray-600'
-                    )}
-                  >
-                    <Store className="size-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-semibold text-sm text-gray-900">
-                        Store Pickup
-                      </span>
-                      <span className="text-xs font-semibold text-emerald-700">
-                        Free
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Pick up directly from one of our locations
-                    </p>
-                  </div>
-                </button>
-              </div>
+              <DeliveryMethodSelector
+                selectedMethod={deliveryMethod}
+                onSelectMethod={method => {
+                  setValue('deliveryMethod', method);
+                  trigger();
+                }}
+                baseShippingCost={baseShippingCost}
+              />
 
               {deliveryMethod === 'delivery' && (
-                <div className="space-y-4 pt-2 border-t">
-                  <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                    <MapPin className="size-4 text-emerald-600" />
-                    Delivery Address
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="sm:col-span-3">
-                      <TextField
-                        type="text"
-                        label="Street Address"
-                        id="street"
-                        placeholder="e.g. Khreshchatyk St"
-                        value={watch('street') || ''}
-                        onChange={val =>
-                          setValue('street', val, { shouldValidate: true })
-                        }
-                        error={formErrors.street?.message}
-                      />
-                    </div>
-                    <TextField
-                      type="text"
-                      label="Building / House"
-                      id="building"
-                      placeholder="e.g. 15B"
-                      value={watch('building') || ''}
-                      onChange={val =>
-                        setValue('building', val, { shouldValidate: true })
-                      }
-                      error={formErrors.building?.message}
-                    />
-                    <TextField
-                      type="text"
-                      label="Apartment / Suite"
-                      id="apartment"
-                      placeholder="e.g. Apt 42"
-                      value={watch('apartment') || ''}
-                      onChange={val =>
-                        setValue('apartment', val, { shouldValidate: true })
-                      }
-                      error={formErrors.apartment?.message}
-                    />
-                  </div>
-                </div>
+                <DeliveryAddressForm
+                  street={watch('street') || ''}
+                  building={watch('building') || ''}
+                  apartment={watch('apartment') || ''}
+                  errors={{
+                    street: formErrors.street?.message,
+                    building: formErrors.building?.message,
+                    apartment: formErrors.apartment?.message,
+                  }}
+                  onChangeField={(field, val) =>
+                    setValue(field, val, { shouldValidate: true })
+                  }
+                />
               )}
 
               {deliveryMethod === 'pickup' && (
-                <div className="space-y-4 pt-2 border-t">
-                  <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                    <Store className="size-4 text-emerald-600" />
-                    Select Pickup Location
-                  </h4>
-                  <div className="space-y-3">
-                    {PICKUP_LOCATIONS.map(loc => (
-                      <label
-                        key={loc.id}
-                        className={cn(
-                          'flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition-all',
-                          selectedPickup === loc.id
-                            ? 'border-emerald-600 bg-emerald-50/30'
-                            : 'border-gray-200 hover:border-gray-300'
-                        )}
-                      >
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="radio"
-                            name="pickupLocation"
-                            value={loc.id}
-                            checked={selectedPickup === loc.id}
-                            onChange={() =>
-                              setValue('pickupLocationId', loc.id)
-                            }
-                            className="text-emerald-600 focus:ring-emerald-500"
-                          />
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              {loc.name}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {loc.address}
-                            </p>
-                          </div>
-                        </div>
-                        <Badge
-                          variant="outline"
-                          className="text-xs text-emerald-700 border-emerald-300 bg-emerald-50"
-                        >
-                          Free
-                        </Badge>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+                <PickupLocationSelector
+                  locations={PICKUP_LOCATIONS}
+                  selectedLocationId={selectedPickup}
+                  onSelectLocation={id => setValue('pickupLocationId', id)}
+                />
               )}
             </CardContent>
           </Card>
