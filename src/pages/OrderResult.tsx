@@ -1,4 +1,4 @@
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, Navigate } from 'react-router-dom';
 import LayoutPage from '@components/layout/pageLayout/LayoutPage';
 import { Button } from '@components/ui/button';
 import {
@@ -10,6 +10,7 @@ import {
 } from '@components/ui/card';
 import { Badge } from '@components/ui/badge';
 import { Skeleton } from '@components/ui/skeleton';
+import ErrorSection from '@components/common/section/ErrorSection';
 import { useOrderById } from '@api/order/order.hooks';
 import { useGetCurrentUser } from '@api/user/user.hooks';
 import {
@@ -25,9 +26,33 @@ const OrderResult = () => {
   const orderIdParam = searchParams.get('orderId');
   const numericOrderId = orderIdParam ? parseInt(orderIdParam, 10) : 0;
 
-  const { data: order, isLoading: isOrderLoading } =
-    useOrderById(numericOrderId);
+  const {
+    data: order,
+    isLoading: isOrderLoading,
+    error: orderError,
+    refetch,
+  } = useOrderById(numericOrderId);
   const { data: currentUser } = useGetCurrentUser();
+
+  if (!orderIdParam || isNaN(numericOrderId) || numericOrderId <= 0) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (orderError) {
+    return (
+      <LayoutPage>
+        <ErrorSection
+          title="Order Not Found"
+          message={
+            orderError.response?.data?.message ||
+            'We could not find the details for this order.'
+          }
+          retryText="Try Again"
+          onRetry={() => refetch()}
+        />
+      </LayoutPage>
+    );
+  }
 
   const isGuest = !currentUser;
   const orderNumber = numericOrderId || order?.orderId || 'N/A';
