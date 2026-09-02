@@ -10,7 +10,7 @@ import ErrorSection from '@components/common/section/ErrorSection';
 import CartHeader from '@components/layout/pageComponents/CartHeader';
 import TextField from '@components/common/forms/TextField';
 import OrderSummary from '@components/common/cards/OrderSummary';
-import { useGetCart, useClearCart } from '@api/cart/cart.hooks';
+import { useGetCart } from '@api/cart/cart.hooks';
 import { useCreateOrder } from '@api/order/order.hooks';
 import { useGetCurrentUser } from '@api/user/user.hooks';
 import { useCheckoutForm } from '@hooks/useCheckoutForm';
@@ -49,7 +49,6 @@ const Checkout = () => {
   } = useGetCart();
   const { data: currentUser } = useGetCurrentUser();
   const createOrderMutation = useCreateOrder();
-  const clearCartMutation = useClearCart();
 
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const isPreFilledRef = useRef(false);
@@ -79,23 +78,23 @@ const Checkout = () => {
   }, [currentUser, setValue]);
 
   const items = cart?.items || [];
-  const totalPrice = cart?.totalPrice || 0;
-  const baseShippingCost = cart?.shippingCost || 5.0;
+  const totalPrice = cart?.totalPrice ?? 0;
+  const baseShippingCost = cart?.shippingCost ?? 5.0;
   const subtotalPrice = Math.max(0, totalPrice - baseShippingCost);
 
-  const activeShippingCost =
-    deliveryMethod === 'delivery' ? baseShippingCost : 0;
-  const calculatedTotal = subtotalPrice + activeShippingCost;
+  const activeShippingCost = baseShippingCost;
+  const calculatedTotal = totalPrice;
 
-  const onFormSubmit = (_data: CheckoutFormData) => {
+  const onFormSubmit = async (_data: CheckoutFormData) => {
     createOrderMutation.reset();
 
-    createOrderMutation.mutate(undefined, {
-      onSuccess: orderData => {
-        clearCartMutation.mutate();
-        navigate(`/order-result?orderId=${orderData.orderId}`);
-      },
-    });
+    try {
+      const orderData = await createOrderMutation.mutateAsync();
+      navigate(`/order-result?orderId=${orderData.orderId}`);
+    } catch {
+      // Error is caught here to prevent Unhandled Promise Rejection in browser console.
+      // createOrderMutation.error is managed by React Query and displayed in the UI banner.
+    }
   };
 
   const handlePlaceOrderClick = () => {
@@ -265,7 +264,13 @@ const Checkout = () => {
                 selectedMethod={deliveryMethod}
                 onSelectMethod={method => {
                   setValue('deliveryMethod', method);
-                  trigger();
+                  trigger([
+                    'deliveryMethod',
+                    'street',
+                    'building',
+                    'apartment',
+                    'pickupLocationId',
+                  ]);
                 }}
                 baseShippingCost={baseShippingCost}
               />
@@ -299,20 +304,7 @@ const Checkout = () => {
 
         <OrderSummary
           subtotal={subtotalPrice}
-          shippingText={
-            deliveryMethod === 'delivery' ? (
-              <span className="font-medium text-gray-900">
-                ${baseShippingCost.toFixed(2)}
-              </span>
-            ) : (
-              <Badge
-                variant="secondary"
-                className="text-emerald-700 bg-emerald-50 text-xs"
-              >
-                Free (Pickup)
-              </Badge>
-            )
-          }
+          shippingCost={activeShippingCost}
           totalCost={calculatedTotal}
           agreeToTerms={agreeToTerms}
           onAgreeToTermsChange={setAgreeToTerms}

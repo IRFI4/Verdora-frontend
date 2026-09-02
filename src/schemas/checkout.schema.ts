@@ -1,16 +1,11 @@
 import { z } from 'zod';
-import { emailSchema } from './fields.schema';
+import { emailSchema, phoneNumberSchema } from '@/schemas/fields.schema';
 
 export const checkoutSchema = z
   .object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
     email: emailSchema,
-    phone: z
-      .string()
-      .regex(
-        /^\+?[0-9\s-]{7,15}$/,
-        'Please enter a valid phone number (e.g. +380991234567)'
-      ),
+    phone: phoneNumberSchema,
     deliveryMethod: z.enum(['delivery', 'pickup']),
     pickupLocationId: z.string().optional(),
     street: z.string().optional(),

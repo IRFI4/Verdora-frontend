@@ -13,6 +13,7 @@ export const useCreateOrder = () => {
     mutationFn: () => orderService.createOrder(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
   });
 };
