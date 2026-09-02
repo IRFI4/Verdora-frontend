@@ -55,6 +55,7 @@ const OrderSummary = ({
 }: Props) => {
   const displaySubtotal = subtotal !== undefined ? subtotal : totalItemsPrice;
   const triggerAction = onAction || handleProceedToCheckout;
+  const hasTerms = Boolean(showTerms && onAgreeToTermsChange);
 
   if (loading) {
     return (
@@ -119,14 +120,14 @@ const OrderSummary = ({
         </span>
       </div>
 
-      {showTerms && onAgreeToTermsChange && (
+      {hasTerms && (
         <div className="flex gap-2 flex-col w-full pt-1">
           <div className="flex items-center gap-2.5 w-full text-xs">
             <Checkbox
               id="orderSummaryTerms"
               checked={agreeToTerms}
               onCheckedChange={checked =>
-                onAgreeToTermsChange(Boolean(checked))
+                onAgreeToTermsChange!(Boolean(checked))
               }
             />
             <Label
@@ -152,9 +153,7 @@ const OrderSummary = ({
       <div className="space-y-3 pt-2">
         <Button
           onClick={triggerAction}
-          disabled={
-            isActionDisabled || isActionLoading || (showTerms && !agreeToTerms)
-          }
+          disabled={isActionDisabled || isActionLoading}
           className="w-full py-6 text-base font-semibold"
         >
           {isActionLoading ? 'Processing...' : actionButtonText}

@@ -51,6 +51,7 @@ const Checkout = () => {
   const createOrderMutation = useCreateOrder();
 
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [termsError, setTermsError] = useState<string | undefined>(undefined);
   const isPreFilledRef = useRef(false);
   const canSubmit = useMemo(() => rateLimit(2000), []);
 
@@ -98,6 +99,11 @@ const Checkout = () => {
   };
 
   const handlePlaceOrderClick = () => {
+    if (!agreeToTerms) {
+      setTermsError('You must agree to the Terms and Conditions');
+      return;
+    }
+    setTermsError(undefined);
     if (!canSubmit() || createOrderMutation.isPending) return;
     handleSubmit(onFormSubmit)();
   };
@@ -307,12 +313,14 @@ const Checkout = () => {
           shippingCost={activeShippingCost}
           totalCost={calculatedTotal}
           agreeToTerms={agreeToTerms}
-          onAgreeToTermsChange={setAgreeToTerms}
+          agreeToTermsError={termsError}
+          onAgreeToTermsChange={val => {
+            setAgreeToTerms(val);
+            if (val) setTermsError(undefined);
+          }}
           actionButtonText="Confirm & Place Order"
           onAction={handlePlaceOrderClick}
-          isActionDisabled={
-            !agreeToTerms || createOrderMutation.isPending || !isValid
-          }
+          isActionDisabled={createOrderMutation.isPending || !isValid}
           isActionLoading={createOrderMutation.isPending}
           secondaryActionText="Return to Cart"
           secondaryActionLink="/cart"
