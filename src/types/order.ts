@@ -17,7 +17,7 @@ export type Order = {
   createdAt: string;
 };
 
-export interface UpdateOrderPayload {
+export type UpdateOrderPayload = {
   orderId: number;
   status: OrderStatus;
-}
+};
