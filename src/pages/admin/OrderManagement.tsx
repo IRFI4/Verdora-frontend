@@ -334,6 +334,7 @@ const OrderManagement = () => {
       <OrderDetailsDialog
         order={selectedOrderDetails}
         open={!!selectedOrderDetails}
+        showFullPageLink={false}
         onOpenChange={open => {
           if (!open) setSelectedOrderDetails(null);
         }}

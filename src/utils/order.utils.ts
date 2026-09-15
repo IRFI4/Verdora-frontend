@@ -5,6 +5,7 @@ export const CANCELLABLE_STATUSES: readonly string[] = [
   'PENDING_PAYMENT',
   'PAID',
   'CONFIRMED',
+  'PROCESSING',
 ];
 
 export const isOrderCancellable = (status?: string | null): boolean => {
@@ -14,6 +15,7 @@ export const isOrderCancellable = (status?: string | null): boolean => {
 
 export const FINAL_ORDER_STATUSES: readonly string[] = [
   'DELIVERED',
+  'COMPLETED',
   'CANCELLED',
 ];
 

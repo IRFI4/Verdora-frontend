@@ -32,8 +32,7 @@ export const OrderStatusBadge: React.FC<OrderStatusBadgeProps> = ({
     normalizedStatus === 'DELIVERED' || normalizedStatus === 'COMPLETED';
   const isCancelled = normalizedStatus === 'CANCELLED';
 
-  const label =
-    format === 'label' ? getOrderStatusLabel(status) : normalizedStatus;
+  const label = format === 'label' ? getOrderStatusLabel(status) : status;
 
   return (
     <Badge

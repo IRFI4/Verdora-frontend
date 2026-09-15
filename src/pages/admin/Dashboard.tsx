@@ -186,7 +186,7 @@ const AdminDashboard = () => {
                     {order.date}
                   </TableCell>
                   <TableCell>
-                    <OrderStatusBadge status={order.status} />
+                    <OrderStatusBadge status={order.status} format="raw" />
                   </TableCell>
                   <TableCell className="text-right font-medium">
                     {order.amount}
