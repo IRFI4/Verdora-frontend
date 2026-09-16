@@ -5,6 +5,7 @@ export const CANCELLABLE_STATUSES: readonly string[] = [
   'PENDING_PAYMENT',
   'PAID',
   'CONFIRMED',
+  'PROCESSING',
 ];
 
 export const isOrderCancellable = (status?: string | null): boolean => {
@@ -14,6 +15,7 @@ export const isOrderCancellable = (status?: string | null): boolean => {
 
 export const FINAL_ORDER_STATUSES: readonly string[] = [
   'DELIVERED',
+  'COMPLETED',
   'CANCELLED',
 ];
 
@@ -28,6 +30,8 @@ export const getOrderStatusLabel = (status?: string | null): string => {
     case 'PENDING':
     case 'PENDING_PAYMENT':
       return 'Pending payment';
+    case 'PROCESSING':
+      return 'Processing';
     case 'PAID':
     case 'CONFIRMED':
       return 'Confirmed';
@@ -35,12 +39,18 @@ export const getOrderStatusLabel = (status?: string | null): string => {
     case 'IN_TRANSIT':
       return 'In Transit';
     case 'DELIVERED':
+    case 'COMPLETED':
       return 'Delivered';
     case 'CANCELLED':
       return 'Cancelled';
     default:
       return status;
   }
+};
+
+export const formatCurrency = (val?: number | null, fallback = '—'): string => {
+  if (val === undefined || val === null || isNaN(val)) return fallback;
+  return `$${val.toFixed(2)}`;
 };
 
 export const formatOrderDate = (
@@ -65,8 +75,7 @@ export const formatOrderDate = (
 };
 
 export const formatOrderPrice = (price?: number | null): string => {
-  if (typeof price !== 'number' || isNaN(price)) return '$0.00';
-  return `$${price.toFixed(2)}`;
+  return formatCurrency(price, '$0.00');
 };
 
 export const sortOrdersNewestFirst = (orders: Order[]): Order[] => {
