@@ -11,6 +11,9 @@ lerna-debug.log*
 .github/*
 !.github/workflows/
 !.github/workflows/**
+!.github/pull_request_template.md
+!.github/*.md
+
 
 node_modules
 dist
