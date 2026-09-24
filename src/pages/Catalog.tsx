@@ -119,7 +119,8 @@ const Catalog = () => {
 
   const addItemMutation = useAddItemToCart();
   const handleAddToCart = (productId: number) => {
-    addItemMutation.mutate({ productId, quantity: 1 });
+    const product = productsData?.content.find(p => p.productId === productId);
+    addItemMutation.mutate({ productId, quantity: 1, product });
   };
 
   const updateParam = (key: string, value: string | null) => {

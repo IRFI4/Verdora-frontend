@@ -25,7 +25,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const { data: cart } = useGetCart({ enabled: Boolean(user) });
+  const { data: cart } = useGetCart();
   const items = cart?.items || [];
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 

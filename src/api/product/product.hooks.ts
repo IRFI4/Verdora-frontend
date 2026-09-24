@@ -24,6 +24,10 @@ export const useGetProductById = (id: number, enabled: boolean = true) => {
     queryKey: ['products', id],
     queryFn: () => productService.getProductById(id),
     enabled: !!id && enabled,
+    retry: (failureCount, error) => {
+      if (error?.response?.status === 404) return false;
+      return failureCount < 2;
+    },
   });
 };
 

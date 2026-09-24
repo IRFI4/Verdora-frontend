@@ -9,6 +9,8 @@ import type {
   ResetPasswordPayload,
 } from '@/types/auth';
 
+import { syncGuestCartToBackend, clearGuestCart } from '@/utils/guestCart';
+
 export const register = createAsyncThunk<
   ApiResponse<UserType>,
   RegisterPayload,
@@ -16,6 +18,11 @@ export const register = createAsyncThunk<
 >('auth/register', async (userData, { rejectWithValue }) => {
   try {
     const response = await authService.register(userData);
+    try {
+      await syncGuestCartToBackend();
+    } catch (e) {
+      console.warn('Failed to sync guest cart on register', e);
+    }
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -37,6 +44,11 @@ export const login = createAsyncThunk<
   ) => {
     try {
       const response = await authService.login(userData);
+      try {
+        await syncGuestCartToBackend();
+      } catch (e) {
+        console.warn('Failed to sync guest cart on login', e);
+      }
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {
@@ -54,6 +66,7 @@ export const logout = createAsyncThunk<
 >('auth/logout', async (_, { rejectWithValue }) => {
   try {
     await authService.logout();
+    clearGuestCart();
   } catch (error) {
     if (isAxiosError(error)) {
       return rejectWithValue(error.response?.data);
