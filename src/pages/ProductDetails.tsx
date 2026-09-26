@@ -1,9 +1,12 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import LayoutPage from '@components/layout/pageLayout/LayoutPage';
-import Breadcrumbs from '@components/common/Breadcrumbs';
+import Breadcrumbs, {
+  type BreadcrumbItemConfig,
+} from '@components/common/Breadcrumbs';
 import ErrorSection from '@components/common/section/ErrorSection';
 import { Button } from '@components/ui/button';
+import { Skeleton } from '@components/ui/skeleton';
 import { useGetProductById, useGetProducts } from '@api/product/product.hooks';
 import { useCategoryById } from '@api/category/category.hooks';
 import { ProductGallery } from '@components/product/ProductGallery';
@@ -11,10 +14,15 @@ import { ProductInfo } from '@components/product/ProductInfo';
 import { ProductTabs } from '@components/product/ProductTabs';
 import { ProductCarousel } from '@components/product/ProductCarousel';
 import { ProductDetailsSkeleton } from '@components/product/ProductDetailsSkeleton';
+
 const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
   const productId = Number(id);
   const isValidId = Number.isInteger(productId) && productId > 0;
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [productId]);
 
   const {
     data: product,
@@ -23,21 +31,28 @@ const ProductDetails = () => {
     refetch,
   } = useGetProductById(productId, isValidId);
 
-  const { data: apiCategory } = useCategoryById(product?.categoryId ?? 0);
+  const categoryId = product?.categoryId;
+  const hasCategory = Boolean(categoryId && categoryId > 0);
+
+  const { data: apiCategory, isLoading: isLoadingCategory } = useCategoryById(
+    categoryId ?? 0
+  );
   const categoryName = apiCategory?.name;
 
   const { data: relatedProductsData, isLoading: isLoadingRelated } =
     useGetProducts(
-      product?.categoryId
+      hasCategory
         ? {
-            categoryId: product.categoryId,
+            categoryId: categoryId!,
             size: 8,
           }
-        : undefined
+        : undefined,
+      hasCategory
     );
 
   const relatedProducts = useMemo(() => {
     if (
+      hasCategory &&
       relatedProductsData?.content &&
       relatedProductsData.content.length > 0
     ) {
@@ -46,24 +61,42 @@ const ProductDetails = () => {
       );
     }
     return [];
-  }, [relatedProductsData, product?.productId]);
+  }, [hasCategory, relatedProductsData, product?.productId]);
 
-  const breadcrumbItems = useMemo(
-    () => [
+  const breadcrumbItems = useMemo(() => {
+    const items: BreadcrumbItemConfig[] = [
       { label: 'Home', href: '/' },
       { label: 'Catalog', href: '/catalog' },
-      ...(product?.categoryId
-        ? [
-            {
-              label: categoryName,
-              href: `/catalog?category=${product.categoryId}`,
-            },
-          ]
-        : []),
-      { label: product?.name || (isValidId ? `Product #${id}` : 'Product') },
-    ],
-    [product, categoryName, isValidId, id]
-  );
+    ];
+
+    if (hasCategory) {
+      if (categoryName) {
+        items.push({
+          label: categoryName,
+          href: `/catalog?category=${categoryId}`,
+        });
+      } else if (isLoadingCategory) {
+        items.push({
+          label: <Skeleton className="h-4 w-16 inline-block" />,
+          href: `/catalog?category=${categoryId}`,
+        });
+      }
+    }
+
+    items.push({
+      label: product?.name || (isValidId ? `Product #${id}` : 'Product'),
+    });
+
+    return items;
+  }, [
+    hasCategory,
+    categoryName,
+    isLoadingCategory,
+    categoryId,
+    product?.name,
+    isValidId,
+    id,
+  ]);
 
   return (
     <LayoutPage>
@@ -94,6 +127,7 @@ const ProductDetails = () => {
           <div className="space-y-12">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
               <ProductGallery
+                key={product.productId}
                 images={product.imageUrl ? [product.imageUrl] : undefined}
                 productName={product.name}
                 hasDiscount={Boolean(
@@ -110,21 +144,28 @@ const ProductDetails = () => {
                 }
               />
 
-              <ProductInfo product={product} categoryName={categoryName} />
+              <ProductInfo
+                key={product.productId}
+                product={product}
+                categoryName={categoryName}
+                isLoadingCategory={isLoadingCategory}
+              />
             </div>
 
-            <ProductTabs product={product} categoryName={categoryName} />
-
-            <ProductCarousel
-              title="You may also like"
-              products={relatedProducts}
-              isLoading={isLoadingRelated}
-              viewAllHref={
-                product.categoryId
-                  ? `/catalog?category=${product.categoryId}`
-                  : '/catalog'
-              }
+            <ProductTabs
+              key={product.productId}
+              product={product}
+              categoryName={categoryName}
             />
+
+            {hasCategory && (
+              <ProductCarousel
+                title="You may also like"
+                products={relatedProducts}
+                isLoading={isLoadingRelated}
+                viewAllHref={`/catalog?category=${categoryId}`}
+              />
+            )}
           </div>
         )}
       </div>

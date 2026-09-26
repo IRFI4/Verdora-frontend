@@ -1,6 +1,8 @@
+import { useEffect } from 'react';
 import { cartService } from '@api/cart/cart.service';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAppSelector } from '@api/hooks';
+import { store } from '@api/store';
 import type { AxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/types/api';
 import type {
@@ -10,12 +12,11 @@ import type {
   UpdateCartItemQuantityPayload,
 } from '@/types/cart';
 import type { Product } from '@/types/product';
+import type { UserType } from '@/types/user';
 import {
-  getGuestCart,
-  addGuestCartItem,
-  updateGuestCartItemQuantity,
-  removeGuestCartItem,
-  clearGuestCart,
+  guestCartService,
+  GUEST_CART_STORAGE_KEY,
+  type CartService,
 } from '@/utils/guestCart';
 
 type CartAxiosError = AxiosError<ApiErrorResponse>;
@@ -24,180 +25,162 @@ export type AddItemToCartArgs = AddItemToCartPayload & {
   product?: Partial<Product>;
 };
 
-export const useAddItemToCart = () => {
-  const queryClient = useQueryClient();
-  const { user } = useAppSelector(state => state.auth);
+export const getCartQueryKey = (user: UserType | null) =>
+  ['cart', user ? user.id : 'guest'] as const;
 
-  return useMutation<Cart, CartAxiosError, AddItemToCartArgs>({
-    mutationFn: async data => {
-      if (user) {
-        return cartService.addItemToCart({
-          productId: data.productId,
-          quantity: data.quantity,
-        });
+export const getActiveCartQueryKey = () =>
+  getCartQueryKey(store.getState().auth.user);
+
+export const waitForAuthHydration = (
+  timeoutMs = 5000
+): Promise<UserType | null> => {
+  const state = store.getState().auth;
+  if (!state.hydrating) {
+    return Promise.resolve(state.user);
+  }
+
+  return new Promise(resolve => {
+    let resolved = false;
+
+    const timer = setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        unsubscribe();
+        resolve(store.getState().auth.user);
       }
-      return addGuestCartItem(data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
-    },
-  });
-};
+    }, timeoutMs);
 
-export const useRemoveItemFromCart = () => {
-  const queryClient = useQueryClient();
-  const { user } = useAppSelector(state => state.auth);
-
-  return useMutation<
-    Cart,
-    CartAxiosError,
-    RemoveItemFromCartPayload,
-    { previousCart?: Cart }
-  >({
-    mutationFn: async data => {
-      if (user) {
-        return cartService.removeItemFromCart(data);
-      }
-      return removeGuestCartItem(data.cartItemId);
-    },
-
-    onMutate: async variables => {
-      await queryClient.cancelQueries({ queryKey: ['cart'] });
-      const cartKey = ['cart', user ? user.id : 'guest'];
-      const previousCart = queryClient.getQueryData<Cart>(cartKey);
-
-      queryClient.setQueryData<Cart>(cartKey, old => {
-        if (!old) return old;
-
-        const filteredItems = old.items.filter(
-          item => item.cartItemId !== variables.cartItemId
-        );
-        const shippingCost = old.shippingCost ?? 0;
-        const totalPrice =
-          filteredItems.reduce((sum, item) => sum + item.subtotal, 0) +
-          shippingCost;
-
-        return {
-          ...old,
-          items: filteredItems,
-          totalPrice,
-        };
-      });
-
-      return { previousCart };
-    },
-    onError: (_error, _variables, context) => {
-      if (context?.previousCart) {
-        queryClient.setQueryData(
-          ['cart', user ? user.id : 'guest'],
-          context.previousCart
-        );
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
-    },
-  });
-};
-
-export const useUpdateCartItemQuantity = () => {
-  const queryClient = useQueryClient();
-  const { user } = useAppSelector(state => state.auth);
-
-  return useMutation<
-    Cart,
-    CartAxiosError,
-    UpdateCartItemQuantityPayload,
-    { previousCart?: Cart }
-  >({
-    mutationFn: async data => {
-      if (user) {
-        return cartService.updateCartItemQuantity(data);
-      }
-      return updateGuestCartItemQuantity(data.cartItemId, data.quantity);
-    },
-    onMutate: async variables => {
-      await queryClient.cancelQueries({ queryKey: ['cart'] });
-      const cartKey = ['cart', user ? user.id : 'guest'];
-      const previousCart = queryClient.getQueryData<Cart>(cartKey);
-
-      queryClient.setQueryData<Cart>(cartKey, old => {
-        if (!old) {
-          return old;
+    const unsubscribe = store.subscribe(() => {
+      const currentState = store.getState().auth;
+      if (!currentState.hydrating) {
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          unsubscribe();
+          resolve(currentState.user);
         }
-
-        const updatedItems = old.items.map(item => {
-          if (item.cartItemId !== variables.cartItemId) {
-            return item;
-          }
-          const price = item.price ?? 0;
-          const unitPrice =
-            item.discountPrice !== undefined ? item.discountPrice : price;
-          return {
-            ...item,
-            quantity: variables.quantity,
-            subtotal: unitPrice * variables.quantity,
-          };
-        });
-
-        const shippingCost = old.shippingCost ?? 0;
-        const totalPrice =
-          updatedItems.reduce((sum, item) => sum + item.subtotal, 0) +
-          shippingCost;
-
-        return {
-          ...old,
-          items: updatedItems,
-          totalPrice,
-        };
-      });
-
-      return { previousCart };
-    },
-    onError: (_error, _variables, context) => {
-      if (context?.previousCart) {
-        queryClient.setQueryData(
-          ['cart', user ? user.id : 'guest'],
-          context.previousCart
-        );
       }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
-    },
+    });
   });
+};
+
+/**
+ * Selects the cart service (backend vs guest) and query key in a single place.
+ */
+export const useCartClient = () => {
+  const queryClient = useQueryClient();
+  const { user, hydrating } = useAppSelector(state => state.auth);
+  const cartKey = getCartQueryKey(user);
+
+  const getService = async (): Promise<CartService> => {
+    let currentUser = store.getState().auth.user;
+    if (store.getState().auth.hydrating) {
+      currentUser = await waitForAuthHydration();
+    }
+    return currentUser ? cartService : guestCartService;
+  };
+
+  const updateCartCache = (newCart: Cart) => {
+    const key = getActiveCartQueryKey();
+    queryClient.setQueryData(key, newCart);
+    queryClient.invalidateQueries({ queryKey: ['cart'] });
+  };
+
+  return {
+    user,
+    hydrating,
+    cartKey,
+    getService,
+    updateCartCache,
+  };
 };
 
 export const useGetCart = (options?: { enabled?: boolean }) => {
-  const { user } = useAppSelector(state => state.auth);
+  const { hydrating, cartKey, getService } = useCartClient();
 
   return useQuery<Cart, CartAxiosError>({
-    queryKey: ['cart', user ? user.id : 'guest'],
+    queryKey: cartKey,
     queryFn: async () => {
-      if (user) {
-        return cartService.getCart();
-      }
-      return getGuestCart();
+      const service = await getService();
+      return service.getCart();
     },
+    enabled: (options?.enabled ?? true) && !hydrating,
     retry: false,
     ...options,
   });
 };
 
+export const useAddItemToCart = () => {
+  const { getService, updateCartCache } = useCartClient();
+
+  return useMutation<Cart, CartAxiosError, AddItemToCartArgs>({
+    mutationFn: async data => {
+      const service = await getService();
+      return service.addItemToCart({
+        productId: data.productId,
+        quantity: data.quantity,
+      });
+    },
+    onSuccess: updateCartCache,
+  });
+};
+
+export const useRemoveItemFromCart = () => {
+  const { getService, updateCartCache } = useCartClient();
+
+  return useMutation<Cart, CartAxiosError, RemoveItemFromCartPayload>({
+    mutationFn: async data => {
+      const service = await getService();
+      return service.removeItemFromCart(data);
+    },
+    onSuccess: updateCartCache,
+  });
+};
+
+export const useUpdateCartItemQuantity = () => {
+  const { getService, updateCartCache } = useCartClient();
+
+  return useMutation<Cart, CartAxiosError, UpdateCartItemQuantityPayload>({
+    mutationFn: async data => {
+      const service = await getService();
+      return service.updateCartItemQuantity(data);
+    },
+    onSuccess: updateCartCache,
+  });
+};
+
 export const useClearCart = () => {
-  const queryClient = useQueryClient();
-  const { user } = useAppSelector(state => state.auth);
+  const { getService, updateCartCache } = useCartClient();
 
   return useMutation<Cart, CartAxiosError>({
     mutationFn: async () => {
-      if (user) {
-        return cartService.clearCart();
-      }
-      clearGuestCart();
-      return { cartId: 0, items: [], totalPrice: 0, shippingCost: 0 };
+      const service = await getService();
+      return service.clearCart();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
-    },
+    onSuccess: updateCartCache,
   });
+};
+
+export const useSyncCartOnStorage = () => {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === GUEST_CART_STORAGE_KEY || event.key === null) {
+        queryClient.invalidateQueries({ queryKey: ['cart'] });
+      }
+    };
+
+    const handleGuestCartSynced = () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('guest-cart-synced', handleGuestCartSynced);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('guest-cart-synced', handleGuestCartSynced);
+    };
+  }, [queryClient]);
 };

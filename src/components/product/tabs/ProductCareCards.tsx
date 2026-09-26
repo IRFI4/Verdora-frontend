@@ -1,5 +1,4 @@
 import React from 'react';
-import { Sun, Droplets, Sparkles, Truck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export type CareItem = {
@@ -8,38 +7,29 @@ export type CareItem = {
   icon?: React.ReactNode;
 };
 
-const DEFAULT_CARE_ITEMS: CareItem[] = [
-  {
-    title: 'Light',
-    text: 'Place in bright, indirect natural light. Protect foliage from scorching midday sun.',
-    icon: <Sun className="size-5 text-[#3E8D35]" />,
-  },
-  {
-    title: 'Water',
-    text: 'Water thoroughly when the top layer of soil is dry. Ensure proper drainage to avoid standing water.',
-    icon: <Droplets className="size-5 text-[#3E8D35]" />,
-  },
-  {
-    title: 'Feeding',
-    text: 'Feed with balanced liquid houseplant fertilizer once a month during spring and summer.',
-    icon: <Sparkles className="size-5 text-[#3E8D35]" />,
-  },
-  {
-    title: 'Shipping',
-    text: 'Carefully packed in sturdy protective eco-packaging to ensure safe transit to your doorstep.',
-    icon: <Truck className="size-5 text-[#3E8D35]" />,
-  },
-];
-
 export type ProductCareCardsProps = {
   items?: CareItem[];
   className?: string;
 };
 
 export const ProductCareCards: React.FC<ProductCareCardsProps> = ({
-  items = DEFAULT_CARE_ITEMS,
+  items = [],
   className,
 }) => {
+  if (items.length === 0) {
+    return (
+      <div
+        className={cn(
+          'max-w-2xl py-8 text-center text-text-muted animate-in fade-in duration-200',
+          className
+        )}
+      >
+        <p className="text-sm font-medium">
+          Care instructions are not specified for this product.
+        </p>
+      </div>
+    );
+  }
   return (
     <div
       className={cn(

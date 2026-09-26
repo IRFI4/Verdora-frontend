@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Check } from 'lucide-react';
 import { useAppSelector } from '@api/hooks';
@@ -8,6 +8,7 @@ import LoginPromptDialog, {
 } from '@components/common/dialog/LoginPromptDialog';
 import QuantityStepper from '@components/common/forms/QuantityStepper';
 import NoticeAlert from '@components/common/NoticeAlert';
+import { Skeleton } from '@components/ui/skeleton';
 import { ProductAssuranceCards } from './ProductAssuranceCards';
 import type { Product } from '@/types/product';
 import { cn } from '@/lib/utils';
@@ -16,6 +17,7 @@ import { Button } from '../ui/button';
 export type ProductInfoProps = {
   product: Product;
   categoryName?: string;
+  isLoadingCategory?: boolean;
   onAddToCart?: (productId: number, quantity: number) => void;
   onToggleFavorite?: (productId: number) => void;
   isFavorite?: boolean;
@@ -28,6 +30,7 @@ export type ProductInfoProps = {
 export const ProductInfo = ({
   product,
   categoryName,
+  isLoadingCategory = false,
   onAddToCart,
   onToggleFavorite,
   isFavorite = false,
@@ -38,7 +41,6 @@ export const ProductInfo = ({
 }: ProductInfoProps) => {
   const { user } = useAppSelector(state => state.auth);
   const [quantity, setQuantity] = useState(1);
-  const [internalFav, setInternalFav] = useState(isFavorite);
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
   const [loginPromptAction, setLoginPromptAction] =
     useState<AuthPromptAction>('general');
@@ -50,6 +52,58 @@ export const ProductInfo = ({
     show: false,
     qty: 1,
   });
+
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const dismissToast = useCallback(() => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+      toastTimerRef.current = null;
+    }
+    setAddedToast({ show: false, qty: 1 });
+  }, []);
+
+  const dismissError = useCallback(() => {
+    if (errorTimerRef.current) {
+      clearTimeout(errorTimerRef.current);
+      errorTimerRef.current = null;
+    }
+    setErrorMessage(null);
+  }, []);
+
+  const triggerToast = useCallback((qty: number) => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
+    setAddedToast({ show: true, qty });
+    toastTimerRef.current = setTimeout(() => {
+      setAddedToast(prev => ({ ...prev, show: false }));
+      toastTimerRef.current = null;
+    }, 4500);
+  }, []);
+
+  const triggerError = useCallback((msg: string) => {
+    if (errorTimerRef.current) {
+      clearTimeout(errorTimerRef.current);
+    }
+    setErrorMessage(msg);
+    errorTimerRef.current = setTimeout(() => {
+      setErrorMessage(null);
+      errorTimerRef.current = null;
+    }, 5000);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+      }
+      if (errorTimerRef.current) {
+        clearTimeout(errorTimerRef.current);
+      }
+    };
+  }, []);
 
   const addItemMutation = useAddItemToCart();
 
@@ -73,11 +127,8 @@ export const ProductInfo = ({
   const handleAddToCart = useCallback(() => {
     if (onAddToCart) {
       onAddToCart(product.productId, quantity);
-      setErrorMessage(null);
-      setAddedToast({ show: true, qty: quantity });
-      setTimeout(() => {
-        setAddedToast(prev => ({ ...prev, show: false }));
-      }, 4500);
+      dismissError();
+      triggerToast(quantity);
     } else {
       addItemMutation.mutate(
         {
@@ -87,25 +138,27 @@ export const ProductInfo = ({
         },
         {
           onSuccess: () => {
-            setErrorMessage(null);
-            setAddedToast({ show: true, qty: quantity });
-            setTimeout(() => {
-              setAddedToast(prev => ({ ...prev, show: false }));
-            }, 4500);
+            dismissError();
+            triggerToast(quantity);
           },
           onError: error => {
-            setErrorMessage(
+            triggerError(
               error.response?.data?.message ||
                 'Failed to add item to cart. Please try again.'
             );
-            setTimeout(() => {
-              setErrorMessage(null);
-            }, 5000);
           },
         }
       );
     }
-  }, [onAddToCart, product, quantity, addItemMutation]);
+  }, [
+    onAddToCart,
+    product,
+    quantity,
+    addItemMutation,
+    dismissError,
+    triggerToast,
+    triggerError,
+  ]);
 
   const handleToggleFavorite = useCallback(() => {
     if (!user) {
@@ -113,7 +166,6 @@ export const ProductInfo = ({
       setIsLoginPromptOpen(true);
       return;
     }
-    setInternalFav(prev => !prev);
     onToggleFavorite?.(product.productId);
   }, [user, onToggleFavorite, product.productId]);
 
@@ -127,31 +179,34 @@ export const ProductInfo = ({
       <div className="flex flex-col gap-3 sm:gap-4">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2.5 flex-wrap">
-            <Link
-              to={
-                product.categoryId
-                  ? `/catalog?category=${product.categoryId}`
-                  : '/catalog'
-              }
-              className="bg-[#E5EFE2] hover:bg-[#d7e6d3] text-[#0C0C0C] text-[13px] font-medium tracking-tight rounded-[7px] px-2.5 py-1 transition-colors"
-            >
-              {categoryName}
-            </Link>
+            {categoryName ? (
+              <Link
+                to={
+                  product.categoryId
+                    ? `/catalog?category=${product.categoryId}`
+                    : '/catalog'
+                }
+                className="bg-[#E5EFE2] hover:bg-[#d7e6d3] text-[#0C0C0C] text-[13px] font-medium tracking-tight rounded-[7px] px-2.5 py-1 transition-colors"
+              >
+                {categoryName}
+              </Link>
+            ) : isLoadingCategory ? (
+              <Skeleton className="h-6 w-20 rounded-[7px]" />
+            ) : null}
 
             {Boolean(reviewsCount && reviewsCount > 0) && (
               <div className="flex items-center gap-1.5 text-[13px] text-[#586455]">
                 <span className="text-[#3E8D35] text-sm tracking-widest">
-                  ★★★★★
+                  {'★'.repeat(
+                    Math.max(0, Math.min(5, Math.round(rating ?? 5)))
+                  )}
+                  {'☆'.repeat(Math.max(0, 5 - Math.round(rating ?? 5)))}
                 </span>
                 <span>
-                  {rating ?? '5.0'} · {reviewsCount} reviews
+                  {rating?.toFixed(1) ?? '5.0'} · {reviewsCount} reviews
                 </span>
               </div>
             )}
-
-            <span className="text-[13px] text-[#3E8D35] font-medium ml-1">
-              In stock
-            </span>
           </div>
 
           <div>
@@ -246,34 +301,38 @@ export const ProductInfo = ({
           </Button>
         </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleToggleFavorite}
-          aria-label={
-            internalFav ? 'Remove from favorites' : 'Add to favorites'
-          }
-          className={cn(
-            'h-12 w-fit px-6 rounded-[16px] font-medium text-[15px] tracking-tight transition-all cursor-pointer active:scale-[0.98]',
-            internalFav
-              ? 'border-[#FA1105] text-[#FA1105] bg-[#FFF5F4] hover:bg-[#ffeceb] hover:text-[#FA1105]'
-              : 'border-[#D9DEDB] text-[#0C0C0C] hover:border-zinc-400 hover:bg-[#fcfdfb]'
-          )}
-        >
-          <Heart
+        {Boolean(onToggleFavorite) && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleToggleFavorite}
+            aria-label={
+              isFavorite ? 'Remove from favorites' : 'Add to favorites'
+            }
             className={cn(
-              'size-5 stroke-[1.8] transition-colors',
-              internalFav ? 'fill-[#FA1105] text-[#FA1105]' : 'text-[#0C0C0C]'
+              'h-12 w-fit px-6 rounded-[16px] font-medium text-[15px] tracking-tight transition-all cursor-pointer active:scale-[0.98]',
+              isFavorite
+                ? 'border-[#FA1105] text-[#FA1105] bg-[#FFF5F4] hover:bg-[#ffeceb] hover:text-[#FA1105]'
+                : 'border-[#D9DEDB] text-[#0C0C0C] hover:border-zinc-400 hover:bg-[#fcfdfb]'
             )}
-          />
-          <span>{internalFav ? 'Added to favorites' : 'Add to favorites'}</span>
-        </Button>
+          >
+            <Heart
+              className={cn(
+                'size-5 stroke-[1.8] transition-colors',
+                isFavorite ? 'fill-[#FA1105] text-[#FA1105]' : 'text-[#0C0C0C]'
+              )}
+            />
+            <span>
+              {isFavorite ? 'Added to favorites' : 'Add to favorites'}
+            </span>
+          </Button>
+        )}
 
         {addedToast.show && (
           <NoticeAlert
             variant="success"
             className="bg-[#C6E3B4] border-transparent text-[#0C0C0C] rounded-[16px] py-3.5 px-4 shadow-xs"
-            onDismiss={() => setAddedToast({ show: false, qty: 1 })}
+            onDismiss={dismissToast}
             action={
               <Link
                 to="/cart"
@@ -294,7 +353,7 @@ export const ProductInfo = ({
           <NoticeAlert
             variant="error"
             className="rounded-[16px] py-3.5 px-4 shadow-xs"
-            onDismiss={() => setErrorMessage(null)}
+            onDismiss={dismissError}
           >
             <span className="text-[15px] font-medium">{errorMessage}</span>
           </NoticeAlert>
@@ -303,11 +362,13 @@ export const ProductInfo = ({
 
       <ProductAssuranceCards />
 
-      <LoginPromptDialog
-        open={isLoginPromptOpen}
-        onOpenChange={setIsLoginPromptOpen}
-        action={loginPromptAction}
-      />
+      {Boolean(onToggleFavorite) && (
+        <LoginPromptDialog
+          open={isLoginPromptOpen}
+          onOpenChange={setIsLoginPromptOpen}
+          action={loginPromptAction}
+        />
+      )}
     </div>
   );
 };

@@ -162,7 +162,9 @@ export const ProductCarousel = ({
                       isFavorite ? isFavorite(product.productId) : false
                     }
                     onAddToCart={handleAddToCart}
-                    onToggleFavorite={handleToggleFavorite}
+                    onToggleFavorite={
+                      onToggleFavorite ? handleToggleFavorite : undefined
+                    }
                     onAuthRequired={() => setIsLoginPromptOpen(true)}
                     isAuthenticated={Boolean(user)}
                     onProductClick={onProductClick}
@@ -173,11 +175,13 @@ export const ProductCarousel = ({
         </CarouselContent>
       </Carousel>
 
-      <LoginPromptDialog
-        open={isLoginPromptOpen}
-        onOpenChange={setIsLoginPromptOpen}
-        action="favorite"
-      />
+      {Boolean(onToggleFavorite) && (
+        <LoginPromptDialog
+          open={isLoginPromptOpen}
+          onOpenChange={setIsLoginPromptOpen}
+          action="favorite"
+        />
+      )}
     </section>
   );
 };

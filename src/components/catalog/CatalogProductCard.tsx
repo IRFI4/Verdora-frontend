@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@components/ui/card';
 import { Skeleton } from '@components/ui/skeleton';
@@ -40,11 +40,20 @@ export const CatalogProductCard = ({
   const isLoggedIn =
     isAuthenticated !== undefined ? isAuthenticated : Boolean(user);
 
-  const [internalFav, setInternalFav] = useState(isFavorite);
   const [imageError, setImageError] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [added, setAdded] = useState(false);
   const isGrid = viewMode === 'grid';
+
+  const addTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (addTimerRef.current) {
+        clearTimeout(addTimerRef.current);
+      }
+    };
+  }, []);
 
   const hasDiscount = Boolean(
     product.discountPrice && product.discountPrice < product.price
@@ -88,7 +97,6 @@ export const CatalogProductCard = ({
       onAuthRequired?.();
       return;
     }
-    setInternalFav(prev => !prev);
     onToggleFavorite?.(productId);
   };
 
@@ -96,7 +104,13 @@ export const CatalogProductCard = ({
     e.stopPropagation();
     onAddToCart?.(productId);
     setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
+    if (addTimerRef.current) {
+      clearTimeout(addTimerRef.current);
+    }
+    addTimerRef.current = setTimeout(() => {
+      setAdded(false);
+      addTimerRef.current = null;
+    }, 1500);
   };
 
   return (
@@ -137,22 +151,24 @@ export const CatalogProductCard = ({
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0">
-          <button
-            type="button"
-            onClick={handleToggleFavorite}
-            className={`size-9 rounded-full border flex items-center justify-center cursor-pointer transition-colors bg-white ${
-              internalFav
-                ? 'border-[#FA1105]/40 text-[#FA1105]'
-                : 'border-[#D9DEDB] text-[#0C0C0C] hover:border-zinc-400'
-            }`}
-            aria-label="Add to favourites"
-          >
-            <Heart
-              className={`size-4 stroke-[1.6] ${
-                internalFav ? 'fill-[#FA1105]' : ''
+          {Boolean(onToggleFavorite) && (
+            <button
+              type="button"
+              onClick={handleToggleFavorite}
+              className={`size-9 rounded-full border flex items-center justify-center cursor-pointer transition-colors bg-white ${
+                isFavorite
+                  ? 'border-[#FA1105]/40 text-[#FA1105]'
+                  : 'border-[#D9DEDB] text-[#0C0C0C] hover:border-zinc-400'
               }`}
-            />
-          </button>
+              aria-label="Add to favourites"
+            >
+              <Heart
+                className={`size-4 stroke-[1.6] ${
+                  isFavorite ? 'fill-[#FA1105]' : ''
+                }`}
+              />
+            </button>
+          )}
 
           <button
             type="button"

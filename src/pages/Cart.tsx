@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import CartIcon from '@assets/icons/cart.svg?react';
 import CartItem from '@components/common/cards/CartItem';
 import OrderSummary from '@components/common/cards/OrderSummary';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useProceedToCheckout } from '@hooks/useProceedToCheckout';
 import { rateLimit } from '@/utils/rateLimit';
 import CartItemSkeleton from '@components/common/cards/CartItemSkeleton';
@@ -12,6 +12,13 @@ import CartHeader from '@components/layout/pageComponents/CartHeader';
 import { EmptySection } from '@components/common/section/EmptySection';
 import ErrorSection from '@components/common/section/ErrorSection';
 import NoticeAlert from '@components/common/NoticeAlert';
+import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
+import { useAppSelector } from '@api/hooks';
+import {
+  getStoredGuestCart,
+  syncGuestCartToBackend,
+  GUEST_CART_STORAGE_KEY,
+} from '@/utils/guestCart';
 import {
   useGetCart,
   useRemoveItemFromCart,
@@ -20,11 +27,56 @@ import {
 
 const Cart = () => {
   const navigate = useNavigate();
+  const { user } = useAppSelector(state => state.auth);
+  const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
+  const [isSyncingGuestCart, setIsSyncingGuestCart] = useState(false);
+  const [dismissedGuestWarning, setDismissedGuestWarning] = useState(false);
+  const [guestCartCount, setGuestCartCount] = useState(() =>
+    user ? getStoredGuestCart().length : 0
+  );
   const canSubmit = useMemo(() => rateLimit(2000), []);
 
   const { data: cart, isLoading, error: queryError, refetch } = useGetCart();
   const updateQuantityMutation = useUpdateCartItemQuantity();
   const removeItemMutation = useRemoveItemFromCart();
+
+  useEffect(() => {
+    const handleStorageChange = (e?: StorageEvent | Event) => {
+      if (
+        !e ||
+        !(e instanceof StorageEvent) ||
+        e.key === GUEST_CART_STORAGE_KEY ||
+        e.key === null
+      ) {
+        if (user) {
+          setGuestCartCount(getStoredGuestCart().length);
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('guest-cart-synced', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('guest-cart-synced', handleStorageChange);
+    };
+  }, [user]);
+
+  const showGuestCartBanner =
+    Boolean(user) && guestCartCount > 0 && !dismissedGuestWarning;
+
+  const handleTransferGuestCart = async () => {
+    setIsSyncingGuestCart(true);
+    try {
+      await syncGuestCartToBackend();
+      setGuestCartCount(0);
+      await refetch();
+    } catch {
+      setGuestCartCount(getStoredGuestCart().length);
+      await refetch();
+    } finally {
+      setIsSyncingGuestCart(false);
+    }
+  };
 
   const items = cart?.items || [];
   const totalPrice = cart?.totalPrice ?? 0;
@@ -71,6 +123,10 @@ const Cart = () => {
 
   const handleProceedToCheckout = handleSubmit(() => {
     if (!canSubmit()) return;
+    if (!user) {
+      setIsLoginPromptOpen(true);
+      return;
+    }
     navigate('/checkout');
   });
 
@@ -105,6 +161,29 @@ const Cart = () => {
     return (
       <LayoutPage>
         <CartHeader itemsCount={itemsCount} />
+        {showGuestCartBanner && (
+          <div className="mt-6">
+            <NoticeAlert
+              variant="warning"
+              title="Unsaved guest cart items"
+              message={`You have ${guestCartCount} item(s) from your guest session that could not be transferred automatically.`}
+              onDismiss={() => setDismissedGuestWarning(true)}
+              action={
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleTransferGuestCart}
+                  disabled={isSyncingGuestCart}
+                  className="h-8 text-xs font-medium cursor-pointer"
+                >
+                  {isSyncingGuestCart
+                    ? 'Transferring...'
+                    : 'Transfer to Account'}
+                </Button>
+              }
+            />
+          </div>
+        )}
         <EmptySection
           title="Cart is empty"
           description="You haven't added any products yet. Browse our collection and find something you love."
@@ -131,8 +210,32 @@ const Cart = () => {
   return (
     <LayoutPage>
       <CartHeader itemsCount={itemsCount} />
+      {showGuestCartBanner && (
+        <NoticeAlert
+          variant="warning"
+          className="mt-6"
+          title="Unsaved guest cart items"
+          message={`You have ${guestCartCount} item(s) from your guest session that could not be transferred automatically.`}
+          onDismiss={() => setDismissedGuestWarning(true)}
+          action={
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleTransferGuestCart}
+              disabled={isSyncingGuestCart}
+              className="h-8 text-xs font-medium cursor-pointer"
+            >
+              {isSyncingGuestCart ? 'Transferring...' : 'Transfer to Account'}
+            </Button>
+          }
+        />
+      )}
       {mutationError && (
-        <NoticeAlert variant="error" message={mutationError} className="mb-6" />
+        <NoticeAlert
+          variant="error"
+          message={mutationError}
+          className="mt-4 mb-6"
+        />
       )}
 
       <div className="flex flex-col lg:flex-row items-start gap-8 mt-8">
@@ -166,6 +269,12 @@ const Cart = () => {
           }
         />
       </div>
+
+      <LoginPromptDialog
+        open={isLoginPromptOpen}
+        onOpenChange={setIsLoginPromptOpen}
+        action="checkout"
+      />
     </LayoutPage>
   );
 };

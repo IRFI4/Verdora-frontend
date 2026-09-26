@@ -11,11 +11,13 @@ export type ProductAssuranceCardsProps = {
 
 export const ProductAssuranceCards: React.FC<ProductAssuranceCardsProps> = ({
   deliveryTitle = 'Delivery',
-  deliveryText = 'Tomorrow, from 90₴',
+  deliveryText = 'Calculated at checkout',
   guaranteeTitle = 'Plant guarantee',
   guaranteeText = '14 days after arrival',
   className,
 }) => {
+  if (!deliveryText && !guaranteeText) return null;
+
   return (
     <div
       className={cn(
@@ -23,23 +25,31 @@ export const ProductAssuranceCards: React.FC<ProductAssuranceCardsProps> = ({
         className
       )}
     >
-      <div className="bg-[#fcfdfb] border border-border rounded-[16px] p-3.5 sm:p-4">
-        <div className="text-xs text-text-muted mb-1 font-medium">
-          {deliveryTitle}
+      {deliveryText && (
+        <div className="bg-[#fcfdfb] border border-border rounded-[16px] p-3.5 sm:p-4">
+          {deliveryTitle && (
+            <div className="text-xs text-text-muted mb-1 font-medium">
+              {deliveryTitle}
+            </div>
+          )}
+          <div className="text-[15px] font-medium text-[#0C0C0C]">
+            {deliveryText}
+          </div>
         </div>
-        <div className="text-[15px] font-medium text-[#0C0C0C]">
-          {deliveryText}
-        </div>
-      </div>
+      )}
 
-      <div className="bg-[#fcfdfb] border border-border rounded-[16px] p-3.5 sm:p-4">
-        <div className="text-xs text-text-muted mb-1 font-medium">
-          {guaranteeTitle}
+      {guaranteeText && (
+        <div className="bg-[#fcfdfb] border border-border rounded-[16px] p-3.5 sm:p-4">
+          {guaranteeTitle && (
+            <div className="text-xs text-text-muted mb-1 font-medium">
+              {guaranteeTitle}
+            </div>
+          )}
+          <div className="text-[15px] font-medium text-[#0C0C0C]">
+            {guaranteeText}
+          </div>
         </div>
-        <div className="text-[15px] font-medium text-[#0C0C0C]">
-          {guaranteeText}
-        </div>
-      </div>
+      )}
     </div>
   );
 };
