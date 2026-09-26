@@ -1,0 +1,26 @@
+import { z } from 'zod';
+import {
+  emailSchema,
+  phoneNumberSchema,
+  passwordSchema,
+} from '@/schemas/fields.schema';
+
+export const profileSchema = z.object({
+  name: z
+    .string()
+    .min(2, 'Name is too short (min 2 characters)')
+    .max(50, 'Name is too long (max 50 characters)'),
+  email: emailSchema,
+  phone: phoneNumberSchema,
+});
+
+export type ProfileFormData = z.infer<typeof profileSchema>;
+
+export const deleteAccountSchema = z.object({
+  password: passwordSchema,
+  acknowledged: z.boolean().refine(val => val === true, {
+    message: 'You must confirm that you understand this action is permanent',
+  }),
+});
+
+export type DeleteAccountFormData = z.infer<typeof deleteAccountSchema>;
