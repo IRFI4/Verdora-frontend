@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { UserType } from '@/types/user';
 import {
   register,
@@ -57,6 +57,21 @@ const authSlice = createSlice({
     // fails, so we clear the user without firing a pointless /auth/logout.
     clearAuth: state => {
       state.user = null;
+    },
+    updateUser: (state, action: PayloadAction<UserType>) => {
+      state.user = action.payload;
+    },
+    clearAuthErrors: state => {
+      state.errors = {
+        login: null,
+        register: null,
+        forgot: null,
+        reset: null,
+        logout: null,
+      };
+    },
+    setLoginError: (state, action: PayloadAction<string>) => {
+      state.errors.login = action.payload;
     },
   },
   extraReducers: builder => {
@@ -149,6 +164,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearAuth } = authSlice.actions;
+export const { clearAuth, updateUser, clearAuthErrors, setLoginError } =
+  authSlice.actions;
 
 export default authSlice.reducer;
