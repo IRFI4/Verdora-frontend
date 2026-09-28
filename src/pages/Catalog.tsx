@@ -76,9 +76,11 @@ const Catalog = () => {
 
   const categoryMap = useMemo(() => {
     const map = new Map<number, string>();
-    categories.forEach(cat => {
-      map.set(Number(cat.categoryId), cat.name);
-    });
+    if (Array.isArray(categories)) {
+      categories.forEach(cat => {
+        map.set(Number(cat.categoryId), cat.name);
+      });
+    }
     return map;
   }, [categories]);
 
@@ -237,7 +239,7 @@ const Catalog = () => {
 
           <div className="flex justify-center flex-col lg:flex-row items-start gap-7 pt-2">
             <CatalogFilterSidebar
-              categories={categories}
+              categories={Array.isArray(categories) ? categories : []}
               isLoadingCategories={isLoadingCategories}
               isCategoriesError={isCategoriesError}
               onRetryCategories={() => refetchCategories()}

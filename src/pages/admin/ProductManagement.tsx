@@ -55,9 +55,11 @@ const ProductManagement = () => {
   const categoryIdToNameMap = useMemo(() => {
     const map = new Map<number, string>();
 
-    categoriesData?.forEach(cat => {
-      map.set(cat.categoryId, cat.name);
-    });
+    if (Array.isArray(categoriesData)) {
+      categoriesData.forEach(cat => {
+        map.set(Number(cat.categoryId), cat.name);
+      });
+    }
 
     return map;
   }, [categoriesData]);
