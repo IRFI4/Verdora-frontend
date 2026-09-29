@@ -6,7 +6,7 @@ import TextField from '@components/common/forms/TextField';
 import { Button } from '@components/ui/button';
 import { Spinner } from '@components/ui/spinner';
 import NoticeAlert from '@components/common/NoticeAlert';
-import { User, Phone, Mail, Check, Trash2 } from 'lucide-react';
+import { User, Phone, Mail, Check } from 'lucide-react';
 
 type Props = {
   user: UserType;
@@ -15,7 +15,6 @@ type Props = {
   isPending: boolean;
   isSuccess?: boolean;
   errorText?: string | null;
-  onOpenDelete: () => void;
 };
 
 export const ProfileEditCard = ({
@@ -25,7 +24,6 @@ export const ProfileEditCard = ({
   isPending,
   isSuccess = false,
   errorText,
-  onOpenDelete,
 }: Props) => {
   const {
     watch,
@@ -180,28 +178,6 @@ export const ProfileEditCard = ({
             </Button>
           </div>
         </form>
-      </div>
-
-      <div className="rounded-2xl border border-rose-200 bg-rose-50/40 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-xs">
-        <div className="space-y-1.5 max-w-xl">
-          <h3 className="text-base sm:text-lg font-bold text-zinc-900">
-            Delete account
-          </h3>
-          <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed">
-            Permanently removes your profile, order history, and saved plants.
-            This action is permanent and cannot be undone.
-          </p>
-        </div>
-
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onOpenDelete}
-          className="border-rose-400 text-rose-700 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-colors shrink-0 h-10 px-4 rounded-xl cursor-pointer gap-2"
-        >
-          <Trash2 className="size-4" />
-          <span>Delete account</span>
-        </Button>
       </div>
     </div>
   );

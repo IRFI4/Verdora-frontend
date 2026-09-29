@@ -1,12 +1,16 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import LayoutPage from '@components/layout/pageLayout/LayoutPage';
 import Breadcrumbs from '@components/common/Breadcrumbs';
 import NoticeAlert from '@components/common/NoticeAlert';
 import ErrorSection from '@components/common/section/ErrorSection';
+import { Tabs, TabsContent } from '@components/ui/tabs';
 import { ProfileNavSidebar } from '@components/profile/ProfileNavSidebar';
 import { ProfileViewCard } from '@components/profile/ProfileViewCard';
 import { ProfileEditCard } from '@components/profile/ProfileEditCard';
+import { ProfileOrdersTab } from '@components/profile/ProfileOrdersTab';
+import { ProfileCartTab } from '@components/profile/ProfileCartTab';
+import { ProfileSettingsTab } from '@components/profile/ProfileSettingsTab';
 import { DeleteAccountModal } from '@components/profile/DeleteAccountModal';
 import { ProfileSkeleton } from '@components/profile/ProfileSkeleton';
 import {
@@ -22,8 +26,47 @@ import { useQueryClient } from '@tanstack/react-query';
 
 export const Profile = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useAppDispatch();
   const queryClient = useQueryClient();
+
+  const currentTab = searchParams.get('tab') || 'profile';
+  const validTabs = ['profile', 'orders', 'cart', 'settings'];
+  const activeTab = validTabs.includes(currentTab) ? currentTab : 'profile';
+
+  const handleTabChange = (nextTab: string) => {
+    setSearchParams(
+      prev => {
+        const next = new URLSearchParams(prev);
+        if (nextTab === 'profile') {
+          next.delete('tab');
+        } else {
+          next.set('tab', nextTab);
+        }
+        return next;
+      },
+      { replace: true }
+    );
+  };
+
+  const breadcrumbsItems = useMemo(() => {
+    const items: Array<{ label: string; href?: string }> = [
+      { label: 'Home', href: '/' },
+    ];
+    if (activeTab === 'orders') {
+      items.push({ label: 'My profile', href: '/profile' });
+      items.push({ label: 'Orders' });
+    } else if (activeTab === 'cart') {
+      items.push({ label: 'My profile', href: '/profile' });
+      items.push({ label: 'Cart' });
+    } else if (activeTab === 'settings') {
+      items.push({ label: 'My profile', href: '/profile' });
+      items.push({ label: 'Settings' });
+    } else {
+      items.push({ label: 'My profile' });
+    }
+    return items;
+  }, [activeTab]);
 
   const {
     data: user,
@@ -113,9 +156,7 @@ export const Profile = () => {
   return (
     <LayoutPage>
       <div className="w-full py-6 sm:py-8 space-y-6">
-        <Breadcrumbs
-          items={[{ label: 'Home', href: '/' }, { label: 'My profile' }]}
-        />
+        <Breadcrumbs items={breadcrumbsItems} />
 
         {successToast && (
           <NoticeAlert
@@ -141,41 +182,64 @@ export const Profile = () => {
             />
           </div>
         ) : (
-          <div className="flex flex-col md:flex-row gap-8 items-start">
-            <ProfileNavSidebar />
+          <Tabs
+            value={activeTab}
+            onValueChange={handleTabChange}
+            orientation="vertical"
+            className="w-full gap-0"
+          >
+            <div className="flex flex-col md:flex-row gap-8 items-start w-full">
+              <ProfileNavSidebar />
 
-            <div className="flex-1 min-w-0 w-full">
-              {mode === 'view' ? (
-                <ProfileViewCard
-                  user={user}
-                  onStartEdit={() => {
-                    setUpdateError(null);
-                    setMode('edit');
-                  }}
-                  onOpenDelete={() => {
-                    setDeleteError(null);
-                    setIsDeleteModalOpen(true);
-                  }}
-                />
-              ) : (
-                <ProfileEditCard
-                  user={user}
-                  onCancel={() => {
-                    setUpdateError(null);
-                    setMode('view');
-                  }}
-                  onSubmit={handleSaveProfile}
-                  isPending={updateMutation.isPending}
-                  isSuccess={updateMutation.isSuccess}
-                  errorText={updateError}
-                  onOpenDelete={() => {
-                    setDeleteError(null);
-                    setIsDeleteModalOpen(true);
-                  }}
-                />
-              )}
+              <div className="flex-1 min-w-0 w-full">
+                <TabsContent value="profile" className="mt-0 outline-none">
+                  {mode === 'view' ? (
+                    <ProfileViewCard
+                      user={user}
+                      onStartEdit={() => {
+                        setUpdateError(null);
+                        setMode('edit');
+                      }}
+                      onOpenDelete={() => {
+                        setDeleteError(null);
+                        setIsDeleteModalOpen(true);
+                      }}
+                    />
+                  ) : (
+                    <ProfileEditCard
+                      user={user}
+                      onCancel={() => {
+                        setUpdateError(null);
+                        setMode('view');
+                      }}
+                      onSubmit={handleSaveProfile}
+                      isPending={updateMutation.isPending}
+                      isSuccess={updateMutation.isSuccess}
+                      errorText={updateError}
+                    />
+                  )}
+                </TabsContent>
+
+                <TabsContent value="orders" className="mt-0 outline-none">
+                  <ProfileOrdersTab />
+                </TabsContent>
+
+                <TabsContent value="cart" className="mt-0 outline-none">
+                  <ProfileCartTab />
+                </TabsContent>
+
+                <TabsContent value="settings" className="mt-0 outline-none">
+                  <ProfileSettingsTab
+                    user={user}
+                    onOpenDelete={() => {
+                      setDeleteError(null);
+                      setIsDeleteModalOpen(true);
+                    }}
+                  />
+                </TabsContent>
+              </div>
             </div>
-          </div>
+          </Tabs>
         )}
 
         <DeleteAccountModal
