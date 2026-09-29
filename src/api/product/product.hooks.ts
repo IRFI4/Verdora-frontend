@@ -15,15 +15,26 @@ type ProductAxiosError = AxiosError<ApiErrorResponse>;
 export const useGetProducts = (params?: GetProductsPayload) => {
   return useQuery<PaginatedData<Product>, ProductAxiosError>({
     queryKey: ['products', params],
-    queryFn: () => productService.getProducts(params),
+    queryFn: async () =>
+      (await productService.getProducts(params)) ?? {
+        content: [],
+        totalElements: 0,
+        totalPages: 0,
+        size: 0,
+        number: 0,
+      },
   });
 };
 
 export const useGetProductById = (id: number, enabled: boolean = true) => {
-  return useQuery<Product, ProductAxiosError>({
+  return useQuery<Product | null, ProductAxiosError>({
     queryKey: ['products', id],
-    queryFn: () => productService.getProductById(id),
+    queryFn: async () => (await productService.getProductById(id)) ?? null,
     enabled: !!id && enabled,
+    retry: (failureCount, error) => {
+      if (error?.response?.status === 404) return false;
+      return failureCount < 2;
+    },
   });
 };
 

@@ -41,6 +41,6 @@ export const categoryService = {
 
   getAllCategories: async () => {
     const response = await instance.get<ApiResponse<Category[]>>(`/categories`);
-    return response.data.data;
+    return response.data?.data ?? [];
   },
 };

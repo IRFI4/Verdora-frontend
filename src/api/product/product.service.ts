@@ -14,14 +14,14 @@ export const productService = {
       '/products',
       { params }
     );
-    return response.data.data;
+    return response.data?.data ?? null;
   },
 
   getProductById: async (id: number) => {
     const response = await instance.get<ApiResponse<Product>>(
       `/products/${id}`
     );
-    return response.data.data;
+    return response.data?.data ?? null;
   },
 
   createProduct: async (data: CreateProductPayload) => {

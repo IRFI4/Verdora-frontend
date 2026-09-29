@@ -9,15 +9,46 @@ import LikeMessageIcon from '@assets/icons/like-message.svg?react';
 import PlantIcon from '@assets/icons/plant.svg?react';
 import { Button } from '@/components/ui/button';
 import FrameIcon from '@assets/icons/frame.svg?react';
-import { Star, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Star, Sparkles, PackageX } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useAppSelector } from '@api/hooks';
+import { useAddItemToCart } from '@api/cart/cart.hooks';
 import { useAllCategories } from '@api/category/category.hooks';
-import { useGetProducts } from '@api/product/product.hooks';
+import { useGetProducts, useGetProductById } from '@api/product/product.hooks';
+import { Spinner } from '@components/ui/spinner';
+import { cn } from '@/lib/utils';
 import ProductGridSection from '@components/common/section/ProductGridSection';
 import CategoryGridSection from '@components/common/section/CategoryGridSection';
 import SectionLayout from '@components/common/section/SectionLayout';
 
 export const Home = () => {
+  const navigate = useNavigate();
+  const { user } = useAppSelector(state => state.auth);
+  const { mutate: addToCart, isPending: isAddingToCart } = useAddItemToCart();
+  const [selectedProductId, setSelectedProductId] = useState<number>(19);
+
+  const {
+    data: selectedProduct,
+    isLoading: isSelectedProductLoading,
+    isError: isSelectedProductError,
+  } = useGetProductById(selectedProductId);
+
+  const handleBuyNow = (productId: number) => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    addToCart(
+      { productId, quantity: 1 },
+      {
+        onSuccess: () => {
+          navigate('/cart');
+        },
+      }
+    );
+  };
+
   const { data: categories, isLoading: isCategoriesLoading } =
     useAllCategories();
   const { data: products, isLoading: isProductsLoading } = useGetProducts();
@@ -189,37 +220,117 @@ export const Home = () => {
               />
               <button
                 type="button"
-                className="absolute bottom-[22%] left-[23%] flex size-12 sm:size-14 items-center justify-center rounded-full bg-[#1E331B]/90 backdrop-blur-xs text-3xl font-light leading-none text-white hover:scale-110 hover:bg-[#1E331B] transition-all shadow-lg"
-                aria-label="View plant details"
+                onClick={() => setSelectedProductId(19)}
+                className={cn(
+                  'absolute bottom-[22%] left-[23%] flex size-12 sm:size-14 items-center justify-center rounded-full backdrop-blur-xs text-3xl font-light leading-none text-white transition-all shadow-lg cursor-pointer',
+                  selectedProductId === 19
+                    ? 'bg-[#1E331B] ring-4 ring-white/90 scale-110 shadow-xl'
+                    : 'bg-[#1E331B]/80 hover:scale-110 hover:bg-[#1E331B] opacity-90 hover:opacity-100'
+                )}
+                aria-label="View plant with ID 19"
+                aria-pressed={selectedProductId === 19}
               >
                 +
               </button>
               <button
                 type="button"
-                className="absolute bottom-[31%] left-[49%] flex size-12 sm:size-14 items-center justify-center rounded-full bg-[#1E331B]/90 backdrop-blur-xs text-3xl font-light leading-none text-white hover:scale-110 hover:bg-[#1E331B] transition-all shadow-lg"
-                aria-label="View plant details"
+                onClick={() => setSelectedProductId(20)}
+                className={cn(
+                  'absolute bottom-[31%] left-[49%] flex size-12 sm:size-14 items-center justify-center rounded-full backdrop-blur-xs text-3xl font-light leading-none text-white transition-all shadow-lg cursor-pointer',
+                  selectedProductId === 20
+                    ? 'bg-[#1E331B] ring-4 ring-white/90 scale-110 shadow-xl'
+                    : 'bg-[#1E331B]/80 hover:scale-110 hover:bg-[#1E331B] opacity-90 hover:opacity-100'
+                )}
+                aria-label="View plant with ID 20"
+                aria-pressed={selectedProductId === 20}
               >
                 +
               </button>
             </div>
 
-            <div className="lg:col-span-4 flex flex-col justify-between items-center gap-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-white/80 p-6 text-center shadow-xs">
-              <h3 className="text-xl sm:text-2xl font-bold text-link-text">
-                Rubber Plant
-              </h3>
-              <div className="relative z-10 w-full h-56 flex items-center justify-center">
-                <img
-                  src={PlantImage}
-                  alt="Rubber Plant"
-                  className="h-full w-auto object-contain transition-transform duration-500 hover:scale-105"
-                />
-                <span className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-xl bg-link-text px-5 py-2 text-xl font-bold text-white shadow-md">
-                  150$
-                </span>
-              </div>
-              <Button asChild>
-                <Link to="/cart">Buy now</Link>
-              </Button>
+            <div className="lg:col-span-4 flex flex-col justify-between items-center gap-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-white/80 p-6 text-center shadow-xs min-h-[380px]">
+              {isSelectedProductLoading ? (
+                <>
+                  <div className="h-7 w-36 bg-zinc-200/80 dark:bg-zinc-800 rounded-lg animate-pulse" />
+                  <div className="relative z-10 w-full h-56 flex items-center justify-center">
+                    <Spinner className="size-8 text-[#1E331B]" />
+                  </div>
+                  <div className="h-10 w-32 bg-zinc-200/80 dark:bg-zinc-800 rounded-xl animate-pulse" />
+                </>
+              ) : selectedProduct && !isSelectedProductError ? (
+                <>
+                  <h3 className="text-xl sm:text-2xl font-bold text-link-text line-clamp-1">
+                    {selectedProduct.name}
+                  </h3>
+                  <div className="relative z-10 w-full h-56 flex items-center justify-center">
+                    <img
+                      src={selectedProduct.imageUrl || PlantImage}
+                      alt={selectedProduct.name}
+                      onError={e => {
+                        (e.currentTarget as HTMLImageElement).src = PlantImage;
+                      }}
+                      className="h-full w-auto max-w-full object-contain transition-transform duration-500 hover:scale-105"
+                    />
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-2 whitespace-nowrap shadow-md">
+                      {selectedProduct.discountPrice ? (
+                        <>
+                          <span className="rounded-xl bg-red-600 px-3.5 py-1.5 text-lg font-bold text-white">
+                            {selectedProduct.discountPrice}₴
+                          </span>
+                          <span className="rounded-lg bg-link-text/70 backdrop-blur-xs px-2.5 py-1 text-sm text-white line-through">
+                            {selectedProduct.price}₴
+                          </span>
+                        </>
+                      ) : (
+                        <span className="rounded-xl bg-link-text px-5 py-2 text-xl font-bold text-white">
+                          {selectedProduct.price}₴
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    className="w-full sm:w-auto px-8 cursor-pointer"
+                    onClick={() => handleBuyNow(selectedProduct.productId)}
+                    disabled={isAddingToCart}
+                  >
+                    {isAddingToCart ? 'Adding...' : 'Buy now'}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-1">
+                    <h3 className="text-xl sm:text-2xl font-bold text-link-text">
+                      Out of stock
+                    </h3>
+                    <p className="text-sm text-[#4A5568]">
+                      Product is currently unavailable
+                    </p>
+                  </div>
+                  <div className="relative z-10 w-full h-56 flex flex-col items-center justify-center gap-3">
+                    <div className="relative flex size-28 items-center justify-center rounded-full bg-[#1E331B]/5 border border-[#1E331B]/10">
+                      <img
+                        src={PlantImage}
+                        alt="Out of stock"
+                        className="size-20 object-contain grayscale opacity-35"
+                      />
+                      <div className="absolute -bottom-1 -right-1 flex size-8 items-center justify-center rounded-full bg-amber-100 text-amber-800 border-2 border-white shadow-xs">
+                        <PackageX className="size-4" />
+                      </div>
+                    </div>
+                    <span className="rounded-xl bg-zinc-200/80 text-zinc-600 px-4 py-1.5 text-sm font-semibold">
+                      Out of stock
+                    </span>
+                  </div>
+                  <Button
+                    variant="outline"
+                    asChild
+                    className="w-full sm:w-auto px-8"
+                  >
+                    <Link to="/catalog">Browse catalog</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </SectionLayout>
