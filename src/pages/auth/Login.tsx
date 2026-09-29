@@ -28,17 +28,14 @@ const Login = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     if (!canSubmit()) return;
-    await dispatch(
-      login({ email: data.email, password: data.password })
-    ).unwrap();
-    navigate('/');
-  };
-
-  const handleGoogleLogin = () => {
-    const returnTo = encodeURIComponent(
-      window.location.origin + import.meta.env.BASE_URL
-    );
-    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google?return_to=${returnTo}`;
+    try {
+      await dispatch(
+        login({ email: data.email, password: data.password })
+      ).unwrap();
+      navigate('/');
+    } catch {
+      // Error handled by auth slice and displayed in UI
+    }
   };
 
   return (
@@ -46,7 +43,6 @@ const Login = () => {
       footerText="Don’t have an account?"
       footerLink="/register"
       footerLinkText="Sign up"
-      onGoogleAuth={handleGoogleLogin}
     >
       <form
         className="flex flex-col justify-center gap-4 w-full"

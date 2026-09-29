@@ -1,3 +1,5 @@
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router';
 import Logo from '@components/common/Logo';
 import { Button } from '@components/ui/button';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
@@ -8,21 +10,33 @@ import CartIcon from '@assets/icons/cart.svg?react';
 import SearchIcon from '@assets/icons/search.svg?react';
 import MenuIcon from '@assets/icons/menu.svg?react';
 import LinkComponent from '@components/common/Link';
-import { Link } from 'react-router-dom';
 import { SidebarTrigger } from '@components/ui/sidebar';
 import TextField from '@components/common/forms/TextField';
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
 
-const Header = () => {
-  const dispatch = useAppDispatch();
-  const { user, hydrating } = useAppSelector(state => state.auth);
+type HeaderProps = {
+  onOpenMenu?: () => void;
+};
+
+const Header = ({ onOpenMenu }: HeaderProps) => {
   const navigate = useNavigate();
-
+  const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
+  const { user, hydrating } = useAppSelector(state => state.auth);
+  const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
   const [search, setSearch] = useState('');
 
   const handleLogout = () => {
     dispatch(logout());
+    queryClient.clear();
+  };
+
+  const handleFavouriteClick = (e: React.MouseEvent) => {
+    if (!user) {
+      e.preventDefault();
+      setIsLoginPromptOpen(true);
+    }
   };
 
   const handleSearchSubmit = (e?: React.FormEvent) => {
@@ -31,7 +45,6 @@ const Header = () => {
     }
 
     const trimmed = search.trim();
-
     if (trimmed) {
       navigate(`/catalog?search=${encodeURIComponent(trimmed)}`);
     }
@@ -67,6 +80,7 @@ const Header = () => {
             to="/favourites"
             className="relative flex items-center justify-center p-2 rounded-full hover:bg-black/5 transition-colors"
             aria-label="Favourite items"
+            onClick={handleFavouriteClick}
           >
             <FavouriteIcon className="size-5 text-[#2C332D]" />
           </Link>
@@ -101,10 +115,27 @@ const Header = () => {
       </div>
 
       <div className="flex lg:hidden items-center">
-        <SidebarTrigger>
-          <MenuIcon className="size-6 text-link-text" />
-        </SidebarTrigger>
+        {onOpenMenu ? (
+          <button
+            type="button"
+            onClick={onOpenMenu}
+            aria-label="Open mobile menu"
+            className="p-1"
+          >
+            <MenuIcon className="size-6 text-link-text" />
+          </button>
+        ) : (
+          <SidebarTrigger>
+            <MenuIcon className="size-6 text-link-text" />
+          </SidebarTrigger>
+        )}
       </div>
+
+      <LoginPromptDialog
+        open={isLoginPromptOpen}
+        onOpenChange={setIsLoginPromptOpen}
+        action="favorite"
+      />
     </header>
   );
 };
