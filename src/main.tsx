@@ -22,6 +22,7 @@ import ProductManagement from '@pages/admin/ProductManagement';
 import Checkout from '@pages/Checkout';
 import OrderResult from '@pages/OrderResult';
 import ProductDetails from '@pages/ProductDetails';
+import Favourites from '@pages/Favourites';
 
 const queryClient = new QueryClient();
 createRoot(document.getElementById('root')!).render(
@@ -46,7 +47,15 @@ createRoot(document.getElementById('root')!).render(
             />
             <Route
               path="/favourites"
-              element={<Navigate to="/catalog" replace />}
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Favourites />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/favorites"
+              element={<Navigate to="/favourites" replace />}
             />
             <Route path="/products/:id" element={<ProductDetails />} />
             <Route

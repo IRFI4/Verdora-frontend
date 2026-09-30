@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { useAddItemToCart } from '@api/cart/cart.hooks';
 import {
   useAddToFavorites,
-  useCheckIfProductIsFavorite,
+  useFavoriteProductIds,
   useRemoveFromFavorites,
 } from '@api/favorites/favorites.hooks';
 import { Spinner } from '@components/ui/spinner';
@@ -40,9 +40,10 @@ const ProductCard = ({
   const { mutate: removeFromFavorites, isPending: isRemovingFromFavorites } =
     useRemoveFromFavorites();
 
-  // Only check if product is favorite if user is authenticated
-  const { data: isFavorite, isLoading: isFavoriteLoading } =
-    useCheckIfProductIsFavorite(productId, Boolean(user));
+  // Load favorites once via useFavoriteProductIds and perform O(1) Set lookup to prevent N+1 queries
+  const { favoriteIdsSet, isLoading: isFavoriteLoading } =
+    useFavoriteProductIds();
+  const isFavorite = favoriteIdsSet.has(productId);
 
   const handleToggleFavorites = (e: React.MouseEvent) => {
     e.preventDefault();
