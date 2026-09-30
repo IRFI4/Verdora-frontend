@@ -13,6 +13,7 @@ import { useAppDispatch } from '@api/hooks';
 import { logout } from '@api/auth/auth.actions';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
+import { useNetworkStatus } from '@hooks/useNetworkStatus';
 import { Skeleton } from '@components/ui/skeleton';
 import { SidebarMenuButton, useSidebar } from '@components/ui/sidebar';
 import type React from 'react';
@@ -34,12 +35,17 @@ const UserDropdownMenu = ({
 }: UserFooterProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { isOnline } = useNetworkStatus();
   const { isMobile } = useSidebar();
   const dispatch = useAppDispatch();
-  const handleLogout = () => {
-    dispatch(logout());
-    queryClient.clear();
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await dispatch(logout()).unwrap();
+      queryClient.clear();
+      navigate('/login');
+    } catch {
+      // Offline / network failure: keep session intact on client
+    }
   };
 
   if (loading) {
@@ -87,7 +93,13 @@ const UserDropdownMenu = ({
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItems items={USER_MENU} />
-        <Button className="w-full" onClick={handleLogout} variant={'secondary'}>
+        <Button
+          className="w-full"
+          onClick={handleLogout}
+          disabled={!isOnline}
+          title={!isOnline ? 'Cannot log out while offline' : undefined}
+          variant={'secondary'}
+        >
           Logout
         </Button>
       </DropdownMenuContent>

@@ -12,6 +12,7 @@ import Navlink from '@components/common/Navlink';
 import { useQueryClient } from '@tanstack/react-query';
 import { useGetCart } from '@api/cart/cart.hooks';
 import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
+import { useNetworkStatus } from '@hooks/useNetworkStatus';
 
 type HeaderProps = {
   onOpenMenu: () => void;
@@ -21,6 +22,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const queryClient = useQueryClient();
+  const { isOnline } = useNetworkStatus();
   const { user, hydrating } = useAppSelector(state => state.auth);
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -29,9 +31,14 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
   const items = cart?.items || [];
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    queryClient.clear();
+  const handleLogout = async () => {
+    try {
+      await dispatch(logout()).unwrap();
+      queryClient.clear();
+      navigate('/login');
+    } catch {
+      // Offline / network failure: keep session intact on client
+    }
   };
 
   const handleFavouriteClick = (e: React.MouseEvent) => {
@@ -109,7 +116,12 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
                     {user.name?.charAt(0).toUpperCase() ?? '?'}
                   </div>
                 </Link>
-                <Button variant="default" onClick={handleLogout}>
+                <Button
+                  variant="default"
+                  onClick={handleLogout}
+                  disabled={!isOnline}
+                  title={!isOnline ? 'Cannot log out while offline' : undefined}
+                >
                   Sign Out
                 </Button>
               </div>
