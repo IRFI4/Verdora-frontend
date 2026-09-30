@@ -30,7 +30,27 @@ export const Home = () => {
   const navigate = useNavigate();
   const { user } = useAppSelector(state => state.auth);
   const { mutate: addToCart, isPending: isAddingToCart } = useAddItemToCart();
-  const [selectedProductId, setSelectedProductId] = useState<number>(19);
+
+  const { data: categories, isLoading: isCategoriesLoading } =
+    useAllCategories();
+  const { data: products, isLoading: isProductsLoading } = useGetProducts();
+  const { data: salesProducts, isLoading: isSalesLoading } = useGetProducts({
+    discount: true,
+  });
+  const { data: productOfTheDay, isLoading: isProductOfTheDayLoading } =
+    useGetProductOfTheDay();
+
+  const availableProducts = products?.content || [];
+  const hotspot1Product = availableProducts[0];
+  const hotspot2Product = availableProducts[1] ?? hotspot1Product;
+
+  const hotspot1Id = hotspot1Product?.productId;
+  const hotspot2Id = hotspot2Product?.productId;
+
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(
+    null
+  );
+  const activeProductId = selectedProductId ?? hotspot1Id ?? 19;
 
   const {
     data: selectedProduct,
@@ -38,7 +58,7 @@ export const Home = () => {
     isError: isSelectedProductError,
     error: selectedProductError,
     refetch: refetchSelectedProduct,
-  } = useGetProductById(selectedProductId);
+  } = useGetProductById(activeProductId, Boolean(activeProductId));
 
   const handleBuyNow = (productId: number) => {
     if (!user) {
@@ -54,15 +74,6 @@ export const Home = () => {
       }
     );
   };
-
-  const { data: categories, isLoading: isCategoriesLoading } =
-    useAllCategories();
-  const { data: products, isLoading: isProductsLoading } = useGetProducts();
-  const { data: salesProducts, isLoading: isSalesLoading } = useGetProducts({
-    discount: true,
-  });
-  const { data: productOfTheDay, isLoading: isProductOfTheDayLoading } =
-    useGetProductOfTheDay();
 
   const reviews = [
     {
@@ -157,126 +168,89 @@ export const Home = () => {
           </div>
         </section>
 
-        <section className="flex flex-col gap-6 w-full">
-          <div className="flex items-center gap-3">
-            <Sparkles className="size-6 text-[#1E331B]" />
-            <h2 className="text-2xl sm:text-3xl font-bold text-link-text">
-              Product of the day
-            </h2>
-          </div>
+        {Boolean(isProductOfTheDayLoading || productOfTheDay) && (
+          <section className="flex flex-col gap-6 w-full">
+            <div className="flex items-center gap-3">
+              <Sparkles className="size-6 text-[#1E331B]" />
+              <h2 className="text-2xl sm:text-3xl font-bold text-link-text">
+                Product of the day
+              </h2>
+            </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white/70 backdrop-blur-sm rounded-3xl p-6 sm:p-8 border border-white/80 shadow-xs hover:shadow-md transition-all duration-300">
-            {isProductOfTheDayLoading ? (
-              <>
-                <div className="lg:col-span-6 flex justify-center w-full">
-                  <div className="relative aspect-[1.19] w-full max-w-[480px] p-4 sm:p-6 flex items-center justify-center">
-                    <Spinner className="size-8 text-[#1E331B]" />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white/70 backdrop-blur-sm rounded-3xl p-6 sm:p-8 border border-white/80 shadow-xs hover:shadow-md transition-all duration-300">
+              {isProductOfTheDayLoading ? (
+                <>
+                  <div className="lg:col-span-6 flex justify-center w-full">
+                    <div className="relative aspect-[1.19] w-full max-w-[480px] p-4 sm:p-6 flex items-center justify-center">
+                      <Spinner className="size-8 text-[#1E331B]" />
+                    </div>
                   </div>
-                </div>
-                <div className="lg:col-span-6 flex flex-col items-start gap-4">
-                  <div className="h-6 w-28 bg-zinc-200/80 rounded-full animate-pulse" />
-                  <div className="h-10 w-64 bg-zinc-200/80 rounded-lg animate-pulse" />
-                  <div className="h-20 w-full bg-zinc-200/80 rounded-lg animate-pulse" />
-                  <div className="h-10 w-32 bg-zinc-200/80 rounded-xl animate-pulse" />
-                </div>
-              </>
-            ) : productOfTheDay ? (
-              <>
-                <div className="lg:col-span-6 flex justify-center w-full">
-                  <div className="relative aspect-[1.19] w-full max-w-[480px] p-4 sm:p-6">
-                    <FrameIcon className="pointer-events-none absolute inset-0 z-20 size-full" />
-                    <div className="relative z-10 size-full overflow-hidden rounded-[48px] sm:rounded-[70px] bg-[#50614A] flex items-center justify-center p-4">
-                      <img
-                        src={productOfTheDay.imageUrl || ProductOfTheDayImage}
-                        alt={productOfTheDay.name}
-                        onError={e => {
-                          (e.currentTarget as HTMLImageElement).src =
-                            ProductOfTheDayImage;
-                        }}
-                        className="size-full object-contain p-4 transition-transform duration-500 hover:scale-105"
-                      />
-                      <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap shadow-lg">
-                        {productOfTheDay.discountPrice ? (
-                          <>
-                            <span className="rounded-xl bg-red-600 px-3.5 py-1.5 text-xl sm:text-2xl font-bold text-white">
-                              {productOfTheDay.discountPrice}₴
-                            </span>
-                            <span className="rounded-lg bg-link-text/70 backdrop-blur-xs px-2.5 py-1 text-sm sm:text-base text-white line-through">
+                  <div className="lg:col-span-6 flex flex-col items-start gap-4">
+                    <div className="h-6 w-28 bg-zinc-200/80 rounded-full animate-pulse" />
+                    <div className="h-10 w-64 bg-zinc-200/80 rounded-lg animate-pulse" />
+                    <div className="h-20 w-full bg-zinc-200/80 rounded-lg animate-pulse" />
+                    <div className="h-10 w-32 bg-zinc-200/80 rounded-xl animate-pulse" />
+                  </div>
+                </>
+              ) : productOfTheDay ? (
+                <>
+                  <div className="lg:col-span-6 flex justify-center w-full">
+                    <div className="relative aspect-[1.19] w-full max-w-[480px] p-4 sm:p-6">
+                      <FrameIcon className="pointer-events-none absolute inset-0 z-20 size-full" />
+                      <div className="relative z-10 size-full overflow-hidden rounded-[48px] sm:rounded-[70px] bg-[#50614A] flex items-center justify-center p-4">
+                        <img
+                          src={productOfTheDay.imageUrl || ProductOfTheDayImage}
+                          alt={productOfTheDay.name}
+                          onError={e => {
+                            (e.currentTarget as HTMLImageElement).src =
+                              ProductOfTheDayImage;
+                          }}
+                          className="size-full object-contain p-4 transition-transform duration-500 hover:scale-105"
+                        />
+                        <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap shadow-lg">
+                          {productOfTheDay.discountPrice &&
+                          productOfTheDay.discountPrice > 0 &&
+                          productOfTheDay.discountPrice <
+                            productOfTheDay.price ? (
+                            <>
+                              <span className="rounded-xl bg-red-600 px-3.5 py-1.5 text-xl sm:text-2xl font-bold text-white">
+                                {productOfTheDay.discountPrice}₴
+                              </span>
+                              <span className="rounded-lg bg-link-text/70 backdrop-blur-xs px-2.5 py-1 text-sm sm:text-base text-white line-through">
+                                {productOfTheDay.price}₴
+                              </span>
+                            </>
+                          ) : (
+                            <span className="rounded-xl bg-link-text px-5 py-2 text-xl sm:text-2xl font-bold text-white">
                               {productOfTheDay.price}₴
                             </span>
-                          </>
-                        ) : (
-                          <span className="rounded-xl bg-link-text px-5 py-2 text-xl sm:text-2xl font-bold text-white">
-                            {productOfTheDay.price}₴
-                          </span>
-                        )}
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="lg:col-span-6 flex flex-col items-start gap-4">
-                  <span className="inline-flex items-center rounded-full bg-[#1E331B]/10 px-3 py-1 text-xs font-semibold text-[#1E331B]">
-                    Deal of the Day
-                  </span>
-                  <h3 className="text-2xl sm:text-4xl font-bold text-link-text">
-                    {productOfTheDay.name}
-                  </h3>
-                  <p className="text-sm sm:text-base text-[#4A5568] leading-relaxed">
-                    {productOfTheDay.description}
-                  </p>
-                  <Button asChild>
-                    <Link to={`/products/${productOfTheDay.productId}`}>
-                      View product
-                    </Link>
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="lg:col-span-6 flex justify-center w-full">
-                  <div className="relative aspect-[1.19] w-full max-w-[480px] p-4 sm:p-6">
-                    <FrameIcon className="pointer-events-none absolute inset-0 z-20 size-full" />
-                    <div className="relative z-10 size-full overflow-hidden rounded-[48px] sm:rounded-[70px] bg-[#50614A] flex items-center justify-center p-4">
-                      <img
-                        src={ProductOfTheDayImage}
-                        alt="Spider plant"
-                        className="size-full object-contain p-4 transition-transform duration-500 hover:scale-105"
-                      />
-                      <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap shadow-lg">
-                        <span className="rounded-xl bg-red-600 px-3.5 py-1.5 text-xl sm:text-2xl font-bold text-white">
-                          1609₴
-                        </span>
-                        <span className="rounded-lg bg-link-text/70 backdrop-blur-xs px-2.5 py-1 text-sm sm:text-base text-white line-through">
-                          2000₴
-                        </span>
-                      </div>
-                    </div>
+                  <div className="lg:col-span-6 flex flex-col items-start gap-4">
+                    <span className="inline-flex items-center rounded-full bg-[#1E331B]/10 px-3 py-1 text-xs font-semibold text-[#1E331B]">
+                      Deal of the Day
+                    </span>
+                    <h3 className="text-2xl sm:text-4xl font-bold text-link-text">
+                      {productOfTheDay.name}
+                    </h3>
+                    <p className="text-sm sm:text-base text-[#4A5568] leading-relaxed">
+                      {productOfTheDay.description}
+                    </p>
+                    <Button asChild>
+                      <Link to={`/products/${productOfTheDay.productId}`}>
+                        View product
+                      </Link>
+                    </Button>
                   </div>
-                </div>
-
-                <div className="lg:col-span-6 flex flex-col items-start gap-4">
-                  <span className="inline-flex items-center rounded-full bg-[#1E331B]/10 px-3 py-1 text-xs font-semibold text-[#1E331B]">
-                    Deal of the Day
-                  </span>
-                  <h3 className="text-2xl sm:text-4xl font-bold text-link-text">
-                    Spider Plant
-                  </h3>
-                  <p className="text-sm sm:text-base text-[#4A5568] leading-relaxed">
-                    A popular, low-maintenance houseplant with long, arching
-                    green leaves edged in creamy white. Spider plants produce
-                    baby plantlets that can be propagated easily. They thrive in
-                    bright, indirect light, tolerate occasional neglect, and
-                    help improve indoor air quality.
-                  </p>
-                  <Button asChild>
-                    <Link to="/catalog">View product</Link>
-                  </Button>
-                </div>
-              </>
-            )}
-          </div>
-        </section>
+                </>
+              ) : null}
+            </div>
+          </section>
+        )}
 
         <ProductGridSection
           title="Sales"
@@ -298,29 +272,33 @@ export const Home = () => {
               />
               <button
                 type="button"
-                onClick={() => setSelectedProductId(19)}
+                onClick={() => {
+                  if (hotspot1Id) setSelectedProductId(hotspot1Id);
+                }}
                 className={cn(
                   'absolute bottom-[22%] left-[23%] flex size-12 sm:size-14 items-center justify-center rounded-full backdrop-blur-xs text-3xl font-light leading-none text-white transition-all shadow-lg cursor-pointer',
-                  selectedProductId === 19
+                  activeProductId === hotspot1Id
                     ? 'bg-[#1E331B] ring-4 ring-white/90 scale-110 shadow-xl'
                     : 'bg-[#1E331B]/80 hover:scale-110 hover:bg-[#1E331B] opacity-90 hover:opacity-100'
                 )}
-                aria-label="View plant with ID 19"
-                aria-pressed={selectedProductId === 19}
+                aria-label={`View plant ${hotspot1Product?.name || ''}`}
+                aria-pressed={activeProductId === hotspot1Id}
               >
                 +
               </button>
               <button
                 type="button"
-                onClick={() => setSelectedProductId(20)}
+                onClick={() => {
+                  if (hotspot2Id) setSelectedProductId(hotspot2Id);
+                }}
                 className={cn(
                   'absolute bottom-[31%] left-[49%] flex size-12 sm:size-14 items-center justify-center rounded-full backdrop-blur-xs text-3xl font-light leading-none text-white transition-all shadow-lg cursor-pointer',
-                  selectedProductId === 20
+                  activeProductId === hotspot2Id
                     ? 'bg-[#1E331B] ring-4 ring-white/90 scale-110 shadow-xl'
                     : 'bg-[#1E331B]/80 hover:scale-110 hover:bg-[#1E331B] opacity-90 hover:opacity-100'
                 )}
-                aria-label="View plant with ID 20"
-                aria-pressed={selectedProductId === 20}
+                aria-label={`View plant ${hotspot2Product?.name || ''}`}
+                aria-pressed={activeProductId === hotspot2Id}
               >
                 +
               </button>
@@ -350,7 +328,9 @@ export const Home = () => {
                       className="h-full w-auto max-w-full object-contain transition-transform duration-500 hover:scale-105"
                     />
                     <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-2 whitespace-nowrap shadow-md">
-                      {selectedProduct.discountPrice ? (
+                      {selectedProduct.discountPrice &&
+                      selectedProduct.discountPrice > 0 &&
+                      selectedProduct.discountPrice < selectedProduct.price ? (
                         <>
                           <span className="rounded-xl bg-red-600 px-3.5 py-1.5 text-lg font-bold text-white">
                             {selectedProduct.discountPrice}₴
@@ -407,25 +387,25 @@ export const Home = () => {
                 <>
                   <div className="space-y-1">
                     <h3 className="text-xl sm:text-2xl font-bold text-link-text">
-                      Out of stock
+                      Product not found
                     </h3>
                     <p className="text-sm text-[#4A5568]">
-                      Product is currently unavailable
+                      This product does not exist in the catalog
                     </p>
                   </div>
                   <div className="relative z-10 w-full h-56 flex flex-col items-center justify-center gap-3">
                     <div className="relative flex size-28 items-center justify-center rounded-full bg-[#1E331B]/5 border border-[#1E331B]/10">
                       <img
                         src={PlantImage}
-                        alt="Out of stock"
+                        alt="Product not found"
                         className="size-20 object-contain grayscale opacity-35"
                       />
-                      <div className="absolute -bottom-1 -right-1 flex size-8 items-center justify-center rounded-full bg-amber-100 text-amber-800 border-2 border-white shadow-xs">
+                      <div className="absolute -bottom-1 -right-1 flex size-8 items-center justify-center rounded-full bg-zinc-100 text-zinc-600 border-2 border-white shadow-xs">
                         <PackageX className="size-4" />
                       </div>
                     </div>
                     <span className="rounded-xl bg-zinc-200/80 text-zinc-600 px-4 py-1.5 text-sm font-semibold">
-                      Out of stock
+                      Not found
                     </span>
                   </div>
                   <Button

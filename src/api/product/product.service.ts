@@ -14,21 +14,21 @@ export const productService = {
       '/products',
       { params }
     );
-    return response.data?.data ?? null;
+    return response.data.data;
   },
 
   getProductById: async (id: number) => {
     const response = await instance.get<ApiResponse<Product>>(
       `/products/${id}`
     );
-    return response.data?.data ?? null;
+    return response.data.data;
   },
 
   getProductOfTheDay: async () => {
     const response = await instance.get<ApiResponse<Product>>(
       '/products/product-of-the-day'
     );
-    return response.data?.data ?? null;
+    return response.data.data;
   },
 
   createProduct: async (data: CreateProductPayload) => {

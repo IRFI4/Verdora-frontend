@@ -6,20 +6,70 @@ import { Mail, Phone, MapPin } from 'lucide-react';
 import footerCircleImg from '@assets/images/footer-circle.webp';
 import TextField from '@components/common/forms/TextField';
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const Footer = () => {
   const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState<string | undefined>(undefined);
   const [subscribed, setSubscribed] = useState(false);
 
+  // Backend does not provide a newsletter subscription endpoint yet.
+  // Validate email client-side and provide feedback until BE endpoint is available.
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) {
-      setSubscribed(true);
-      setEmail('');
+    const trimmed = email.trim();
+    if (!trimmed) {
+      setEmailError('Please enter your email address');
+      return;
     }
+    if (!EMAIL_REGEX.test(trimmed)) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+    setEmailError(undefined);
+    setSubscribed(true);
+    setEmail('');
   };
 
   return (
     <footer className="relative w-full font-sans overflow-hidden">
+      {/* Mobile subscription banner */}
+      <div className="md:hidden px-4 pt-8 pb-4">
+        <div className="bg-[#C3E3BD]/60 backdrop-blur-sm rounded-2xl p-6 text-center border border-[#A8C89A]/40 shadow-xs max-w-md mx-auto">
+          <h2 className="text-2xl font-semibold text-[#1B3022] leading-tight">
+            Don’t miss our discounts!
+          </h2>
+          <p className="text-xs text-[#35523A] mt-1 mb-4">
+            Subscribe to our newsletter for exclusive offers and plant care
+            tips.
+          </p>
+          {subscribed ? (
+            <div className="bg-white/90 backdrop-blur rounded-full py-2.5 px-5 text-sm font-medium text-[#203622] shadow-sm">
+              Thank you for subscribing!
+            </div>
+          ) : (
+            <form
+              onSubmit={handleSubmit}
+              className="w-full flex flex-col gap-2"
+            >
+              <TextField
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                error={emailError}
+                onChange={val => {
+                  setEmail(val);
+                  if (emailError) setEmailError(undefined);
+                }}
+              />
+              <Button variant="default" disabled={!email.trim()}>
+                Subscribe
+              </Button>
+            </form>
+          )}
+        </div>
+      </div>
+
       <div className="hidden md:flex relative pt-12 flex-col items-center justify-center">
         <div className="relative w-full max-w-170 aspect-square items-center justify-center z-10 px-4">
           <img
@@ -43,10 +93,14 @@ const Footer = () => {
                 className="w-full flex flex-col gap-2.5 mt-4"
               >
                 <TextField
-                  type="text"
+                  type="email"
                   placeholder="Enter your email"
                   value={email}
-                  onChange={setEmail}
+                  error={emailError}
+                  onChange={val => {
+                    setEmail(val);
+                    if (emailError) setEmailError(undefined);
+                  }}
                 />
                 <Button variant="default" disabled={!email.trim()}>
                   Subscribe

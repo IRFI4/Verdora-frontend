@@ -27,9 +27,9 @@ export const useGetProducts = (params?: GetProductsPayload) => {
 };
 
 export const useGetProductById = (id: number, enabled: boolean = true) => {
-  return useQuery<Product | null, ProductAxiosError>({
+  return useQuery<Product, ProductAxiosError>({
     queryKey: ['products', id],
-    queryFn: async () => (await productService.getProductById(id)) ?? null,
+    queryFn: () => productService.getProductById(id),
     enabled: !!id && enabled,
     retry: (failureCount, error) => {
       if (error?.response?.status === 404) return false;
@@ -39,9 +39,14 @@ export const useGetProductById = (id: number, enabled: boolean = true) => {
 };
 
 export const useGetProductOfTheDay = () => {
-  return useQuery<Product | null, ProductAxiosError>({
+  return useQuery<Product, ProductAxiosError>({
     queryKey: ['products', 'product-of-the-day'],
-    queryFn: async () => (await productService.getProductOfTheDay()) ?? null,
+    queryFn: () => productService.getProductOfTheDay(),
+    retry: (failureCount, error) => {
+      if (error?.response?.status === 404) return false;
+      return failureCount < 2;
+    },
+    staleTime: 5 * 60 * 1000,
   });
 };
 
