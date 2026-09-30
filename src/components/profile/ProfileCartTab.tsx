@@ -41,25 +41,49 @@ export const ProfileCartTab = () => {
   const handleIncrease = (id: number) => {
     const item = items.find(i => i.cartItemId === id);
     if (item) {
-      updateQuantityMutation.mutate({
-        cartItemId: id,
-        quantity: item.quantity + 1,
-      });
+      removeItemMutation.reset();
+      updateQuantityMutation.mutate(
+        {
+          cartItemId: id,
+          quantity: item.quantity + 1,
+        },
+        {
+          onSuccess: () => {
+            removeItemMutation.reset();
+          },
+        }
+      );
     }
   };
 
   const handleDecrease = (id: number) => {
     const item = items.find(i => i.cartItemId === id);
     if (item && item.quantity > 1) {
-      updateQuantityMutation.mutate({
-        cartItemId: id,
-        quantity: item.quantity - 1,
-      });
+      removeItemMutation.reset();
+      updateQuantityMutation.mutate(
+        {
+          cartItemId: id,
+          quantity: item.quantity - 1,
+        },
+        {
+          onSuccess: () => {
+            removeItemMutation.reset();
+          },
+        }
+      );
     }
   };
 
   const handleRemove = (id: number) => {
-    removeItemMutation.mutate({ cartItemId: id });
+    updateQuantityMutation.reset();
+    removeItemMutation.mutate(
+      { cartItemId: id },
+      {
+        onSuccess: () => {
+          updateQuantityMutation.reset();
+        },
+      }
+    );
   };
 
   const handleAgreeToTerms = (value: boolean) => {
@@ -101,7 +125,16 @@ export const ProfileCartTab = () => {
         </div>
       </div>
 
-      {mutationError && <NoticeAlert variant="error" message={mutationError} />}
+      {mutationError && (
+        <NoticeAlert
+          variant="error"
+          message={mutationError}
+          onDismiss={() => {
+            updateQuantityMutation.reset();
+            removeItemMutation.reset();
+          }}
+        />
+      )}
 
       {isLoading ? (
         <div className="flex flex-col gap-4">

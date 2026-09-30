@@ -9,7 +9,6 @@ export type UserType = {
 export type UpdateUserPayload = {
   name?: string;
   phone?: string;
-  email?: string;
 };
 
 export type GetAllUsersPayload = {

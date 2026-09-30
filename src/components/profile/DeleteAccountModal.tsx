@@ -92,6 +92,7 @@ export const DeleteAccountModal = ({
               label="Confirm your password"
               placeholder="••••••••"
               value={password}
+              disabled={isDeleting}
               onChange={val => {
                 setPassword(val);
                 if (!touchedPassword) setTouchedPassword(true);

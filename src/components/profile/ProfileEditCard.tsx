@@ -7,6 +7,7 @@ import { Button } from '@components/ui/button';
 import { Spinner } from '@components/ui/spinner';
 import NoticeAlert from '@components/common/NoticeAlert';
 import { User, Phone, Mail, Check } from 'lucide-react';
+import { getInitials } from '@/utils/user.utils';
 
 type Props = {
   user: UserType;
@@ -33,24 +34,15 @@ export const ProfileEditCard = ({
     formState: { errors, isValid, isDirty },
   } = useProfileForm({
     name: user.name ?? '',
-    email: user.email ?? '',
     phone: user.phone ?? '',
   });
 
   useEffect(() => {
     reset({
       name: user.name ?? '',
-      email: user.email ?? '',
       phone: user.phone ?? '',
     });
   }, [user, reset]);
-
-  const getInitials = (name: string) => {
-    if (!name) return 'U';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -131,16 +123,10 @@ export const ProfileEditCard = ({
               <TextField
                 type="email"
                 id="email"
-                label="Email"
-                placeholder="you@example.com"
-                value={watch('email')}
-                onChange={val =>
-                  setValue('email', val, {
-                    shouldValidate: true,
-                    shouldDirty: true,
-                  })
-                }
-                error={errors.email?.message}
+                label="Email address"
+                value={user.email}
+                disabled
+                description="Email address is tied to your account and cannot be changed directly"
                 leftIcon={<Mail className="size-4 text-zinc-400" />}
               />
             </div>

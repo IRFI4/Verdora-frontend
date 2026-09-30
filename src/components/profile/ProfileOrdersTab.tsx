@@ -68,12 +68,7 @@ export const ProfileOrdersTab = () => {
         );
         setCancelErrorNotice(null);
       },
-      onError: err => {
-        const errorMsg =
-          err?.response?.data?.message ||
-          err?.message ||
-          `Failed to cancel Order #${targetOrderId}. Please try again.`;
-        setCancelErrorNotice(errorMsg);
+      onError: () => {
         refetch();
       },
     });
@@ -249,6 +244,8 @@ export const ProfileOrdersTab = () => {
           if (!open) setDetailsOrder(null);
         }}
         onCancelClick={ord => {
+          setCancelErrorNotice(null);
+          cancelMutation.reset();
           setCancellingOrder(ord);
         }}
       />

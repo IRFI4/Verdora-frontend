@@ -51,8 +51,8 @@ const Login = () => {
         login({ email: data.email, password: data.password })
       ).unwrap();
       navigate('/');
-    } catch (error) {
-      void error;
+    } catch {
+      // Error handled by auth slice and displayed in UI
     }
   };
 

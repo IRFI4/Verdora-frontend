@@ -8,7 +8,6 @@ export const useProfileForm = (defaultValues?: Partial<ProfileFormData>) => {
     mode: 'onChange',
     defaultValues: {
       name: '',
-      email: '',
       phone: '',
       ...defaultValues,
     },

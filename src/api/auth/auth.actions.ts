@@ -12,15 +12,18 @@ import type {
 export const NO_INTERNET_MESSAGE =
   'No internet connection. Please check your network connection and try again.';
 
+export const SERVER_UNAVAILABLE_MESSAGE =
+  'Server is currently unavailable. Please try again in a few moments.';
+
 export const isNetworkError = (error: unknown): boolean => {
   if (typeof navigator !== 'undefined' && !navigator.onLine) {
     return true;
   }
   if (isAxiosError(error)) {
     return (
-      !error.response ||
-      error.code === 'ERR_NETWORK' ||
-      error.message === 'Network Error'
+      (error.code === 'ERR_NETWORK' || error.message === 'Network Error') &&
+      typeof navigator !== 'undefined' &&
+      !navigator.onLine
     );
   }
   return false;
@@ -41,6 +44,13 @@ export const handleAuthError = (
   if (isAxiosError(error)) {
     if (error.response?.data) {
       return error.response.data as ApiErrorResponse;
+    }
+    if (!error.response) {
+      return {
+        timestamp: new Date().toISOString(),
+        status: 503,
+        message: SERVER_UNAVAILABLE_MESSAGE,
+      };
     }
     return {
       timestamp: new Date().toISOString(),
@@ -116,7 +126,12 @@ export const logout = createAsyncThunk<
   { rejectValue: ApiErrorResponse }
 >('auth/logout', async (_, { rejectWithValue }) => {
   if (typeof navigator !== 'undefined' && !navigator.onLine) {
-    return;
+    return rejectWithValue({
+      timestamp: new Date().toISOString(),
+      status: 0,
+      message:
+        'Cannot log out while offline. Please reconnect to the internet to end your session.',
+    });
   }
   try {
     await authService.logout();

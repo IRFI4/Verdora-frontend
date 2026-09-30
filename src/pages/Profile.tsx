@@ -21,7 +21,6 @@ import {
 import type { ProfileFormData } from '@/schemas/profile.schema';
 import { useAppDispatch } from '@api/hooks';
 import { updateUser, clearAuth } from '@api/auth/auth.slice';
-import { logout } from '@api/auth/auth.actions';
 import { useQueryClient } from '@tanstack/react-query';
 
 export const Profile = () => {
@@ -102,7 +101,6 @@ export const Profile = () => {
         payload: {
           name: formData.name,
           phone: formData.phone,
-          email: formData.email,
         },
       });
 
@@ -132,11 +130,7 @@ export const Profile = () => {
         data: { password },
       });
 
-      try {
-        await dispatch(logout()).unwrap();
-      } catch {
-        dispatch(clearAuth());
-      }
+      dispatch(clearAuth());
       queryClient.clear();
       setIsDeleteModalOpen(false);
       navigate('/', { replace: true });

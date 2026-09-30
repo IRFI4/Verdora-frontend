@@ -2,6 +2,7 @@ import type { UserType } from '@/types/user';
 import { Button } from '@components/ui/button';
 import { Badge } from '@components/ui/badge';
 import { Pencil, Trash2 } from 'lucide-react';
+import { getInitials } from '@/utils/user.utils';
 
 type Props = {
   user: UserType;
@@ -10,13 +11,6 @@ type Props = {
 };
 
 export const ProfileViewCard = ({ user, onStartEdit, onOpenDelete }: Props) => {
-  const getInitials = (name: string) => {
-    if (!name) return 'U';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  };
-
   return (
     <div className="flex flex-col gap-6">
       <div className="overflow-hidden rounded-2xl border border-zinc-200/80 bg-white shadow-xs">
@@ -79,12 +73,6 @@ export const ProfileViewCard = ({ user, onStartEdit, onOpenDelete }: Props) => {
               <span className="text-base font-semibold text-zinc-900 break-words">
                 {user.email}
               </span>
-              <Badge
-                variant="secondary"
-                className="bg-[#EDF5E9] text-[#2F6B29] border border-[#C6E3B4]/50 text-xs px-2 py-0.5"
-              >
-                Verified
-              </Badge>
             </div>
           </div>
 
