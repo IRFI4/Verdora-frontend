@@ -8,7 +8,7 @@ export type LoginFormData = z.infer<typeof loginSchema>;
 export const useLoginForm = () => {
   return useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    mode: 'all',
+    mode: 'onChange',
     defaultValues: {
       email: '',
       password: '',

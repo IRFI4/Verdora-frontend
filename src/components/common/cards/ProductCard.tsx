@@ -73,7 +73,10 @@ const ProductCard = ({
   };
 
   return (
-    <div className="group relative aspect-square w-full overflow-hidden rounded-[16px] bg-white/80 backdrop-blur-xs border border-white/80 p-4 shadow-xs hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+    <div
+      onClick={() => navigate(`/products/${productId}`)}
+      className="group relative aspect-square w-full overflow-hidden rounded-[16px] bg-white/80 backdrop-blur-xs border border-white/80 p-4 shadow-xs hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
+    >
       <div className="relative z-10 flex items-center justify-between gap-2.5">
         <p className="text-[16px] leading-none text-link-text">
           {title || 'Rubber Plant'}

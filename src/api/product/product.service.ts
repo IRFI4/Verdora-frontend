@@ -24,6 +24,13 @@ export const productService = {
     return response.data?.data ?? null;
   },
 
+  getProductOfTheDay: async () => {
+    const response = await instance.get<ApiResponse<Product>>(
+      '/products/product-of-the-day'
+    );
+    return response.data?.data ?? null;
+  },
+
   createProduct: async (data: CreateProductPayload) => {
     const response = await instance.post<ApiResponse<Product>>(
       '/products',

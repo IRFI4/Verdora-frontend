@@ -58,8 +58,8 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
 
       <nav className="hidden lg:flex items-center gap-6 text-[16px] text-link-text">
         <LinkComponent text="Home" to="/" />
-        <LinkComponent text="Sales" to="/sales" />
-        <LinkComponent text="Categories" to="/categories" />
+        <LinkComponent text="Catalog" to="/catalog" />
+        <LinkComponent text="Sales" to="/catalog?discount=true" />
       </nav>
 
       <div className="hidden lg:flex items-center gap-6">

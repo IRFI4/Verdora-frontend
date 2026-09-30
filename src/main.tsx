@@ -1,7 +1,7 @@
 import { Provider } from 'react-redux';
 import { store } from '@api/store';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Route, Routes } from 'react-router';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import '@/index.css';
 import Login from '@pages/auth/Login';
 import Register from '@pages/auth/Register';
@@ -32,6 +32,22 @@ createRoot(document.getElementById('root')!).render(
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/catalog" element={<Catalog />} />
+            <Route
+              path="/categories"
+              element={<Navigate to="/catalog" replace />}
+            />
+            <Route
+              path="/products"
+              element={<Navigate to="/catalog" replace />}
+            />
+            <Route
+              path="/sales"
+              element={<Navigate to="/catalog?discount=true" replace />}
+            />
+            <Route
+              path="/favourites"
+              element={<Navigate to="/catalog" replace />}
+            />
             <Route path="/products/:id" element={<ProductDetails />} />
             <Route
               path="/login"

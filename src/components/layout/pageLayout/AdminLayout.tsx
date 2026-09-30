@@ -3,7 +3,6 @@ import AdminSidebar from '@components/layout/pageComponents/sidebar/AdminSidebar
 import AdminHeader from '@components/layout/pageComponents/AdminHeader';
 import AdminFooter from '@components/layout/pageComponents/AdminFooter';
 import { useGetCurrentUser } from '@api/user/user.hooks';
-import bgImage from '@assets/images/background.png';
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const { data: user, isPending: userPending } = useGetCurrentUser();
@@ -19,7 +18,9 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
         <div className="relative flex min-h-screen flex-col bg-[#E6EAE5]">
           <div
             className="fixed inset-0 pointer-events-none z-0 opacity-10 mix-blend-multiply bg-repeat"
-            style={{ backgroundImage: `url(${bgImage})` }}
+            style={{
+              backgroundImage: `url(${import.meta.env.BASE_URL}noise.svg)`,
+            }}
           />
           <div className="relative z-10 flex min-h-screen flex-col flex-1">
             <AdminHeader />

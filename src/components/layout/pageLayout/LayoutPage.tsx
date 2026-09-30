@@ -6,7 +6,6 @@ import { fetchMe } from '@api/auth/auth.actions';
 import { useGetCart } from '@api/cart/cart.hooks';
 import { SidebarInset, SidebarProvider } from '@components/ui/sidebar';
 import MainSidebar from '@components/layout/pageComponents/sidebar/MainSidebar';
-import bgImage from '@assets/images/background.png';
 
 const LayoutPage = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch();
@@ -26,7 +25,9 @@ const LayoutPage = ({ children }: { children: React.ReactNode }) => {
         <div className="relative flex min-h-screen flex-col bg-[#E6EAE5]">
           <div
             className="fixed inset-0 pointer-events-none z-0 opacity-10 mix-blend-multiply bg-repeat"
-            style={{ backgroundImage: `url(${bgImage})` }}
+            style={{
+              backgroundImage: `url(${import.meta.env.BASE_URL}noise.svg)`,
+            }}
           />
 
           <div className="relative z-10 flex min-h-screen flex-col flex-1">

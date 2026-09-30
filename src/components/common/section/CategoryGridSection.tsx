@@ -20,7 +20,9 @@ const CategoryGridSection = ({
   isLoading,
   limit = 6,
 }: CategoryGridSectionProps) => {
-  const displayCategories = categories ? categories.slice(0, limit) : [];
+  const displayCategories = Array.isArray(categories)
+    ? categories.slice(0, limit)
+    : [];
 
   return (
     <SectionLayout

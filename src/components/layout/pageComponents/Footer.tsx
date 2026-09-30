@@ -3,7 +3,7 @@ import Logo from '@components/common/Logo';
 import LinkComponent from '@components/common/Link';
 import { Button } from '@components/ui/button';
 import { Mail, Phone, MapPin } from 'lucide-react';
-import footerCircleImg from '@assets/images/footer-circle.png';
+import footerCircleImg from '@assets/images/footer-circle.webp';
 import TextField from '@components/common/forms/TextField';
 
 const Footer = () => {
@@ -89,21 +89,19 @@ const Footer = () => {
           </div>
 
           <div className="flex flex-col items-start gap-3">
-            <h3 className="text-base font-semibold text-[#102012]">
-              Resources
-            </h3>
+            <h3 className="text-base font-semibold text-[#102012]">Shop</h3>
             <ul className="flex flex-col gap-2 text-sm text-[#2D3E2F]">
               <li>
                 <LinkComponent
-                  text="About Us"
-                  to="/about"
+                  text="All Products"
+                  to="/catalog"
                   className="text-sm font-normal text-[#2D3E2F] hover:text-[#102012] no-underline hover:underline"
                 />
               </li>
               <li>
                 <LinkComponent
-                  text="Delivery"
-                  to="/delivery"
+                  text="Discounts & Sales"
+                  to="/catalog?discount=true"
                   className="text-sm font-normal text-[#2D3E2F] hover:text-[#102012] no-underline hover:underline"
                 />
               </li>

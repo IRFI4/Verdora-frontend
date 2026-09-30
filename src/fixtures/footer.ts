@@ -2,11 +2,11 @@ import type { FooterSection } from '@/types/footer';
 
 export const FOOTER_SECTIONS: FooterSection[] = [
   {
-    title: 'Resources',
+    title: 'Shop',
     type: 'links',
     items: [
-      { name: 'About Us', href: '/about' },
-      { name: 'Delivery', href: '/delivery' },
+      { name: 'All Products', href: '/catalog' },
+      { name: 'Discounts & Sales', href: '/catalog?discount=true' },
     ],
   },
   {

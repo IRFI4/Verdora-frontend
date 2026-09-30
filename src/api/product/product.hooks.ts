@@ -38,6 +38,13 @@ export const useGetProductById = (id: number, enabled: boolean = true) => {
   });
 };
 
+export const useGetProductOfTheDay = () => {
+  return useQuery<Product | null, ProductAxiosError>({
+    queryKey: ['products', 'product-of-the-day'],
+    queryFn: async () => (await productService.getProductOfTheDay()) ?? null,
+  });
+};
+
 export const useCreateProduct = () => {
   const queryClient = useQueryClient();
 

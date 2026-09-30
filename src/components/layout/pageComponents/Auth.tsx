@@ -10,7 +10,6 @@ import { Button } from '@components/ui/button';
 import LinkComponent from '@components/common/Link';
 import AuthImg from '@assets/images/frame1.png';
 import Logo from '@components/common/Logo';
-import bgImage from '@assets/images/background.png';
 
 type AuthFormProps = {
   title?: string;
@@ -44,7 +43,9 @@ const AuthForm = ({
     <div className="relative flex min-h-screen w-full bg-[#E6EAE5] dark:bg-zinc-950 overflow-hidden">
       <div
         className="fixed inset-0 pointer-events-none z-0 opacity-10 mix-blend-multiply bg-repeat"
-        style={{ backgroundImage: `url(${bgImage})` }}
+        style={{
+          backgroundImage: `url(${import.meta.env.BASE_URL}noise.svg)`,
+        }}
       />
       <div className="relative z-10 flex w-full min-h-screen">
         <div className="hidden lg:block lg:w-1/2 relative min-h-screen overflow-hidden">
