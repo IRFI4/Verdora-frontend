@@ -9,6 +9,20 @@ import { productService } from '@api/product/product.service';
 import { cartService } from '@api/cart/cart.service';
 import { isAxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/types/api';
+import type { Product } from '@/types/product';
+import { queryClient } from '@api/queryClient';
+
+export const fetchProductWithCache = (productId: number): Promise<Product> => {
+  return queryClient.fetchQuery({
+    queryKey: ['products', productId],
+    queryFn: () => productService.getProductById(productId),
+    staleTime: 5 * 60 * 1000,
+    retry: (failureCount, error) => {
+      if (isAxiosError(error) && error.response?.status === 404) return false;
+      return failureCount < 2;
+    },
+  });
+};
 
 export const GUEST_CART_STORAGE_KEY = 'verdora_guest_cart_v1';
 const LEGACY_GUEST_CART_KEY = 'verdora_guest_cart';
@@ -166,9 +180,9 @@ export const getGuestCart = async (): Promise<Cart> => {
     };
   }
 
-  // Fetch prices, names, and images from the API to always display fresh data
+  // Fetch prices, names, and images from the API using React Query cache to prevent redundant requests
   const productResults = await Promise.allSettled(
-    storedItems.map(item => productService.getProductById(item.productId))
+    storedItems.map(item => fetchProductWithCache(item.productId))
   );
 
   const cartItems: CartItemType[] = [];
@@ -235,8 +249,8 @@ export const addGuestCartItem = async (payload: {
     throw new Error('Quantity must be greater than 0');
   }
 
-  // Validate that the product exists and is available before adding to cart
-  await productService.getProductById(payload.productId);
+  // Validate that the product exists and is available before adding to cart using cache
+  await fetchProductWithCache(payload.productId);
 
   const stored = getStoredGuestCart();
   const existingIndex = stored.findIndex(
@@ -346,6 +360,8 @@ export type SyncCartResult = {
 
 let activeSyncPromise: Promise<SyncCartResult> | null = null;
 
+export const isGuestCartSyncing = (): boolean => activeSyncPromise !== null;
+
 export const syncGuestCartToBackend = async (): Promise<SyncCartResult> => {
   if (activeSyncPromise) {
     return activeSyncPromise;
@@ -353,6 +369,9 @@ export const syncGuestCartToBackend = async (): Promise<SyncCartResult> => {
 
   activeSyncPromise = (async () => {
     try {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('guest-cart-sync-start'));
+      }
       const storedItems = getStoredGuestCart();
       if (storedItems.length === 0) {
         clearGuestCartSyncError();
@@ -402,7 +421,7 @@ export const syncGuestCartToBackend = async (): Promise<SyncCartResult> => {
           const names = await Promise.all(
             failedItems.map(async f => {
               try {
-                const p = await productService.getProductById(f.item.productId);
+                const p = await fetchProductWithCache(f.item.productId);
                 return p.name;
               } catch {
                 return `Product #${f.item.productId}`;
@@ -425,6 +444,9 @@ export const syncGuestCartToBackend = async (): Promise<SyncCartResult> => {
       return { success: true, syncedCount, failedItems: [] };
     } finally {
       activeSyncPromise = null;
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('guest-cart-sync-end'));
+      }
     }
   })();
 

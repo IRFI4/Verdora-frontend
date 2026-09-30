@@ -11,7 +11,8 @@ import ResetPassword from '@pages/auth/ResetPassword';
 import Cart from '@pages/Cart';
 import Orders from '@pages/Orders';
 import OrderDetails from '@pages/OrderDetails';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@api/queryClient';
 import AdminCategoriesPage from '@pages/admin/CategoryPage';
 import { TooltipProvider } from '@components/ui/tooltip';
 import AdminDashboard from '@pages/admin/Dashboard';
@@ -25,7 +26,6 @@ import ProductDetails from '@pages/ProductDetails';
 import ScrollToTop from '@components/common/ScrollToTop';
 import { fetchMe } from '@api/auth/auth.actions';
 
-const queryClient = new QueryClient();
 store.dispatch(fetchMe());
 
 createRoot(document.getElementById('root')!).render(

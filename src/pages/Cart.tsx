@@ -17,7 +17,11 @@ import { useAppSelector } from '@api/hooks';
 import {
   getStoredGuestCart,
   syncGuestCartToBackend,
+  getGuestCartSyncError,
+  clearGuestCartSyncError,
+  isGuestCartSyncing,
   GUEST_CART_STORAGE_KEY,
+  GUEST_CART_SYNC_ERROR_KEY,
 } from '@/utils/guestCart';
 import {
   useGetCart,
@@ -29,7 +33,12 @@ const Cart = () => {
   const navigate = useNavigate();
   const { user } = useAppSelector(state => state.auth);
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
-  const [isSyncingGuestCart, setIsSyncingGuestCart] = useState(false);
+  const [isSyncingGuestCart, setIsSyncingGuestCart] = useState(() =>
+    isGuestCartSyncing()
+  );
+  const [syncError, setSyncError] = useState<string | null>(() =>
+    getGuestCartSyncError()
+  );
   const [dismissedGuestWarning, setDismissedGuestWarning] = useState(false);
   const [guestCartCount, setGuestCartCount] = useState(() =>
     user ? getStoredGuestCart().length : 0
@@ -46,32 +55,87 @@ const Cart = () => {
         !e ||
         !(e instanceof StorageEvent) ||
         e.key === GUEST_CART_STORAGE_KEY ||
+        e.key === GUEST_CART_SYNC_ERROR_KEY ||
         e.key === null
       ) {
         if (user) {
           setGuestCartCount(getStoredGuestCart().length);
+          setSyncError(getGuestCartSyncError());
         }
       }
     };
+
+    const handleSyncStart = () => {
+      setIsSyncingGuestCart(true);
+    };
+
+    const handleSyncEnd = () => {
+      setIsSyncingGuestCart(false);
+      if (user) {
+        setGuestCartCount(getStoredGuestCart().length);
+        setSyncError(getGuestCartSyncError());
+      }
+    };
+
+    const handleSyncError = (e: Event) => {
+      const customEvent = e as CustomEvent<string | null>;
+      setSyncError(customEvent.detail ?? getGuestCartSyncError());
+    };
+
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('guest-cart-synced', handleStorageChange);
+    window.addEventListener('guest-cart-sync-start', handleSyncStart);
+    window.addEventListener('guest-cart-sync-end', handleSyncEnd);
+    window.addEventListener('guest-cart-sync-error', handleSyncError);
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('guest-cart-synced', handleStorageChange);
+      window.removeEventListener('guest-cart-sync-start', handleSyncStart);
+      window.removeEventListener('guest-cart-sync-end', handleSyncEnd);
+      window.removeEventListener('guest-cart-sync-error', handleSyncError);
     };
   }, [user]);
 
+  // If user is logged in, has guest cart items in storage, sync is not currently in progress,
+  // and no sync error was recorded yet, automatically trigger background sync
+  useEffect(() => {
+    if (user && guestCartCount > 0 && !isGuestCartSyncing() && !syncError) {
+      setIsSyncingGuestCart(true);
+      syncGuestCartToBackend()
+        .then(() => {
+          setGuestCartCount(0);
+          setSyncError(null);
+          refetch();
+        })
+        .catch(() => {
+          setGuestCartCount(getStoredGuestCart().length);
+          setSyncError(getGuestCartSyncError());
+          refetch();
+        })
+        .finally(() => {
+          setIsSyncingGuestCart(false);
+        });
+    }
+  }, [user, guestCartCount, syncError, refetch]);
+
   const showGuestCartBanner =
-    Boolean(user) && guestCartCount > 0 && !dismissedGuestWarning;
+    Boolean(user) &&
+    guestCartCount > 0 &&
+    !dismissedGuestWarning &&
+    !isSyncingGuestCart &&
+    Boolean(syncError);
 
   const handleTransferGuestCart = async () => {
     setIsSyncingGuestCart(true);
     try {
       await syncGuestCartToBackend();
       setGuestCartCount(0);
+      setSyncError(null);
       await refetch();
     } catch {
       setGuestCartCount(getStoredGuestCart().length);
+      setSyncError(getGuestCartSyncError());
       await refetch();
     } finally {
       setIsSyncingGuestCart(false);
@@ -166,8 +230,15 @@ const Cart = () => {
             <NoticeAlert
               variant="warning"
               title="Unsaved guest cart items"
-              message={`You have ${guestCartCount} item(s) from your guest session that could not be transferred automatically.`}
-              onDismiss={() => setDismissedGuestWarning(true)}
+              message={
+                syncError ||
+                `You have ${guestCartCount} item(s) from your guest session that could not be transferred automatically.`
+              }
+              onDismiss={() => {
+                setDismissedGuestWarning(true);
+                clearGuestCartSyncError();
+                setSyncError(null);
+              }}
               action={
                 <Button
                   size="sm"
@@ -215,8 +286,15 @@ const Cart = () => {
           variant="warning"
           className="mt-6"
           title="Unsaved guest cart items"
-          message={`You have ${guestCartCount} item(s) from your guest session that could not be transferred automatically.`}
-          onDismiss={() => setDismissedGuestWarning(true)}
+          message={
+            syncError ||
+            `You have ${guestCartCount} item(s) from your guest session that could not be transferred automatically.`
+          }
+          onDismiss={() => {
+            setDismissedGuestWarning(true);
+            clearGuestCartSyncError();
+            setSyncError(null);
+          }}
           action={
             <Button
               size="sm"

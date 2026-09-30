@@ -83,7 +83,6 @@ export const useCartClient = () => {
   const updateCartCache = (newCart: Cart) => {
     const key = getActiveCartQueryKey();
     queryClient.setQueryData(key, newCart);
-    queryClient.invalidateQueries({ queryKey: ['cart'] });
   };
 
   return {
@@ -106,6 +105,7 @@ export const useGetCart = (options?: { enabled?: boolean }) => {
     },
     enabled: (options?.enabled ?? true) && !hydrating,
     retry: false,
+    staleTime: 30 * 1000,
     ...options,
   });
 };
