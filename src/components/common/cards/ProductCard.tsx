@@ -12,7 +12,8 @@ import {
 import { Spinner } from '@components/ui/spinner';
 import { useAppSelector } from '@api/hooks';
 import { useNavigate } from 'react-router-dom';
-import type React from 'react';
+import { useState } from 'react';
+import { Check } from 'lucide-react';
 
 interface ProductCardProps {
   productId: number;
@@ -31,6 +32,7 @@ const ProductCard = ({
 }: ProductCardProps) => {
   const navigate = useNavigate();
   const { user } = useAppSelector(state => state.auth);
+  const [isAdded, setIsAdded] = useState(false);
 
   const { mutate: addToCart, isPending: isAdding } = useAddItemToCart();
   const { mutate: addToFavorites, isPending: isAddingToFavorites } =
@@ -68,7 +70,15 @@ const ProductCard = ({
     }
 
     if (productId) {
-      addToCart({ productId, quantity: 1 });
+      addToCart(
+        { productId, quantity: 1 },
+        {
+          onSuccess: () => {
+            setIsAdded(true);
+            setTimeout(() => setIsAdded(false), 2000);
+          },
+        }
+      );
     }
   };
 
@@ -113,11 +123,16 @@ const ProductCard = ({
             size="icon-sm"
             onClick={handleAddToCart}
             disabled={isAdding}
-            className="cursor-pointer"
-            aria-label="Add to cart"
+            className={cn(
+              'cursor-pointer transition-colors',
+              isAdded && 'bg-emerald-600 hover:bg-emerald-700'
+            )}
+            aria-label={isAdded ? 'Added to cart' : 'Add to cart'}
           >
             {isAdding ? (
               <Spinner className="size-3.5 text-white" />
+            ) : isAdded ? (
+              <Check className="size-4 text-white animate-in zoom-in duration-200" />
             ) : (
               <CartIcon className="size-4 text-white" />
             )}

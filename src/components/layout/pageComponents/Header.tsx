@@ -14,6 +14,7 @@ import { SidebarTrigger } from '@components/ui/sidebar';
 import TextField from '@components/common/forms/TextField';
 import { useQueryClient } from '@tanstack/react-query';
 import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
+import { useGetCart } from '@api/cart/cart.hooks';
 
 type HeaderProps = {
   onOpenMenu?: () => void;
@@ -26,6 +27,10 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
   const { user, hydrating } = useAppSelector(state => state.auth);
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
   const [search, setSearch] = useState('');
+
+  const { data: cart } = useGetCart({ enabled: Boolean(user) });
+  const items = cart?.items || [];
+  const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -91,6 +96,11 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
             aria-label="Shopping cart"
           >
             <CartIcon className="size-5 text-[#2C332D]" />
+            {cartItemCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white shadow-xs">
+                {cartItemCount}
+              </span>
+            )}
           </Link>
 
           {hydrating ? (

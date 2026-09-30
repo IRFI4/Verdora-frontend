@@ -9,7 +9,7 @@ import LikeMessageIcon from '@assets/icons/like-message.svg?react';
 import PlantIcon from '@assets/icons/plant.svg?react';
 import { Button } from '@/components/ui/button';
 import FrameIcon from '@assets/icons/frame.svg?react';
-import { Star, Sparkles, PackageX } from 'lucide-react';
+import { Star, Sparkles, PackageX, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAppSelector } from '@api/hooks';
@@ -36,6 +36,8 @@ export const Home = () => {
     data: selectedProduct,
     isLoading: isSelectedProductLoading,
     isError: isSelectedProductError,
+    error: selectedProductError,
+    refetch: refetchSelectedProduct,
   } = useGetProductById(selectedProductId);
 
   const handleBuyNow = (productId: number) => {
@@ -371,6 +373,34 @@ export const Home = () => {
                     disabled={isAddingToCart}
                   >
                     {isAddingToCart ? 'Adding...' : 'Buy now'}
+                  </Button>
+                </>
+              ) : isSelectedProductError &&
+                selectedProductError?.response?.status !== 404 ? (
+                <>
+                  <div className="space-y-1">
+                    <h3 className="text-xl sm:text-2xl font-bold text-red-700">
+                      Failed to load
+                    </h3>
+                    <p className="text-sm text-[#4A5568]">
+                      Unable to connect to the server. Please try again.
+                    </p>
+                  </div>
+                  <div className="relative z-10 w-full h-56 flex flex-col items-center justify-center gap-3">
+                    <div className="relative flex size-28 items-center justify-center rounded-full bg-red-50 border border-red-200">
+                      <AlertCircle className="size-12 text-red-500" />
+                    </div>
+                    <span className="rounded-xl bg-red-100 text-red-700 px-4 py-1.5 text-sm font-semibold">
+                      Connection error
+                    </span>
+                  </div>
+                  <Button
+                    variant="outline"
+                    type="button"
+                    onClick={() => refetchSelectedProduct()}
+                    className="w-full sm:w-auto px-8 cursor-pointer"
+                  >
+                    Try again
                   </Button>
                 </>
               ) : (
