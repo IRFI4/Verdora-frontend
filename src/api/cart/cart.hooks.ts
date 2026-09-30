@@ -126,26 +126,125 @@ export const useAddItemToCart = () => {
 };
 
 export const useRemoveItemFromCart = () => {
+  const queryClient = useQueryClient();
   const { getService, updateCartCache } = useCartClient();
 
-  return useMutation<Cart, CartAxiosError, RemoveItemFromCartPayload>({
+  return useMutation<
+    Cart,
+    CartAxiosError,
+    RemoveItemFromCartPayload,
+    { previousCart?: Cart; activeKey: readonly unknown[] }
+  >({
     mutationFn: async data => {
       const service = await getService();
       return service.removeItemFromCart(data);
     },
-    onSuccess: updateCartCache,
+    onMutate: async variables => {
+      const activeKey = getActiveCartQueryKey();
+      await queryClient.cancelQueries({ queryKey: activeKey });
+      const previousCart = queryClient.getQueryData<Cart>(activeKey);
+
+      queryClient.setQueryData<Cart>(activeKey, old => {
+        if (!old) return old;
+
+        const filteredItems = old.items.filter(
+          item => item.cartItemId !== variables.cartItemId
+        );
+        const shippingCost = old.shippingCost ?? 0;
+        const totalPrice =
+          filteredItems.reduce((sum, item) => sum + item.subtotal, 0) +
+          shippingCost;
+
+        return {
+          ...old,
+          items: filteredItems,
+          totalPrice,
+        };
+      });
+
+      return { previousCart, activeKey };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousCart && context?.activeKey) {
+        queryClient.setQueryData(context.activeKey, context.previousCart);
+      }
+    },
+    onSuccess: (data, _variables, context) => {
+      if (context?.activeKey) {
+        queryClient.setQueryData(context.activeKey, data);
+      } else {
+        updateCartCache(data);
+      }
+    },
   });
 };
 
 export const useUpdateCartItemQuantity = () => {
+  const queryClient = useQueryClient();
   const { getService, updateCartCache } = useCartClient();
 
-  return useMutation<Cart, CartAxiosError, UpdateCartItemQuantityPayload>({
+  return useMutation<
+    Cart,
+    CartAxiosError,
+    UpdateCartItemQuantityPayload,
+    { previousCart?: Cart; activeKey: readonly unknown[] }
+  >({
     mutationFn: async data => {
       const service = await getService();
       return service.updateCartItemQuantity(data);
     },
-    onSuccess: updateCartCache,
+    onMutate: async variables => {
+      const activeKey = getActiveCartQueryKey();
+      await queryClient.cancelQueries({ queryKey: activeKey });
+      const previousCart = queryClient.getQueryData<Cart>(activeKey);
+
+      queryClient.setQueryData<Cart>(activeKey, old => {
+        if (!old) {
+          return old;
+        }
+
+        const updatedItems = old.items.map(item => {
+          if (item.cartItemId !== variables.cartItemId) {
+            return item;
+          }
+          const price = item.price ?? 0;
+          const unitPrice =
+            item.discountPrice !== undefined && item.discountPrice !== null
+              ? item.discountPrice
+              : price;
+          return {
+            ...item,
+            quantity: variables.quantity,
+            subtotal: unitPrice * variables.quantity,
+          };
+        });
+
+        const shippingCost = old.shippingCost ?? 0;
+        const totalPrice =
+          updatedItems.reduce((sum, item) => sum + item.subtotal, 0) +
+          shippingCost;
+
+        return {
+          ...old,
+          items: updatedItems,
+          totalPrice,
+        };
+      });
+
+      return { previousCart, activeKey };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousCart && context?.activeKey) {
+        queryClient.setQueryData(context.activeKey, context.previousCart);
+      }
+    },
+    onSuccess: (data, _variables, context) => {
+      if (context?.activeKey) {
+        queryClient.setQueryData(context.activeKey, data);
+      } else {
+        updateCartCache(data);
+      }
+    },
   });
 };
 

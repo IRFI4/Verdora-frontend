@@ -381,26 +381,17 @@ export const syncGuestCartToBackend = async (): Promise<SyncCartResult> => {
       const failedItems: { item: StoredGuestCartItem; error: string }[] = [];
       let syncedCount = 0;
 
-      // Send POST requests in parallel instead of sequentially
-      const results = await Promise.allSettled(
-        storedItems.map(async item => {
+      // Send POST requests sequentially to avoid backend cart creation race conditions
+      for (const item of storedItems) {
+        try {
           await cartService.addItemToCart({
             productId: item.productId,
             quantity: item.quantity,
           });
-          return item;
-        })
-      );
-
-      for (let i = 0; i < storedItems.length; i++) {
-        const item = storedItems[i];
-        const res = results[i];
-        if (res.status === 'fulfilled') {
           syncedCount++;
           // Immediately remove successfully accepted item from localStorage
           removeStoredGuestCartItem(item.productId);
-        } else {
-          const err = res.reason;
+        } catch (err) {
           let errorMsg = 'Failed to transfer item';
           if (isAxiosError<ApiErrorResponse>(err)) {
             errorMsg = err.response?.data?.message || err.message || errorMsg;

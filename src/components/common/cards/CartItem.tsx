@@ -8,6 +8,8 @@ type Props = {
   price: number;
   discountPrice?: number | null;
   quantity: number;
+  isUpdating?: boolean;
+  isRemoving?: boolean;
   onIncrease: () => void;
   onDecrease: () => void;
   onRemove: () => void;
@@ -19,13 +21,15 @@ const CartItem = ({
   price,
   discountPrice,
   quantity,
+  isUpdating = false,
+  isRemoving = false,
   onIncrease,
   onDecrease,
   onRemove,
 }: Props) => {
   const hasDiscount =
     discountPrice != null && discountPrice > 0 && discountPrice < price;
-  const currentPrice = hasDiscount ? discountPrice : (discountPrice ?? price);
+  const currentPrice = hasDiscount ? discountPrice : price;
   const totalPrice = currentPrice * quantity;
   const discountPercent =
     hasDiscount && price > 0
@@ -72,7 +76,11 @@ const CartItem = ({
       </div>
 
       <div className="flex gap-4 items-center rounded-full border border-gray-200 px-2 py-2 bg-white justify-between">
-        <Button size="sm" onClick={onDecrease} disabled={quantity <= 1}>
+        <Button
+          size="sm"
+          onClick={onDecrease}
+          disabled={quantity <= 1 || isUpdating || isRemoving}
+        >
           -
         </Button>
 
@@ -80,7 +88,11 @@ const CartItem = ({
           {quantity}
         </span>
 
-        <Button size="sm" onClick={onIncrease}>
+        <Button
+          size="sm"
+          onClick={onIncrease}
+          disabled={isUpdating || isRemoving}
+        >
           +
         </Button>
       </div>
@@ -95,6 +107,7 @@ const CartItem = ({
         size="icon-sm"
         variant="destructive"
         onClick={onRemove}
+        disabled={isUpdating || isRemoving}
         aria-label={`Remove ${productName} from cart`}
       >
         <Trash2 />

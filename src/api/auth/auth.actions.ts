@@ -9,7 +9,11 @@ import type {
   ResetPasswordPayload,
 } from '@/types/auth';
 
-import { syncGuestCartToBackend, clearGuestCart } from '@/utils/guestCart';
+import {
+  syncGuestCartToBackend,
+  clearGuestCart,
+  getGuestCartSyncError,
+} from '@/utils/guestCart';
 
 export const register = createAsyncThunk<
   ApiResponse<UserType>,
@@ -80,10 +84,12 @@ export const fetchMe = createAsyncThunk<
 >('auth/me', async (_, { rejectWithValue }) => {
   try {
     const response = await authService.fetchMe();
-    // Sync guest cart in background without blocking the auth flow
-    syncGuestCartToBackend().catch(e => {
-      console.warn('Failed to sync guest cart on fetchMe', e);
-    });
+    // Sync guest cart in background only if there is no previous persistent failure
+    if (!getGuestCartSyncError()) {
+      syncGuestCartToBackend().catch(e => {
+        console.warn('Failed to sync guest cart on fetchMe', e);
+      });
+    }
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {

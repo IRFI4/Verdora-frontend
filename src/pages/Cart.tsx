@@ -19,6 +19,7 @@ import {
   syncGuestCartToBackend,
   getGuestCartSyncError,
   clearGuestCartSyncError,
+  clearGuestCart,
   isGuestCartSyncing,
   GUEST_CART_STORAGE_KEY,
   GUEST_CART_SYNC_ERROR_KEY,
@@ -142,6 +143,14 @@ const Cart = () => {
     }
   };
 
+  const handleDiscardGuestCart = () => {
+    clearGuestCart();
+    clearGuestCartSyncError();
+    setGuestCartCount(0);
+    setSyncError(null);
+    setDismissedGuestWarning(true);
+  };
+
   const items = cart?.items || [];
   const totalPrice = cart?.totalPrice ?? 0;
   const shippingCost = cart?.shippingCost ?? 0;
@@ -240,17 +249,28 @@ const Cart = () => {
                 setSyncError(null);
               }}
               action={
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleTransferGuestCart}
-                  disabled={isSyncingGuestCart}
-                  className="h-8 text-xs font-medium cursor-pointer"
-                >
-                  {isSyncingGuestCart
-                    ? 'Transferring...'
-                    : 'Transfer to Account'}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleTransferGuestCart}
+                    disabled={isSyncingGuestCart}
+                    className="h-8 text-xs font-medium cursor-pointer"
+                  >
+                    {isSyncingGuestCart
+                      ? 'Transferring...'
+                      : 'Transfer to Account'}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleDiscardGuestCart}
+                    disabled={isSyncingGuestCart}
+                    className="h-8 text-xs font-medium text-destructive hover:text-destructive cursor-pointer"
+                  >
+                    Discard
+                  </Button>
+                </div>
               }
             />
           </div>
@@ -296,15 +316,26 @@ const Cart = () => {
             setSyncError(null);
           }}
           action={
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleTransferGuestCart}
-              disabled={isSyncingGuestCart}
-              className="h-8 text-xs font-medium cursor-pointer"
-            >
-              {isSyncingGuestCart ? 'Transferring...' : 'Transfer to Account'}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleTransferGuestCart}
+                disabled={isSyncingGuestCart}
+                className="h-8 text-xs font-medium cursor-pointer"
+              >
+                {isSyncingGuestCart ? 'Transferring...' : 'Transfer to Account'}
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleDiscardGuestCart}
+                disabled={isSyncingGuestCart}
+                className="h-8 text-xs font-medium text-destructive hover:text-destructive cursor-pointer"
+              >
+                Discard
+              </Button>
+            </div>
           }
         />
       )}
@@ -326,6 +357,14 @@ const Cart = () => {
               price={item.price}
               discountPrice={item.discountPrice}
               quantity={item.quantity}
+              isUpdating={
+                updateQuantityMutation.isPending &&
+                updateQuantityMutation.variables?.cartItemId === item.cartItemId
+              }
+              isRemoving={
+                removeItemMutation.isPending &&
+                removeItemMutation.variables?.cartItemId === item.cartItemId
+              }
               onIncrease={() => handleIncrease(item.cartItemId)}
               onDecrease={() => handleDecrease(item.cartItemId)}
               onRemove={() => handleRemove(item.cartItemId)}

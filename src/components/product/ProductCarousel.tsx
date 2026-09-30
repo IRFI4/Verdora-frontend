@@ -175,13 +175,11 @@ export const ProductCarousel = ({
         </CarouselContent>
       </Carousel>
 
-      {Boolean(onToggleFavorite) && (
-        <LoginPromptDialog
-          open={isLoginPromptOpen}
-          onOpenChange={setIsLoginPromptOpen}
-          action="favorite"
-        />
-      )}
+      <LoginPromptDialog
+        open={isLoginPromptOpen}
+        onOpenChange={setIsLoginPromptOpen}
+        action="favorite"
+      />
     </section>
   );
 };
