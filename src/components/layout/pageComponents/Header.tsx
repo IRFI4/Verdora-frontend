@@ -56,7 +56,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
   };
 
   return (
-    <header className="sticky flex justify-between items-center h-16 px-6 z-50 w-full max-w-6xl mx-auto bg-transparent backdrop-blur border border-white/80 shadow-xs sm:px-8 sm:rounded-full sm:top-6">
+    <header className="sticky top-0 sm:top-6 flex justify-between items-center h-16 px-6 z-50 w-full max-w-6xl mx-auto bg-[#E6EAE5]/80 sm:bg-transparent backdrop-blur border border-white/80 shadow-xs sm:px-8 sm:rounded-full">
       <div className="flex items-center">
         <Logo fontSize="text-2xl" className="text-[#25531F]" />
       </div>

@@ -32,9 +32,9 @@ const LayoutPage = ({ children }: { children: React.ReactNode }) => {
 
           <div className="relative z-10 flex min-h-screen flex-col flex-1">
             <Header />
-            <main className="flex flex-1 flex-col w-full max-w-427.5 mx-auto px-4">
+            <div className="flex flex-1 flex-col w-full max-w-427.5 mx-auto px-4">
               {children}
-            </main>
+            </div>
             <Footer />
           </div>
         </div>

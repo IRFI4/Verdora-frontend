@@ -24,9 +24,9 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
           />
           <div className="relative z-10 flex min-h-screen flex-col flex-1">
             <AdminHeader />
-            <main className="flex flex-1 flex-col gap-6 w-full max-w-427.5 mx-auto px-4 py-2 animate-in fade-in-0 duration-500">
+            <div className="flex flex-1 flex-col gap-6 w-full max-w-427.5 mx-auto px-4 py-2 animate-in fade-in-0 duration-500">
               {children}
-            </main>
+            </div>
             <AdminFooter />
           </div>
         </div>
