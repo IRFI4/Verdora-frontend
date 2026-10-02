@@ -13,6 +13,11 @@ import CatalogProductList from '@components/catalog/CatalogProductList';
 import { useGetProducts } from '@api/product/product.hooks';
 import { useAllCategories } from '@api/category/category.hooks';
 import { useAddItemToCart } from '@api/cart/cart.hooks';
+import {
+  useFavoriteProductIds,
+  useAddToFavorites,
+  useRemoveFromFavorites,
+} from '@api/favorites/favorites.hooks';
 import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
 import { X } from 'lucide-react';
 import type { GetProductsPayload } from '@/types/product';
@@ -73,6 +78,18 @@ const Catalog = () => {
     isError: isCategoriesError,
     refetch: refetchCategories,
   } = useAllCategories();
+
+  const { favoriteIdsSet } = useFavoriteProductIds();
+  const addToFavoritesMutation = useAddToFavorites();
+  const removeFromFavoritesMutation = useRemoveFromFavorites();
+
+  const handleToggleFavorite = (targetProductId: number) => {
+    if (favoriteIdsSet.has(targetProductId)) {
+      removeFromFavoritesMutation.mutate(targetProductId);
+    } else {
+      addToFavoritesMutation.mutate(targetProductId);
+    }
+  };
 
   const categoryMap = useMemo(() => {
     const map = new Map<number, string>();
@@ -289,6 +306,8 @@ const Catalog = () => {
                 onResetAll={handleResetAll}
                 searchQuery={searchQuery}
                 hasActiveFilters={hasActiveFilters}
+                isFavorite={id => favoriteIdsSet.has(id)}
+                onToggleFavorite={handleToggleFavorite}
               />
 
               {!isLoadingProducts && totalElements > 0 && (

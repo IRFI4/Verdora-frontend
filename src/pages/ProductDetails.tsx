@@ -9,6 +9,11 @@ import { Button } from '@components/ui/button';
 import { Skeleton } from '@components/ui/skeleton';
 import { useGetProductById, useGetProducts } from '@api/product/product.hooks';
 import { useCategoryById } from '@api/category/category.hooks';
+import {
+  useFavoriteProductIds,
+  useAddToFavorites,
+  useRemoveFromFavorites,
+} from '@api/favorites/favorites.hooks';
 import { ProductGallery } from '@components/product/ProductGallery';
 import { ProductInfo } from '@components/product/ProductInfo';
 import { ProductTabs } from '@components/product/ProductTabs';
@@ -30,6 +35,22 @@ const ProductDetails = () => {
     isError,
     refetch,
   } = useGetProductById(productId, isValidId);
+
+  const { favoriteIdsSet } = useFavoriteProductIds();
+  const addToFavoritesMutation = useAddToFavorites();
+  const removeFromFavoritesMutation = useRemoveFromFavorites();
+
+  const isProductFavorite = Boolean(
+    product && favoriteIdsSet.has(product.productId)
+  );
+
+  const handleToggleFavorite = (targetProductId: number) => {
+    if (favoriteIdsSet.has(targetProductId)) {
+      removeFromFavoritesMutation.mutate(targetProductId);
+    } else {
+      addToFavoritesMutation.mutate(targetProductId);
+    }
+  };
 
   const categoryId = product?.categoryId;
   const hasCategory = Boolean(categoryId && categoryId > 0);
@@ -149,6 +170,8 @@ const ProductDetails = () => {
                 product={product}
                 categoryName={categoryName}
                 isLoadingCategory={isLoadingCategory}
+                isFavorite={isProductFavorite}
+                onToggleFavorite={handleToggleFavorite}
               />
             </div>
 
@@ -164,6 +187,8 @@ const ProductDetails = () => {
                 products={relatedProducts}
                 isLoading={isLoadingRelated}
                 viewAllHref={`/catalog?category=${categoryId}`}
+                isFavorite={id => favoriteIdsSet.has(id)}
+                onToggleFavorite={handleToggleFavorite}
               />
             )}
           </div>
