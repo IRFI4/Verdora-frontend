@@ -32,6 +32,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
   const handleLogout = () => {
     dispatch(logout());
     queryClient.clear();
+    navigate('/login');
   };
 
   const handleFavouriteClick = (e: React.MouseEvent) => {
