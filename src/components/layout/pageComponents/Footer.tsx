@@ -8,15 +8,20 @@ import TextField from '@components/common/forms/TextField';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// TODO: [TEAM-810] Connect to newsletter subscription endpoint when available (POST /newsletter/subscribe).
+// Form is kept visible to maintain layout, but disabled with a 'Coming soon' label until BE endpoint is deployed.
+const IS_NEWSLETTER_ENABLED =
+  import.meta.env.VITE_NEWSLETTER_ENABLED === 'true';
+
 const Footer = () => {
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState<string | undefined>(undefined);
   const [subscribed, setSubscribed] = useState(false);
 
-  // Backend does not provide a newsletter subscription endpoint yet.
-  // Validate email client-side and provide feedback until BE endpoint is available.
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!IS_NEWSLETTER_ENABLED) return;
+
     const trimmed = email.trim();
     if (!trimmed) {
       setEmailError('Please enter your email address');
@@ -36,6 +41,11 @@ const Footer = () => {
       {/* Mobile subscription banner */}
       <div className="md:hidden px-4 pt-8 pb-4">
         <div className="bg-[#C3E3BD]/60 backdrop-blur-sm rounded-2xl p-6 text-center border border-[#A8C89A]/40 shadow-xs max-w-md mx-auto">
+          {!IS_NEWSLETTER_ENABLED && (
+            <span className="inline-flex items-center rounded-full bg-[#1E331B]/10 px-3 py-0.5 text-xs font-semibold text-[#1E331B] mb-2">
+              Coming soon
+            </span>
+          )}
           <h2 className="text-2xl font-semibold text-[#1B3022] leading-tight">
             Don’t miss our discounts!
           </h2>
@@ -43,7 +53,7 @@ const Footer = () => {
             Subscribe to our newsletter for exclusive offers and plant care
             tips.
           </p>
-          {subscribed ? (
+          {IS_NEWSLETTER_ENABLED && subscribed ? (
             <div className="bg-white/90 backdrop-blur rounded-full py-2.5 px-5 text-sm font-medium text-[#203622] shadow-sm">
               Thank you for subscribing!
             </div>
@@ -54,16 +64,28 @@ const Footer = () => {
             >
               <TextField
                 type="email"
-                placeholder="Enter your email"
+                placeholder={
+                  IS_NEWSLETTER_ENABLED
+                    ? 'Enter your email'
+                    : 'Newsletter coming soon'
+                }
                 value={email}
                 error={emailError}
+                className={
+                  !IS_NEWSLETTER_ENABLED
+                    ? 'opacity-60 cursor-not-allowed pointer-events-none'
+                    : ''
+                }
                 onChange={val => {
                   setEmail(val);
                   if (emailError) setEmailError(undefined);
                 }}
               />
-              <Button variant="default" disabled={!email.trim()}>
-                Subscribe
+              <Button
+                variant="default"
+                disabled={!IS_NEWSLETTER_ENABLED || !email.trim()}
+              >
+                {IS_NEWSLETTER_ENABLED ? 'Subscribe' : 'Coming soon'}
               </Button>
             </form>
           )}
@@ -79,11 +101,16 @@ const Footer = () => {
           />
 
           <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10 max-w-[320px] mx-auto">
+            {!IS_NEWSLETTER_ENABLED && (
+              <span className="inline-flex items-center rounded-full bg-[#1E331B]/10 px-3 py-0.5 text-xs font-semibold text-[#1E331B] mb-2">
+                Coming soon
+              </span>
+            )}
             <h2 className="text-3xl lg:text-4xl font-semibold text-[#1B3022] leading-tight">
               Don’t miss our discounts!
             </h2>
 
-            {subscribed ? (
+            {IS_NEWSLETTER_ENABLED && subscribed ? (
               <div className="bg-white/90 backdrop-blur rounded-full py-3 px-6 text-sm font-medium text-[#203622] shadow-sm mt-4">
                 Thank you for subscribing!
               </div>
@@ -94,16 +121,28 @@ const Footer = () => {
               >
                 <TextField
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder={
+                    IS_NEWSLETTER_ENABLED
+                      ? 'Enter your email'
+                      : 'Newsletter coming soon'
+                  }
                   value={email}
                   error={emailError}
+                  className={
+                    !IS_NEWSLETTER_ENABLED
+                      ? 'opacity-60 cursor-not-allowed pointer-events-none'
+                      : ''
+                  }
                   onChange={val => {
                     setEmail(val);
                     if (emailError) setEmailError(undefined);
                   }}
                 />
-                <Button variant="default" disabled={!email.trim()}>
-                  Subscribe
+                <Button
+                  variant="default"
+                  disabled={!IS_NEWSLETTER_ENABLED || !email.trim()}
+                >
+                  {IS_NEWSLETTER_ENABLED ? 'Subscribe' : 'Coming soon'}
                 </Button>
               </form>
             )}

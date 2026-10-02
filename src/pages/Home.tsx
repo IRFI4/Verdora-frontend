@@ -26,6 +26,22 @@ import ProductGridSection from '@components/common/section/ProductGridSection';
 import CategoryGridSection from '@components/common/section/CategoryGridSection';
 import SectionLayout from '@components/common/section/SectionLayout';
 
+// Interior plant hotspots matching plants in section-background.png:
+// - Hotspot 19: Rubber Plant (ficus on the left)
+// - Hotspot 20: Rose (on the table)
+const HOTSPOTS = [
+  {
+    productId: 19,
+    className: 'bottom-[22%] left-[23%]',
+    label: 'Rubber Plant',
+  },
+  {
+    productId: 20,
+    className: 'bottom-[31%] left-[49%]',
+    label: 'Rose',
+  },
+];
+
 export const Home = () => {
   const navigate = useNavigate();
   const { user } = useAppSelector(state => state.auth);
@@ -40,25 +56,35 @@ export const Home = () => {
   const { data: productOfTheDay, isLoading: isProductOfTheDayLoading } =
     useGetProductOfTheDay();
 
-  const availableProducts = products?.content || [];
-  const hotspot1Product = availableProducts[0];
-  const hotspot2Product = availableProducts[1] ?? hotspot1Product;
+  const hotspot1Query = useGetProductById(HOTSPOTS[0].productId);
+  const hotspot2Query = useGetProductById(HOTSPOTS[1].productId);
 
-  const hotspot1Id = hotspot1Product?.productId;
-  const hotspot2Id = hotspot2Product?.productId;
+  const isHotspot1NotFound = hotspot1Query.error?.response?.status === 404;
+  const isHotspot2NotFound = hotspot2Query.error?.response?.status === 404;
+
+  const visibleHotspots = HOTSPOTS.filter(spot => {
+    if (spot.productId === HOTSPOTS[0].productId) return !isHotspot1NotFound;
+    if (spot.productId === HOTSPOTS[1].productId) return !isHotspot2NotFound;
+    return true;
+  });
 
   const [selectedProductId, setSelectedProductId] = useState<number | null>(
     null
   );
-  const activeProductId = selectedProductId ?? hotspot1Id ?? 19;
+  const activeProductId =
+    selectedProductId &&
+    visibleHotspots.some(h => h.productId === selectedProductId)
+      ? selectedProductId
+      : visibleHotspots[0]?.productId;
 
-  const {
-    data: selectedProduct,
-    isLoading: isSelectedProductLoading,
-    isError: isSelectedProductError,
-    error: selectedProductError,
-    refetch: refetchSelectedProduct,
-  } = useGetProductById(activeProductId, Boolean(activeProductId));
+  const currentProductQuery =
+    activeProductId === HOTSPOTS[1].productId ? hotspot2Query : hotspot1Query;
+
+  const selectedProduct = currentProductQuery.data;
+  const isSelectedProductLoading = currentProductQuery.isLoading;
+  const isSelectedProductError = currentProductQuery.isError;
+  const selectedProductError = currentProductQuery.error;
+  const refetchSelectedProduct = currentProductQuery.refetch;
 
   const handleBuyNow = (productId: number) => {
     if (!user) {
@@ -270,42 +296,31 @@ export const Home = () => {
                 alt="Cozy living room with houseplants"
                 className="size-full object-cover transition-transform duration-700 group-hover:scale-102"
               />
-              <button
-                type="button"
-                onClick={() => {
-                  if (hotspot1Id) setSelectedProductId(hotspot1Id);
-                }}
-                className={cn(
-                  'absolute bottom-[22%] left-[23%] flex size-12 sm:size-14 items-center justify-center rounded-full backdrop-blur-xs text-3xl font-light leading-none text-white transition-all shadow-lg cursor-pointer',
-                  activeProductId === hotspot1Id
-                    ? 'bg-[#1E331B] ring-4 ring-white/90 scale-110 shadow-xl'
-                    : 'bg-[#1E331B]/80 hover:scale-110 hover:bg-[#1E331B] opacity-90 hover:opacity-100'
-                )}
-                aria-label={`View plant ${hotspot1Product?.name || ''}`}
-                aria-pressed={activeProductId === hotspot1Id}
-              >
-                +
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (hotspot2Id) setSelectedProductId(hotspot2Id);
-                }}
-                className={cn(
-                  'absolute bottom-[31%] left-[49%] flex size-12 sm:size-14 items-center justify-center rounded-full backdrop-blur-xs text-3xl font-light leading-none text-white transition-all shadow-lg cursor-pointer',
-                  activeProductId === hotspot2Id
-                    ? 'bg-[#1E331B] ring-4 ring-white/90 scale-110 shadow-xl'
-                    : 'bg-[#1E331B]/80 hover:scale-110 hover:bg-[#1E331B] opacity-90 hover:opacity-100'
-                )}
-                aria-label={`View plant ${hotspot2Product?.name || ''}`}
-                aria-pressed={activeProductId === hotspot2Id}
-              >
-                +
-              </button>
+              {visibleHotspots.map(spot => {
+                const isSelected = activeProductId === spot.productId;
+                return (
+                  <button
+                    key={spot.productId}
+                    type="button"
+                    onClick={() => setSelectedProductId(spot.productId)}
+                    className={cn(
+                      'absolute flex size-12 sm:size-14 items-center justify-center rounded-full backdrop-blur-xs text-3xl font-light leading-none text-white transition-all shadow-lg cursor-pointer',
+                      spot.className,
+                      isSelected
+                        ? 'bg-[#1E331B] ring-4 ring-white/90 scale-110 shadow-xl'
+                        : 'bg-[#1E331B]/80 hover:scale-110 hover:bg-[#1E331B] opacity-90 hover:opacity-100'
+                    )}
+                    aria-label={`View plant ${spot.label}`}
+                    aria-pressed={isSelected}
+                  >
+                    +
+                  </button>
+                );
+              })}
             </div>
 
             <div className="lg:col-span-4 flex flex-col justify-between items-center gap-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-white/80 p-6 text-center shadow-xs min-h-[380px]">
-              {isSelectedProductLoading ? (
+              {isProductsLoading || isSelectedProductLoading ? (
                 <>
                   <div className="h-7 w-36 bg-zinc-200/80 dark:bg-zinc-800 rounded-lg animate-pulse" />
                   <div className="relative z-10 w-full h-56 flex items-center justify-center">
