@@ -16,6 +16,8 @@ import type { UserType } from '@/types/user';
 import {
   guestCartService,
   GUEST_CART_STORAGE_KEY,
+  calculateCartItemPrices,
+  calculateCartTotals,
   type CartService,
 } from '@/utils/guestCart';
 
@@ -151,9 +153,7 @@ export const useRemoveItemFromCart = () => {
           item => item.cartItemId !== variables.cartItemId
         );
         const shippingCost = old.shippingCost ?? 0;
-        const totalPrice =
-          filteredItems.reduce((sum, item) => sum + item.subtotal, 0) +
-          shippingCost;
+        const { totalPrice } = calculateCartTotals(filteredItems, shippingCost);
 
         return {
           ...old,
@@ -207,22 +207,21 @@ export const useUpdateCartItemQuantity = () => {
           if (item.cartItemId !== variables.cartItemId) {
             return item;
           }
-          const price = item.price ?? 0;
-          const unitPrice =
-            item.discountPrice !== undefined && item.discountPrice !== null
-              ? item.discountPrice
-              : price;
+          const { discountPrice, subtotal } = calculateCartItemPrices(
+            item.price ?? 0,
+            item.discountPrice,
+            variables.quantity
+          );
           return {
             ...item,
             quantity: variables.quantity,
-            subtotal: unitPrice * variables.quantity,
+            discountPrice,
+            subtotal,
           };
         });
 
         const shippingCost = old.shippingCost ?? 0;
-        const totalPrice =
-          updatedItems.reduce((sum, item) => sum + item.subtotal, 0) +
-          shippingCost;
+        const { totalPrice } = calculateCartTotals(updatedItems, shippingCost);
 
         return {
           ...old,

@@ -245,8 +245,6 @@ const Cart = () => {
               }
               onDismiss={() => {
                 setDismissedGuestWarning(true);
-                clearGuestCartSyncError();
-                setSyncError(null);
               }}
               action={
                 <div className="flex items-center gap-2">
@@ -312,8 +310,6 @@ const Cart = () => {
           }
           onDismiss={() => {
             setDismissedGuestWarning(true);
-            clearGuestCartSyncError();
-            setSyncError(null);
           }}
           action={
             <div className="flex items-center gap-2">
