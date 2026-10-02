@@ -9,11 +9,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
 import { Button } from '@components/ui/button';
 import DropdownMenuItems from '@/components/common/dropdown/DropdownMenuItem';
 import { USER_MENU } from '@fixtures/sidebar.fixture';
-import { useAppDispatch } from '@api/hooks';
-import { logout } from '@api/auth/auth.actions';
-import { useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
 import { useNetworkStatus } from '@hooks/useNetworkStatus';
+import { useLogout } from '@hooks/useLogout';
 import { Skeleton } from '@components/ui/skeleton';
 import { SidebarMenuButton, useSidebar } from '@components/ui/sidebar';
 import type React from 'react';
@@ -33,20 +30,9 @@ const UserDropdownMenu = ({
   loading = false,
   children,
 }: UserFooterProps) => {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { isOnline } = useNetworkStatus();
   const { isMobile } = useSidebar();
-  const dispatch = useAppDispatch();
-  const handleLogout = async () => {
-    try {
-      await dispatch(logout()).unwrap();
-      queryClient.clear();
-      navigate('/login');
-    } catch {
-      // Offline / network failure: keep session intact on client
-    }
-  };
+  const { handleLogout, isLoggingOut } = useLogout();
 
   if (loading) {
     return (
@@ -96,11 +82,11 @@ const UserDropdownMenu = ({
         <Button
           className="w-full"
           onClick={handleLogout}
-          disabled={!isOnline}
+          disabled={!isOnline || isLoggingOut}
           title={!isOnline ? 'Cannot log out while offline' : undefined}
           variant={'secondary'}
         >
-          Logout
+          {isLoggingOut ? 'Logging out...' : 'Logout'}
         </Button>
       </DropdownMenuContent>
     </DropdownMenu>

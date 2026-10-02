@@ -2,17 +2,16 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import Logo from '@components/common/Logo';
 import { Button } from '@components/ui/button';
-import { useAppDispatch, useAppSelector } from '@api/hooks';
-import { logout } from '@api/auth/auth.actions';
+import { useAppSelector } from '@api/hooks';
 import { Spinner } from '@components/ui/spinner';
 import FavouriteIcon from '@assets/icons/heart.svg?react';
 import CartIcon from '@assets/icons/cart.svg?react';
 import MenuIcon from '@assets/icons/menu.svg?react';
 import Navlink from '@components/common/Navlink';
-import { useQueryClient } from '@tanstack/react-query';
 import { useGetCart } from '@api/cart/cart.hooks';
 import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
 import { useNetworkStatus } from '@hooks/useNetworkStatus';
+import { useLogout } from '@hooks/useLogout';
 
 type HeaderProps = {
   onOpenMenu: () => void;
@@ -20,9 +19,8 @@ type HeaderProps = {
 
 const Header = ({ onOpenMenu }: HeaderProps) => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const queryClient = useQueryClient();
   const { isOnline } = useNetworkStatus();
+  const { handleLogout, isLoggingOut } = useLogout();
   const { user, hydrating } = useAppSelector(state => state.auth);
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -30,16 +28,6 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
   const { data: cart } = useGetCart({ enabled: Boolean(user) });
   const items = cart?.items || [];
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-
-  const handleLogout = async () => {
-    try {
-      await dispatch(logout()).unwrap();
-      queryClient.clear();
-      navigate('/login');
-    } catch {
-      // Offline / network failure: keep session intact on client
-    }
-  };
 
   const handleFavouriteClick = (e: React.MouseEvent) => {
     if (!user) {
@@ -119,10 +107,10 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
                 <Button
                   variant="default"
                   onClick={handleLogout}
-                  disabled={!isOnline}
+                  disabled={!isOnline || isLoggingOut}
                   title={!isOnline ? 'Cannot log out while offline' : undefined}
                 >
-                  Sign Out
+                  {isLoggingOut ? 'Signing Out...' : 'Sign Out'}
                 </Button>
               </div>
             ) : (
