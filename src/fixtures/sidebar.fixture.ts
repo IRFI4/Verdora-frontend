@@ -7,6 +7,7 @@ import {
   Percent,
   FileText,
   Settings,
+  Home,
 } from 'lucide-react';
 
 export const ADMIN_MENU: SidebarSection[] = [
@@ -20,6 +21,21 @@ export const ADMIN_MENU: SidebarSection[] = [
       { title: 'Discounts', path: '/admin/discounts', icon: Percent },
       { title: 'Reports', path: '/admin/reports', icon: FileText },
     ],
+  },
+];
+
+export const MAIN_MENU: SidebarSection[] = [
+  {
+    label: 'Navigation',
+    items: [
+      { title: 'Home', path: '/', icon: Home },
+      { title: 'Catalog', path: '/catalog', icon: Package },
+      { title: 'Discounts', path: '/catalog?discount=true', icon: Percent },
+    ],
+  },
+  {
+    label: 'Personal',
+    items: [{ title: 'Shopping Cart', path: '/cart', icon: ShoppingBag }],
   },
 ];
 
