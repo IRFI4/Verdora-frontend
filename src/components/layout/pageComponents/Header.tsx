@@ -76,7 +76,7 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
             </form>
 
             <Link
-              to="/favourites"
+              to="/favorites"
               className="relative flex size-8 items-center justify-center rounded-full hover:bg-zinc-100 transition-colors"
               aria-label="Favourite items"
               onClick={handleFavouriteClick}
