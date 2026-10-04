@@ -40,17 +40,12 @@ export const CatalogProductCard = ({
   const isLoggedIn =
     isAuthenticated !== undefined ? isAuthenticated : Boolean(user);
 
-  const [internalFav, setInternalFav] = useState(isFavorite);
   const [imageError, setImageError] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [added, setAdded] = useState(false);
   const isGrid = viewMode === 'grid';
 
   const addTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    setInternalFav(isFavorite);
-  }, [isFavorite]);
 
   useEffect(() => {
     return () => {
@@ -102,7 +97,6 @@ export const CatalogProductCard = ({
       onAuthRequired?.();
       return;
     }
-    setInternalFav(prev => !prev);
     onToggleFavorite?.(productId);
   };
 
@@ -160,19 +154,23 @@ export const CatalogProductCard = ({
           <button
             type="button"
             onClick={handleToggleFavorite}
-            className={`size-9 rounded-full border flex items-center justify-center cursor-pointer transition-colors bg-white ${
-              internalFav
+            className={cn(
+              'size-9 rounded-full border flex items-center justify-center cursor-pointer transition-colors bg-white',
+              isFavorite
                 ? 'border-[#FA1105]/40 text-[#FA1105]'
                 : 'border-[#D9DEDB] text-[#0C0C0C] hover:border-zinc-400'
-            }`}
+            )}
             aria-label={
-              internalFav ? 'Remove from favourites' : 'Add to favourites'
+              isFavorite ? 'Remove from favorites' : 'Add to favorites'
             }
           >
             <Heart
-              className={`size-4 stroke-[1.6] ${
-                internalFav ? 'fill-[#FA1105]' : ''
-              }`}
+              className={cn(
+                'size-5 transition-colors',
+                isFavorite
+                  ? 'fill-[#FA1105] text-[#FA1105]'
+                  : 'text-[#0C0C0C] hover:text-[#FA1105]'
+              )}
             />
           </button>
 

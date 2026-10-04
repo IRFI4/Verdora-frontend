@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import LayoutPage from '@components/layout/pageLayout/LayoutPage';
 import Breadcrumbs, {
@@ -40,17 +40,30 @@ const ProductDetails = () => {
   const addToFavoritesMutation = useAddToFavorites();
   const removeFromFavoritesMutation = useRemoveFromFavorites();
 
+  const isFavoritePending =
+    addToFavoritesMutation.isPending || removeFromFavoritesMutation.isPending;
+
   const isProductFavorite = Boolean(
     product && favoriteIdsSet.has(product.productId)
   );
 
-  const handleToggleFavorite = (targetProductId: number) => {
-    if (favoriteIdsSet.has(targetProductId)) {
-      removeFromFavoritesMutation.mutate(targetProductId);
-    } else {
-      addToFavoritesMutation.mutate(targetProductId);
-    }
-  };
+  const handleToggleFavorite = useCallback(
+    (targetProductId: number) => {
+      if (isFavoritePending) return;
+
+      if (favoriteIdsSet.has(targetProductId)) {
+        removeFromFavoritesMutation.mutate(targetProductId);
+      } else {
+        addToFavoritesMutation.mutate(targetProductId);
+      }
+    },
+    [
+      favoriteIdsSet,
+      isFavoritePending,
+      addToFavoritesMutation,
+      removeFromFavoritesMutation,
+    ]
+  );
 
   const categoryId = product?.categoryId;
   const hasCategory = Boolean(categoryId && categoryId > 0);
@@ -171,6 +184,7 @@ const ProductDetails = () => {
                 categoryName={categoryName}
                 isLoadingCategory={isLoadingCategory}
                 isFavorite={isProductFavorite}
+                isFavoritePending={isFavoritePending}
                 onToggleFavorite={handleToggleFavorite}
               />
             </div>

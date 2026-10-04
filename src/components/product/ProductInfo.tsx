@@ -21,6 +21,7 @@ export type ProductInfoProps = {
   onAddToCart?: (productId: number, quantity: number) => void;
   onToggleFavorite?: (productId: number) => void;
   isFavorite?: boolean;
+  isFavoritePending?: boolean;
   className?: string;
   descriptionClamp?: string;
   reviewsCount?: number;
@@ -34,13 +35,13 @@ export const ProductInfo = ({
   onAddToCart,
   onToggleFavorite,
   isFavorite = false,
+  isFavoritePending = false,
   className,
   descriptionClamp = 'line-clamp-4',
   reviewsCount,
   rating,
 }: ProductInfoProps) => {
   const { user } = useAppSelector(state => state.auth);
-  const [internalFav, setInternalFav] = useState(isFavorite);
   const [quantity, setQuantity] = useState(1);
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
   const [loginPromptAction, setLoginPromptAction] =
@@ -53,10 +54,6 @@ export const ProductInfo = ({
     show: false,
     qty: 1,
   });
-
-  useEffect(() => {
-    setInternalFav(isFavorite);
-  }, [isFavorite]);
 
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -166,14 +163,15 @@ export const ProductInfo = ({
   ]);
 
   const handleToggleFavorite = useCallback(() => {
+    if (isFavoritePending) return;
+
     if (!user) {
       setLoginPromptAction('favorite');
       setIsLoginPromptOpen(true);
       return;
     }
-    setInternalFav(prev => !prev);
     onToggleFavorite?.(product.productId);
-  }, [user, onToggleFavorite, product.productId]);
+  }, [user, onToggleFavorite, product.productId, isFavoritePending]);
 
   return (
     <div
@@ -311,12 +309,11 @@ export const ProductInfo = ({
           type="button"
           variant="outline"
           onClick={handleToggleFavorite}
-          aria-label={
-            internalFav ? 'Remove from favorites' : 'Add to favorites'
-          }
+          disabled={isFavoritePending}
+          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
           className={cn(
-            'h-12 w-fit px-6 rounded-[16px] font-medium text-[15px] tracking-tight transition-all cursor-pointer active:scale-[0.98]',
-            internalFav
+            'h-12 w-fit px-6 rounded-[16px] font-medium text-[15px] tracking-tight transition-all cursor-pointer active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed',
+            isFavorite
               ? 'border-[#FA1105] text-[#FA1105] bg-[#FFF5F4] hover:bg-[#ffeceb] hover:text-[#FA1105]'
               : 'border-[#D9DEDB] text-[#0C0C0C] hover:border-zinc-400 hover:bg-[#fcfdfb]'
           )}
@@ -324,10 +321,10 @@ export const ProductInfo = ({
           <Heart
             className={cn(
               'size-5 stroke-[1.8] transition-colors',
-              internalFav ? 'fill-[#FA1105] text-[#FA1105]' : 'text-[#0C0C0C]'
+              isFavorite ? 'fill-[#FA1105] text-[#FA1105]' : 'text-[#0C0C0C]'
             )}
           />
-          <span>{internalFav ? 'Added to favorites' : 'Add to favorites'}</span>
+          <span>{isFavorite ? 'Added to favorites' : 'Add to favorites'}</span>
         </Button>
 
         {addedToast.show && (

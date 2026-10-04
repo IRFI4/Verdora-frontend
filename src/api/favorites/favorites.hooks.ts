@@ -8,13 +8,68 @@ import type { FavoriteItem } from '@/types/favorites';
 
 type FavoritesAxiosError = AxiosError<ApiErrorResponse>;
 
+interface FavoritesMutationContext {
+  previousFavorites?: FavoriteItem[];
+  previousIsFavorite?: boolean;
+}
+
 export const useAddToFavorites = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<FavoriteItem, FavoritesAxiosError, number>({
+  return useMutation<
+    FavoriteItem,
+    FavoritesAxiosError,
+    number,
+    FavoritesMutationContext
+  >({
     mutationFn: (productId: number) =>
       favoritesService.addToFavorites(productId),
-    onSuccess: (_, productId) => {
+
+    onMutate: async (productId: number) => {
+      await queryClient.cancelQueries({ queryKey: ['favorites'] });
+      await queryClient.cancelQueries({ queryKey: ['favorites', productId] });
+
+      const previousFavorites = queryClient.getQueryData<FavoriteItem[]>([
+        'favorites',
+      ]);
+      const previousIsFavorite = queryClient.getQueryData<boolean>([
+        'favorites',
+        productId,
+      ]);
+
+      queryClient.setQueryData<boolean>(['favorites', productId], true);
+
+      queryClient.setQueryData<FavoriteItem[]>(['favorites'], (old = []) => {
+        if (old.some(item => item.productId === productId)) return old;
+
+        const tempItem: FavoriteItem = {
+          productId,
+          productName: '',
+          imageUrl: '',
+          price: 0,
+          discountPrice: 0,
+          addedAt: new Date().toISOString(),
+        };
+
+        return [...old, tempItem];
+      });
+
+      return { previousFavorites, previousIsFavorite };
+    },
+
+    onError: (_error, productId, context) => {
+      if (context?.previousFavorites !== undefined) {
+        queryClient.setQueryData(['favorites'], context.previousFavorites);
+      }
+      if (context?.previousIsFavorite !== undefined) {
+        queryClient.setQueryData(
+          ['favorites', productId],
+          context.previousIsFavorite
+        );
+      }
+    },
+
+    onSettled: (_, __, productId) => {
       queryClient.invalidateQueries({ queryKey: ['favorites'] });
       queryClient.invalidateQueries({ queryKey: ['favorites', productId] });
     },
@@ -24,10 +79,48 @@ export const useAddToFavorites = () => {
 export const useRemoveFromFavorites = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<Record<string, never>, FavoritesAxiosError, number>({
+  return useMutation<
+    Record<string, never>,
+    FavoritesAxiosError,
+    number,
+    FavoritesMutationContext
+  >({
     mutationFn: (productId: number) =>
       favoritesService.removeFromFavorites(productId),
-    onSuccess: (_, productId) => {
+
+    onMutate: async (productId: number) => {
+      await queryClient.cancelQueries({ queryKey: ['favorites'] });
+      await queryClient.cancelQueries({ queryKey: ['favorites', productId] });
+
+      const previousFavorites = queryClient.getQueryData<FavoriteItem[]>([
+        'favorites',
+      ]);
+      const previousIsFavorite = queryClient.getQueryData<boolean>([
+        'favorites',
+        productId,
+      ]);
+
+      queryClient.setQueryData<boolean>(['favorites', productId], false);
+      queryClient.setQueryData<FavoriteItem[]>(['favorites'], (old = []) =>
+        old.filter(item => item.productId !== productId)
+      );
+
+      return { previousFavorites, previousIsFavorite };
+    },
+
+    onError: (_error, productId, context) => {
+      if (context?.previousFavorites !== undefined) {
+        queryClient.setQueryData(['favorites'], context.previousFavorites);
+      }
+      if (context?.previousIsFavorite !== undefined) {
+        queryClient.setQueryData(
+          ['favorites', productId],
+          context.previousIsFavorite
+        );
+      }
+    },
+
+    onSettled: (_, __, productId) => {
       queryClient.invalidateQueries({ queryKey: ['favorites'] });
       queryClient.invalidateQueries({ queryKey: ['favorites', productId] });
     },
