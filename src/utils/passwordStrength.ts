@@ -20,7 +20,10 @@ export function getPasswordRequirements(
       rule: /[a-z]/.test(password) && /[A-Z]/.test(password),
     },
     { label: 'At least one number', rule: /\d/.test(password) },
-    { label: 'Special character (!@#$%)', rule: /[\W_]/.test(password) },
+    {
+      label: 'Special character (e.g. !, @, #, $, %)',
+      rule: /[\W_]/.test(password),
+    },
   ];
 }
 

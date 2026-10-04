@@ -27,6 +27,7 @@ const Login = () => {
     formState: { errors: formErrors, isValid },
     watch,
     setValue,
+    trigger,
   } = useLoginForm();
   const canSubmit = useMemo(() => rateLimit(2000), []);
 
@@ -101,7 +102,9 @@ const Login = () => {
           id="email"
           placeholder="Enter your email address"
           value={watch('email')}
+
           onChange={value => handleFieldChange('email', value)}
+          onBlur={() => trigger('email')}
           error={formErrors.email?.message}
           leftIcon={<MailIcon />}
         />
@@ -110,6 +113,7 @@ const Login = () => {
           placeholder="********"
           value={watch('password')}
           onChange={value => handleFieldChange('password', value)}
+          onBlur={() => trigger('password')}
           error={formErrors.password?.message}
           leftIcon={<LockIcon />}
         />
