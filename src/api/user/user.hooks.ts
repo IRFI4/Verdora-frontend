@@ -47,14 +47,9 @@ export const useDeleteUser = () => {
   return useMutation<
     null,
     CartAxiosError,
-    number | { id: number; data?: { password?: string } }
+    { id: number; data: { password: string } }
   >({
-    mutationFn: param => {
-      if (typeof param === 'number') {
-        return userService.deleteUser(param);
-      }
-      return userService.deleteUser(param.id, param.data);
-    },
+    mutationFn: ({ id, data }) => userService.deleteUser(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.invalidateQueries({ queryKey: ['profile'] });

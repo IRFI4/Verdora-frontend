@@ -33,7 +33,7 @@ export const userService = {
     return response.data.data;
   },
 
-  deleteUser: async (id: number, data?: { password?: string }) => {
+  deleteUser: async (id: number, data: { password: string }) => {
     const response = await instance.delete<ApiResponse<null>>(`/users/${id}`, {
       data,
     });
