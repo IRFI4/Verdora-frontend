@@ -1,23 +1,53 @@
 import Header from '@components/layout/pageComponents/Header';
 import Footer from '@components/layout/pageComponents/Footer';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { fetchMe } from '@api/auth/auth.actions';
-import { useGetCart } from '@api/cart/cart.hooks';
+import { useGetCart, useSyncCartOnStorage } from '@api/cart/cart.hooks';
+import NoticeAlert from '@components/common/NoticeAlert';
+import {
+  getGuestCartSyncError,
+  clearGuestCartSyncError,
+} from '@/utils/guestCart';
 import { SidebarInset, SidebarProvider } from '@components/ui/sidebar';
 import MainSidebar from '@components/layout/pageComponents/sidebar/MainSidebar';
 
 const LayoutPage = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch();
-  const { user, hydrating } = useAppSelector(state => state.auth);
+  const location = useLocation();
+  const isCartPage = location.pathname === '/cart';
+  const { user, initialized, hydrating } = useAppSelector(state => state.auth);
+  const [syncError, setSyncError] = useState<string | null>(() =>
+    getGuestCartSyncError()
+  );
+
+  useSyncCartOnStorage();
 
   useGetCart({
     enabled: Boolean(user),
   });
 
   useEffect(() => {
-    dispatch(fetchMe());
-  }, [dispatch]);
+    if (!initialized && !hydrating) {
+      dispatch(fetchMe());
+    }
+  }, [dispatch, initialized, hydrating]);
+
+  useEffect(() => {
+    const handleSyncError = () => {
+      setSyncError(getGuestCartSyncError());
+    };
+    window.addEventListener('guest-cart-sync-error', handleSyncError);
+    return () => {
+      window.removeEventListener('guest-cart-sync-error', handleSyncError);
+    };
+  }, []);
+
+  const handleDismissSyncError = () => {
+    clearGuestCartSyncError();
+    setSyncError(null);
+  };
 
   return (
     <SidebarProvider defaultOpen={false}>
@@ -32,9 +62,18 @@ const LayoutPage = ({ children }: { children: React.ReactNode }) => {
 
           <div className="relative z-10 flex min-h-screen flex-col flex-1">
             <Header />
-            <div className="flex flex-1 flex-col w-full max-w-427.5 mx-auto px-4">
+            <main className="flex flex-1 flex-col w-full max-w-427.5 mx-auto px-4">
+              {syncError && !isCartPage && (
+                <div className="pt-4">
+                  <NoticeAlert
+                    variant="error"
+                    message={syncError}
+                    onDismiss={handleDismissSyncError}
+                  />
+                </div>
+              )}
               {children}
-            </div>
+            </main>
             <Footer />
           </div>
         </div>
