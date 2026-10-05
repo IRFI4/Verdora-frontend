@@ -98,16 +98,6 @@ const AuthForm = ({
                     </Button>
                   </div>
                 )}
-                <div className="flex items-center justify-center gap-1 mt-1 text-[16px] font-medium">
-                  <p className="text-primary-disable-foreground">
-                    {footerText}
-                  </p>
-                  <LinkComponent
-                    to={footerLink}
-                    text={footerLinkText}
-                    className="font-bold text-black dark:text-white hover:underline"
-                  />
-                </div>
                 <div className="flex items-center justify-center gap-1 mt-1 text-sm">
                   <p className="text-zinc-500">{footerText}</p>
                   <LinkComponent
@@ -120,7 +110,8 @@ const AuthForm = ({
               </CardFooter>
             </Card>
           </div>
-        <div className="h-4 hidden lg:block" />
+          <div className="h-4 hidden lg:block" />
+        </div>
       </div>
     </div>
   );

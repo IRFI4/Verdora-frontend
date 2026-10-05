@@ -19,7 +19,7 @@ interface ProductCardProps {
   productId: number;
   title: string;
   price: number;
-  newPrice?: number;
+  newPrice?: number | null;
   imageSrc?: string;
 }
 

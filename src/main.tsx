@@ -1,7 +1,7 @@
 import { Provider } from 'react-redux';
 import { store } from '@api/store';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-react-router';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import '@/index.css';
 import Login from '@pages/auth/Login';
 import Register from '@pages/auth/Register';

@@ -106,7 +106,6 @@ const Login = () => {
           id="email"
           placeholder="Enter your email address"
           value={watch('email')}
-
           onChange={value => handleFieldChange('email', value)}
           onBlur={() => trigger('email')}
           error={formErrors.email?.message}

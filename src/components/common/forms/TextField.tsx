@@ -22,7 +22,7 @@ type Props = {
   labelClassName?: string;
   containerClassName?: string;
   disabled?: boolean;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
@@ -93,7 +93,7 @@ const TextField = ({
           placeholder={placeholder}
           value={value}
           disabled={disabled}
-          onChange={e => onChange(e.target.value)}
+          onChange={e => onChange?.(e.target.value)}
           onBlur={onBlur}
           className={cn(
             `text-sm text-text-h

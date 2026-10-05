@@ -8,7 +8,7 @@ type Props = {
   className?: string;
 };
 
-const LinkComponent = ({ text, to, className }: Props) => {
+const LinkComponent = ({ text, to, className, state }: Props) => {
   const currentLocation = useLocation();
 
   return (
