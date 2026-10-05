@@ -2,19 +2,21 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import Logo from '@components/common/Logo';
 import { Button } from '@components/ui/button';
-import { useAppDispatch, useAppSelector } from '@api/hooks';
-import { logout } from '@api/auth/auth.actions';
+import { useAppSelector } from '@api/hooks';
 import { Spinner } from '@components/ui/spinner';
 import FavouriteIcon from '@assets/icons/heart.svg?react';
 import CartIcon from '@assets/icons/cart.svg?react';
 import SearchIcon from '@assets/icons/search.svg?react';
 import MenuIcon from '@assets/icons/menu.svg?react';
+import Navlink from '@components/common/Navlink';
+import { useGetCart } from '@api/cart/cart.hooks';
+import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
+import { useNetworkStatus } from '@hooks/useNetworkStatus';
+import { useLogout } from '@hooks/useLogout';
 import LinkComponent from '@components/common/Link';
 import { SidebarTrigger } from '@components/ui/sidebar';
 import TextField from '@components/common/forms/TextField';
 import { useQueryClient } from '@tanstack/react-query';
-import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
-import { useGetCart } from '@api/cart/cart.hooks';
 
 type HeaderProps = {
   onOpenMenu?: () => void;
@@ -22,8 +24,8 @@ type HeaderProps = {
 
 const Header = ({ onOpenMenu }: HeaderProps) => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const queryClient = useQueryClient();
+  const { isOnline } = useNetworkStatus();
+  const { handleLogout, isLoggingOut } = useLogout();
   const { user, hydrating } = useAppSelector(state => state.auth);
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -31,11 +33,6 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
   const { data: cart } = useGetCart({ enabled: Boolean(user) });
   const items = cart?.items || [];
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-
-  const handleLogout = () => {
-    dispatch(logout());
-    queryClient.clear();
-  };
 
   const handleFavouriteClick = (e: React.MouseEvent) => {
     if (!user) {
@@ -100,6 +97,43 @@ const Header = ({ onOpenMenu }: HeaderProps) => {
               <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white shadow-xs">
                 {cartItemCount}
               </span>
+            </Link>
+
+            <Link
+              to="/cart"
+              className="relative flex size-8 items-center justify-center rounded-full hover:bg-zinc-100 transition-colors"
+              aria-label="Shopping cart"
+            >
+              <CartIcon className="size-8" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-1 right-1 flex size-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white">
+                  {cartItemCount}
+                </span>
+              )}
+            </Link>
+
+            {hydrating ? (
+              <Spinner className="h-5 w-5" />
+            ) : user ? (
+              <div className="flex items-center gap-3">
+                <Link to="/profile">
+                  <div className="flex size-9 items-center justify-center rounded-full bg-accent text-white text-[13px] font-bold">
+                    {user.name?.charAt(0).toUpperCase() ?? '?'}
+                  </div>
+                </Link>
+                <Button
+                  variant="default"
+                  onClick={handleLogout}
+                  disabled={!isOnline || isLoggingOut}
+                  title={!isOnline ? 'Cannot log out while offline' : undefined}
+                >
+                  {isLoggingOut ? 'Signing Out...' : 'Sign Out'}
+                </Button>
+              </div>
+            ) : (
+              <Button variant="default" asChild>
+                <Link to="/login">Sign In</Link>
+              </Button>
             )}
           </Link>
 

@@ -22,6 +22,7 @@ import ProductManagement from '@pages/admin/ProductManagement';
 import Checkout from '@pages/Checkout';
 import OrderResult from '@pages/OrderResult';
 import ProductDetails from '@pages/ProductDetails';
+import Profile from '@pages/Profile';
 import Favourites from '@pages/Favourites';
 
 const queryClient = new QueryClient();
@@ -93,6 +94,14 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-result" element={<OrderResult />} />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/orders"
               element={
