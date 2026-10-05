@@ -1,7 +1,7 @@
 import { Button } from '@components/ui/button';
 import PasswordField from '@components/common/forms/PasswordField';
 import TextField from '@components/common/forms/TextField';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import { useLoginForm, type LoginFormData } from '@hooks/useLoginForm';
 import { useAppDispatch, useAppSelector } from '@api/hooks';
 import { login, NO_INTERNET_MESSAGE } from '@api/auth/auth.actions';
@@ -19,8 +19,11 @@ import { RefreshCw } from 'lucide-react';
 const Login = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { loading, errors } = useAppSelector(state => state.auth);
   const { isOnline, wasOffline, resetWasOffline } = useNetworkStatus();
+
+  const from = (location.state as { from?: Location })?.from?.pathname || '/';
 
   const {
     handleSubmit,
@@ -51,7 +54,7 @@ const Login = () => {
       await dispatch(
         login({ email: data.email, password: data.password })
       ).unwrap();
-      navigate('/');
+      navigate(from, { replace: true });
     } catch {
       // Error handled by auth slice and displayed in UI
     }
@@ -72,6 +75,7 @@ const Login = () => {
     <AuthForm
       footerText="Don’t have an account?"
       footerLink="/register"
+      footerLinkState={location.state}
       footerLinkText="Sign up"
     >
       <form

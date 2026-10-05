@@ -12,7 +12,10 @@ import type {
 
 type ProductAxiosError = AxiosError<ApiErrorResponse>;
 
-export const useGetProducts = (params?: GetProductsPayload) => {
+export const useGetProducts = (
+  params?: GetProductsPayload,
+  enabled: boolean = true
+) => {
   return useQuery<PaginatedData<Product>, ProductAxiosError>({
     queryKey: ['products', params],
     queryFn: async () =>
@@ -23,6 +26,7 @@ export const useGetProducts = (params?: GetProductsPayload) => {
         size: 0,
         number: 0,
       },
+    enabled,
   });
 };
 
