@@ -1,11 +1,12 @@
 import { Provider } from 'react-redux';
 import { store } from '@api/store';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Route, Routes } from 'react-router';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-react-router';
 import '@/index.css';
 import Login from '@pages/auth/Login';
 import Register from '@pages/auth/Register';
 import Home from '@pages/Home';
+import Catalog from '@pages/Catalog';
 import ForgotPassword from '@pages/auth/ForgotPassword';
 import ResetPassword from '@pages/auth/ResetPassword';
 import Cart from '@pages/Cart';
@@ -21,10 +22,11 @@ import OrderManagement from '@pages/admin/OrderManagement';
 import ProductManagement from '@pages/admin/ProductManagement';
 import Checkout from '@pages/Checkout';
 import OrderResult from '@pages/OrderResult';
-import Catalog from '@pages/Catalog';
 import ProductDetails from '@pages/ProductDetails';
 import ScrollToTop from '@components/common/ScrollToTop';
 import { fetchMe } from '@api/auth/auth.actions';
+import Profile from '@pages/Profile';
+import Favourites from '@pages/Favourites';
 
 store.dispatch(fetchMe());
 
@@ -37,6 +39,30 @@ createRoot(document.getElementById('root')!).render(
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/catalog" element={<Catalog />} />
+            <Route
+              path="/categories"
+              element={<Navigate to="/catalog" replace />}
+            />
+            <Route
+              path="/products"
+              element={<Navigate to="/catalog" replace />}
+            />
+            <Route
+              path="/sales"
+              element={<Navigate to="/catalog?discount=true" replace />}
+            />
+            <Route
+              path="/favourites"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Favourites />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/favorites"
+              element={<Navigate to="/favourites" replace />}
+            />
             <Route path="/products/:id" element={<ProductDetails />} />
             <Route
               path="/login"
@@ -80,6 +106,14 @@ createRoot(document.getElementById('root')!).render(
               }
             />
             <Route path="/order-result" element={<OrderResult />} />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/orders"
               element={

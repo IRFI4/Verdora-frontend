@@ -1,9 +1,13 @@
 import { z } from 'zod';
 
-export const emailSchema = z.email();
+export const emailSchema = z
+  .string()
+  .min(1, 'Email is required')
+  .email('Invalid email address');
 
 export const passwordSchema = z
   .string()
+  .min(1, 'Password is required')
   .min(8, 'Min 8 characters')
   .max(64, 'Max 64 characters')
   .refine(val => /^[\x20-\x7E]+$/.test(val), {
@@ -19,7 +23,8 @@ export const passwordSchema = z
     message: 'There must be at least one number',
   })
   .refine(val => /[\W_]/.test(val), {
-    message: 'There must be at least one special character',
+    message:
+      'There must be at least one special character (e.g. !, @, #, $, %)',
   });
 
 export const usernameSchema = z
