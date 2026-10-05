@@ -22,6 +22,7 @@ type Props = {
   labelClassName?: string;
   containerClassName?: string;
   onChange: (value: string) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   onRightIconClick?: () => void;
@@ -41,6 +42,7 @@ const TextField = ({
   labelClassName,
   containerClassName,
   onChange,
+  onBlur,
   leftIcon,
   rightIcon,
   onRightIconClick,
@@ -87,6 +89,7 @@ const TextField = ({
           placeholder={placeholder}
           value={value}
           onChange={e => onChange(e.target.value)}
+          onBlur={onBlur}
           className={cn(
             `text-sm text-text-h
             focus:outline-none focus-visible:outline-none focus-visible:ring-0
