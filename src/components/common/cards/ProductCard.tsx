@@ -4,11 +4,7 @@ import CartIcon from '@assets/icons/cart.svg?react';
 import { Button } from '@components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAddItemToCart } from '@api/cart/cart.hooks';
-import {
-  useAddToFavorites,
-  useFavoriteProductIds,
-  useRemoveFromFavorites,
-} from '@api/favorites/favorites.hooks';
+import { useToggleFavorite } from '@hooks/useToggleFavorite';
 import { Spinner } from '@components/ui/spinner';
 import { useAppSelector } from '@api/hooks';
 import { useNavigate } from 'react-router-dom';
@@ -35,30 +31,20 @@ const ProductCard = ({
   const [isAdded, setIsAdded] = useState(false);
 
   const { mutate: addToCart, isPending: isAdding } = useAddItemToCart();
-  const { mutate: addToFavorites, isPending: isAddingToFavorites } =
-    useAddToFavorites();
-  const { mutate: removeFromFavorites, isPending: isRemovingFromFavorites } =
-    useRemoveFromFavorites();
-
-  // Load favorites once via useFavoriteProductIds and perform O(1) Set lookup to prevent N+1 queries
-  const { favoriteIdsSet, isLoading: isFavoriteLoading } =
-    useFavoriteProductIds();
-  const isFavorite = favoriteIdsSet.has(productId);
+  // Favorites are loaded once and shared across cards, so this is an O(1) Set lookup
+  const {
+    isFavorite: checkIsFavorite,
+    isFavoritePending,
+    isFavoritesLoading: isFavoriteLoading,
+    toggleFavorite,
+  } = useToggleFavorite({ onAuthRequired: () => navigate('/login') });
+  const isFavorite = checkIsFavorite(productId);
 
   const handleToggleFavorites = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-
-    if (isFavorite) {
-      removeFromFavorites(productId);
-    } else {
-      addToFavorites(productId);
-    }
+    toggleFavorite(productId);
   };
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -102,7 +88,7 @@ const ProductCard = ({
               isFavorite && 'bg-[#1E331B]/10 border-[#1E331B]'
             )}
             onClick={handleToggleFavorites}
-            disabled={isAddingToFavorites || isRemovingFromFavorites}
+            disabled={isFavoritePending(productId)}
             aria-label="Toggle favourite"
           >
             {isFavoriteLoading ? (
