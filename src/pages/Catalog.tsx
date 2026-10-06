@@ -13,6 +13,11 @@ import CatalogProductList from '@components/catalog/CatalogProductList';
 import { useGetProducts } from '@api/product/product.hooks';
 import { useAllCategories } from '@api/category/category.hooks';
 import { useAddItemToCart } from '@api/cart/cart.hooks';
+import {
+  useFavoriteProductIds,
+  useAddToFavorites,
+  useRemoveFromFavorites,
+} from '@api/favorites/favorites.hooks';
 import LoginPromptDialog from '@components/common/dialog/LoginPromptDialog';
 import { X } from 'lucide-react';
 import type { GetProductsPayload } from '@/types/product';
@@ -74,11 +79,25 @@ const Catalog = () => {
     refetch: refetchCategories,
   } = useAllCategories();
 
+  const { favoriteIdsSet } = useFavoriteProductIds();
+  const addToFavoritesMutation = useAddToFavorites();
+  const removeFromFavoritesMutation = useRemoveFromFavorites();
+
+  const handleToggleFavorite = (targetProductId: number) => {
+    if (favoriteIdsSet.has(targetProductId)) {
+      removeFromFavoritesMutation.mutate(targetProductId);
+    } else {
+      addToFavoritesMutation.mutate(targetProductId);
+    }
+  };
+
   const categoryMap = useMemo(() => {
     const map = new Map<number, string>();
-    categories.forEach(cat => {
-      map.set(Number(cat.categoryId), cat.name);
-    });
+    if (Array.isArray(categories)) {
+      categories.forEach(cat => {
+        map.set(Number(cat.categoryId), cat.name);
+      });
+    }
     return map;
   }, [categories]);
 
@@ -119,7 +138,8 @@ const Catalog = () => {
 
   const addItemMutation = useAddItemToCart();
   const handleAddToCart = (productId: number) => {
-    addItemMutation.mutate({ productId, quantity: 1 });
+    const product = productsData?.content.find(p => p.productId === productId);
+    addItemMutation.mutate({ productId, quantity: 1, product });
   };
 
   const updateParam = (key: string, value: string | null) => {
@@ -237,7 +257,7 @@ const Catalog = () => {
 
           <div className="flex justify-center flex-col lg:flex-row items-start gap-7 pt-2">
             <CatalogFilterSidebar
-              categories={categories}
+              categories={Array.isArray(categories) ? categories : []}
               isLoadingCategories={isLoadingCategories}
               isCategoriesError={isCategoriesError}
               onRetryCategories={() => refetchCategories()}
@@ -288,6 +308,8 @@ const Catalog = () => {
                 onResetAll={handleResetAll}
                 searchQuery={searchQuery}
                 hasActiveFilters={hasActiveFilters}
+                isFavorite={id => favoriteIdsSet.has(id)}
+                onToggleFavorite={handleToggleFavorite}
               />
 
               {!isLoadingProducts && totalElements > 0 && (

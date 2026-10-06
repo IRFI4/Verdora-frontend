@@ -83,10 +83,14 @@ const AdminDashboard = () => {
         ) : (
           <DashboardMetricCard
             key="total-categories"
-            value={categoriesData?.length.toString() ?? 'N/A'}
+            value={
+              Array.isArray(categoriesData)
+                ? categoriesData.length.toString()
+                : 'N/A'
+            }
             title="Total Categories"
             description={
-              categoriesData?.length.toString()
+              Array.isArray(categoriesData)
                 ? 'Number of categories'
                 : 'No category data'
             }

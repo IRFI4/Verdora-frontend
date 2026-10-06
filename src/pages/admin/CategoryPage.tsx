@@ -55,7 +55,7 @@ const AdminCategoriesPage = () => {
     <AdminLayout>
       <AdminSectionHeader
         title="Categories"
-        count={items?.length}
+        count={Array.isArray(items) ? items.length : 0}
         description="Manage how products are organized in your catalog."
       >
         <Button
@@ -79,7 +79,7 @@ const AdminCategoriesPage = () => {
             message={error?.response?.data?.message || 'Failed to load'}
             onRetry={() => refetch()}
           />
-        ) : !items || items.length === 0 ? (
+        ) : !Array.isArray(items) || items.length === 0 ? (
           <EmptySection
             title="No categories yet"
             description="Create your first category to start organizing products."
