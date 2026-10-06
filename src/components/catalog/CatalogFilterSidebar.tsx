@@ -139,7 +139,7 @@ const CatalogFilterSidebar = ({
                   </button>
                 )}
               </div>
-            ) : categories.length > 0 ? (
+            ) : Array.isArray(categories) && categories.length > 0 ? (
               categories.map(category => {
                 const catId = Number(category.categoryId);
                 const isChecked = selectedCategoryId === catId;
