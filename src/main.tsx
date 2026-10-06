@@ -23,10 +23,10 @@ import ProductManagement from '@pages/admin/ProductManagement';
 import Checkout from '@pages/Checkout';
 import OrderResult from '@pages/OrderResult';
 import ProductDetails from '@pages/ProductDetails';
+import Favorites from '@pages/Favorites';
 import ScrollToTop from '@components/common/ScrollToTop';
 import { fetchMe } from '@api/auth/auth.actions';
 import Profile from '@pages/Profile';
-import Favourites from '@pages/Favourites';
 
 store.dispatch(fetchMe());
 
@@ -51,18 +51,7 @@ createRoot(document.getElementById('root')!).render(
               path="/sales"
               element={<Navigate to="/catalog?discount=true" replace />}
             />
-            <Route
-              path="/favourites"
-              element={
-                <ProtectedRoute requireAuth={true}>
-                  <Favourites />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/favorites"
-              element={<Navigate to="/favourites" replace />}
-            />
+
             <Route path="/products/:id" element={<ProductDetails />} />
             <Route
               path="/login"
@@ -98,13 +87,14 @@ createRoot(document.getElementById('root')!).render(
             />
             <Route path="/cart" element={<Cart />} />
             <Route
-              path="/checkout"
+              path="/Favorites"
               element={
                 <ProtectedRoute requireAuth={true}>
-                  <Checkout />
+                  <Favorites />
                 </ProtectedRoute>
               }
             />
+            <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-result" element={<OrderResult />} />
             <Route
               path="/profile"

@@ -84,7 +84,7 @@ export const Breadcrumbs = ({ items, root, className }: BreadcrumbsProps) => {
   }
 
   return (
-    <Breadcrumb className={className}>
+    <Breadcrumb className={`${className}, mt-3`}>
       <BreadcrumbList>
         {resolvedItems.map((item, index) => {
           const isLast = index === resolvedItems.length - 1;
