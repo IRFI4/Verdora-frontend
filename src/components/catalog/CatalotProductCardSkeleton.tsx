@@ -1,22 +1,30 @@
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
+type Props = {
+  viewMode: 'grid' | 'list';
+  count?: number;
+  // Overrides the default wrapper layout, e.g. to match a different grid.
+  className?: string;
+};
+
 const CatalogProductCardSkeleton = ({
   viewMode,
-}: {
-  viewMode: 'grid' | 'list';
-}) => {
+  count = 6,
+  className,
+}: Props) => {
   const isGrid = viewMode === 'grid';
 
   return (
     <div
       className={
-        isGrid
+        className ??
+        (isGrid
           ? 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5'
-          : 'flex flex-col gap-4'
+          : 'flex flex-col gap-4')
       }
     >
-      {Array.from({ length: 6 }).map((_, i) => (
+      {Array.from({ length: count }).map((_, i) => (
         <Card
           key={i}
           className={`border border-border bg-[#fcfdfb] rounded-[22px] overflow-hidden p-4 shadow-xs ${
